@@ -1,0 +1,270 @@
+/* ============================================================
+   KonveksiPro UI Framework — kpro-core.css
+   Core variables, reset, typography, grid system
+   ============================================================ */
+
+/* ── Design Tokens ──────────────────────────────────────── */
+:root {
+  /* Brand Colors */
+  --kpro-blue-50:  #E8F2FD;
+  --kpro-blue-100: #C2D9F9;
+  --kpro-blue-200: #85B3F3;
+  --kpro-blue-500: #2563EB;
+  --kpro-blue-600: #1D4ED8;
+  --kpro-blue-700: #1E40AF;
+
+  --kpro-slate-50:  #F8FAFC;
+  --kpro-slate-100: #F1F5F9;
+  --kpro-slate-200: #E2E8F0;
+  --kpro-slate-300: #CBD5E1;
+  --kpro-slate-400: #94A3B8;
+  --kpro-slate-500: #64748B;
+  --kpro-slate-600: #475569;
+  --kpro-slate-700: #334155;
+  --kpro-slate-800: #1E293B;
+  --kpro-slate-900: #0F172A;
+
+  --kpro-green-50:  #F0FDF4;
+  --kpro-green-100: #DCFCE7;
+  --kpro-green-500: #22C55E;
+  --kpro-green-600: #16A34A;
+  --kpro-green-700: #15803D;
+
+  --kpro-amber-50:  #FFFBEB;
+  --kpro-amber-100: #FEF3C7;
+  --kpro-amber-500: #F59E0B;
+  --kpro-amber-600: #D97706;
+  --kpro-amber-700: #B45309;
+
+  --kpro-red-50:  #FFF1F2;
+  --kpro-red-100: #FFE4E6;
+  --kpro-red-500: #EF4444;
+  --kpro-red-600: #DC2626;
+  --kpro-red-700: #B91C1C;
+
+  /* Semantic Aliases */
+  --kpro-primary:       var(--kpro-blue-500);
+  --kpro-primary-hover: var(--kpro-blue-600);
+  --kpro-primary-dark:  var(--kpro-blue-700);
+
+  --kpro-success:       var(--kpro-green-500);
+  --kpro-success-bg:    var(--kpro-green-50);
+  --kpro-success-text:  var(--kpro-green-700);
+
+  --kpro-warning:       var(--kpro-amber-500);
+  --kpro-warning-bg:    var(--kpro-amber-50);
+  --kpro-warning-text:  var(--kpro-amber-700);
+
+  --kpro-danger:        var(--kpro-red-500);
+  --kpro-danger-bg:     var(--kpro-red-50);
+  --kpro-danger-text:   var(--kpro-red-700);
+
+  --kpro-info:          var(--kpro-blue-500);
+  --kpro-info-bg:       var(--kpro-blue-50);
+  --kpro-info-text:     var(--kpro-blue-700);
+
+  /* Surface & Background */
+  --kpro-bg-body:       var(--kpro-slate-100);
+  --kpro-bg-surface:    #FFFFFF;
+  --kpro-bg-muted:      var(--kpro-slate-50);
+  --kpro-bg-sidebar:    #FFFFFF;
+  --kpro-bg-topbar:     #FFFFFF;
+
+  /* Text */
+  --kpro-text-base:     var(--kpro-slate-800);
+  --kpro-text-muted:    var(--kpro-slate-500);
+  --kpro-text-subtle:   var(--kpro-slate-400);
+  --kpro-text-inverse:  #FFFFFF;
+
+  /* Border */
+  --kpro-border:        var(--kpro-slate-200);
+  --kpro-border-strong: var(--kpro-slate-300);
+
+  /* Spacing Scale */
+  --kpro-space-1:  4px;
+  --kpro-space-2:  8px;
+  --kpro-space-3:  12px;
+  --kpro-space-4:  16px;
+  --kpro-space-5:  20px;
+  --kpro-space-6:  24px;
+  --kpro-space-8:  32px;
+  --kpro-space-10: 40px;
+
+  /* Border Radius */
+  --kpro-radius-sm: 4px;
+  --kpro-radius-md: 8px;
+  --kpro-radius-lg: 12px;
+  --kpro-radius-xl: 16px;
+  --kpro-radius-full: 9999px;
+
+  /* Shadow */
+  --kpro-shadow-xs: 0 1px 2px rgba(15,23,42,0.05);
+  --kpro-shadow-sm: 0 2px 4px rgba(15,23,42,0.07);
+  --kpro-shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+  --kpro-shadow-lg: 0 8px 24px rgba(15,23,42,0.10);
+
+  /* Typography */
+  --kpro-font-sans:  'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --kpro-font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+  --kpro-font-size-xs:  12px;
+  --kpro-font-size-sm:  13px;
+  --kpro-font-size-md:  14px;
+  --kpro-font-size-lg:  16px;
+  --kpro-font-size-xl:  18px;
+  --kpro-font-size-2xl: 22px;
+  --kpro-font-size-3xl: 28px;
+
+  /* Layout */
+  --kpro-sidebar-width: 220px;
+  --kpro-topbar-height: 56px;
+
+  /* Transition */
+  --kpro-transition: all 0.18s ease;
+  --kpro-transition-fast: all 0.1s ease;
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { font-size: 14px; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--kpro-font-sans);
+  font-size: var(--kpro-font-size-md);
+  color: var(--kpro-text-base);
+  background: var(--kpro-bg-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--kpro-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img, svg { display: block; max-width: 100%; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ── Typography ─────────────────────────────────────────── */
+h1, .kpro-h1 { font-size: var(--kpro-font-size-3xl); font-weight: 700; line-height: 1.2; color: var(--kpro-text-base); }
+h2, .kpro-h2 { font-size: var(--kpro-font-size-2xl); font-weight: 600; line-height: 1.3; color: var(--kpro-text-base); }
+h3, .kpro-h3 { font-size: var(--kpro-font-size-xl);  font-weight: 600; line-height: 1.4; color: var(--kpro-text-base); }
+h4, .kpro-h4 { font-size: var(--kpro-font-size-lg);  font-weight: 600; line-height: 1.4; color: var(--kpro-text-base); }
+h5, .kpro-h5 { font-size: var(--kpro-font-size-md);  font-weight: 600; line-height: 1.5; color: var(--kpro-text-base); }
+
+.kpro-text-sm    { font-size: var(--kpro-font-size-sm); }
+.kpro-text-xs    { font-size: var(--kpro-font-size-xs); }
+.kpro-text-muted { color: var(--kpro-text-muted); }
+.kpro-text-subtle{ color: var(--kpro-text-subtle); }
+.kpro-fw-500     { font-weight: 500; }
+.kpro-fw-600     { font-weight: 600; }
+
+/* ── Grid System ─────────────────────────────────────────── */
+.kpro-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--kpro-space-5);
+}
+
+.kpro-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kpro-space-4);
+}
+
+.kpro-col    { flex: 1; min-width: 0; }
+.kpro-col-1  { flex: 0 0 calc(8.333% - var(--kpro-space-4)); }
+.kpro-col-2  { flex: 0 0 calc(16.666% - var(--kpro-space-4)); }
+.kpro-col-3  { flex: 0 0 calc(25% - var(--kpro-space-4)); }
+.kpro-col-4  { flex: 0 0 calc(33.333% - var(--kpro-space-4)); }
+.kpro-col-5  { flex: 0 0 calc(41.666% - var(--kpro-space-4)); }
+.kpro-col-6  { flex: 0 0 calc(50% - var(--kpro-space-4)/2); }
+.kpro-col-7  { flex: 0 0 calc(58.333% - var(--kpro-space-4)); }
+.kpro-col-8  { flex: 0 0 calc(66.666% - var(--kpro-space-4)/3); }
+.kpro-col-9  { flex: 0 0 calc(75% - var(--kpro-space-4)); }
+.kpro-col-10 { flex: 0 0 calc(83.333% - var(--kpro-space-4)); }
+.kpro-col-11 { flex: 0 0 calc(91.666% - var(--kpro-space-4)); }
+.kpro-col-12 { flex: 0 0 100%; }
+
+/* ── Utilities ───────────────────────────────────────────── */
+.kpro-d-flex       { display: flex; }
+.kpro-d-grid       { display: grid; }
+.kpro-d-none       { display: none; }
+.kpro-d-block      { display: block; }
+.kpro-align-center { align-items: center; }
+.kpro-align-start  { align-items: flex-start; }
+.kpro-justify-between { justify-content: space-between; }
+.kpro-justify-center  { justify-content: center; }
+.kpro-justify-end     { justify-content: flex-end; }
+.kpro-flex-wrap    { flex-wrap: wrap; }
+.kpro-gap-1 { gap: var(--kpro-space-1); }
+.kpro-gap-2 { gap: var(--kpro-space-2); }
+.kpro-gap-3 { gap: var(--kpro-space-3); }
+.kpro-gap-4 { gap: var(--kpro-space-4); }
+.kpro-gap-5 { gap: var(--kpro-space-5); }
+.kpro-gap-6 { gap: var(--kpro-space-6); }
+
+.kpro-p-0  { padding: 0; }
+.kpro-p-2  { padding: var(--kpro-space-2); }
+.kpro-p-3  { padding: var(--kpro-space-3); }
+.kpro-p-4  { padding: var(--kpro-space-4); }
+.kpro-p-5  { padding: var(--kpro-space-5); }
+.kpro-p-6  { padding: var(--kpro-space-6); }
+.kpro-pt-4 { padding-top: var(--kpro-space-4); }
+.kpro-pb-4 { padding-bottom: var(--kpro-space-4); }
+.kpro-px-4 { padding-left: var(--kpro-space-4); padding-right: var(--kpro-space-4); }
+.kpro-py-4 { padding-top: var(--kpro-space-4); padding-bottom: var(--kpro-space-4); }
+
+.kpro-m-0  { margin: 0; }
+.kpro-mb-2 { margin-bottom: var(--kpro-space-2); }
+.kpro-mb-3 { margin-bottom: var(--kpro-space-3); }
+.kpro-mb-4 { margin-bottom: var(--kpro-space-4); }
+.kpro-mb-5 { margin-bottom: var(--kpro-space-5); }
+.kpro-mb-6 { margin-bottom: var(--kpro-space-6); }
+.kpro-mt-4 { margin-top: var(--kpro-space-4); }
+.kpro-mt-5 { margin-top: var(--kpro-space-5); }
+.kpro-ml-auto { margin-left: auto; }
+.kpro-mr-auto { margin-right: auto; }
+
+.kpro-w-full { width: 100%; }
+.kpro-h-full { height: 100%; }
+
+.kpro-text-center { text-align: center; }
+.kpro-text-right  { text-align: right; }
+.kpro-text-left   { text-align: left; }
+
+.kpro-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kpro-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--kpro-border);
+  margin: var(--kpro-space-4) 0;
+}
+
+/* ── Stat Grid ───────────────────────────────────────────── */
+.kpro-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--kpro-space-4);
+}
+
+
+
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--kpro-slate-300); border-radius: var(--kpro-radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--kpro-slate-400); }

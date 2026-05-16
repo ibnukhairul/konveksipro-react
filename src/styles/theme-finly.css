@@ -1,0 +1,440 @@
+/* ============================================================
+   THEME: FINLY STYLE (Light Mode)
+   ============================================================ */
+
+:root {
+  /* Brand Colors - Fresh & Modern */
+  --kpro-primary: #2469F0;
+  --kpro-primary-hover: #1a56d4;
+  --kpro-primary-dark: #0e3b8f;
+  
+  /* Success, Warning, Danger */
+  --kpro-success: #10B981;
+  --kpro-success-bg: #D1FAE5;
+  --kpro-success-text: #047857;
+  
+  --kpro-warning: #F59E0B;
+  --kpro-warning-bg: #FEF3C7;
+  --kpro-warning-text: #B45309;
+  
+  --kpro-danger: #EF4444;
+  --kpro-danger-bg: #FEE2E2;
+  --kpro-danger-text: #B91C1C;
+  
+  --kpro-info: #3B82F6;
+  --kpro-info-bg: #DBEAFE;
+  --kpro-info-text: #1E40AF;
+  
+  /* Background & Surface */
+  --kpro-bg-body: #F5F7FA;
+  --kpro-bg-surface: #FFFFFF;
+  --kpro-bg-muted: #F8FAFC;
+  --kpro-bg-sidebar: #FFFFFF;
+  --kpro-bg-topbar: #FFFFFF;
+  
+  /* Text Colors */
+  --kpro-text-base: #1E293B;
+  --kpro-text-muted: #64748B;
+  --kpro-text-subtle: #94A3B8;
+  --kpro-text-inverse: #FFFFFF;
+  
+  /* Border */
+  --kpro-border: #E2E8F0;
+  --kpro-border-strong: #CBD5E1;
+  
+  /* Shadows */
+  --kpro-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --kpro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --kpro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --kpro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  
+  /* Border Radius */
+  --kpro-radius-sm: 6px;
+  --kpro-radius-md: 10px;
+  --kpro-radius-lg: 14px;
+  --kpro-radius-xl: 18px;
+  --kpro-radius-full: 9999px;
+  
+  /* Transitions */
+  --kpro-transition: all 0.2s ease;
+  --kpro-transition-fast: all 0.1s ease;
+}
+
+/* ========== LAYOUT ========== */
+.kpro-sidebar {
+  background: var(--kpro-bg-surface);
+  border-right: 1px solid var(--kpro-border);
+  box-shadow: none;
+}
+
+.kpro-sidebar-logo {
+  padding: 20px 24px;
+}
+
+.kpro-sidebar-logo-icon {
+  background: linear-gradient(135deg, #2469F0 0%, #1a56d4 100%);
+  border-radius: 12px;
+}
+
+.kpro-sidebar-logo-name {
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1E293B 0%, #2469F0 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.kpro-nav-item {
+  margin: 4px 12px;
+  border-radius: 12px;
+  padding: 10px 16px;
+  transition: all 0.2s ease;
+}
+
+.kpro-nav-item:hover {
+  background: #F1F5F9;
+}
+
+.kpro-nav-item.is-active {
+  background: #EFF6FF;
+  border-left: none;
+  color: var(--kpro-primary);
+}
+
+.kpro-nav-item.is-active .kpro-nav-icon {
+  color: var(--kpro-primary);
+}
+
+/* ========== TOPBAR ========== */
+.kpro-topbar {
+  background: var(--kpro-bg-topbar);
+  border-bottom: 1px solid var(--kpro-border);
+  box-shadow: none;
+  backdrop-filter: blur(0px);
+}
+
+.kpro-topbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--kpro-text-base);
+}
+
+.kpro-notif-btn {
+  background: #F1F5F9;
+  border: none;
+  border-radius: 40px;
+  width: 40px;
+  height: 40px;
+  transition: all 0.2s ease;
+}
+
+.kpro-notif-btn:hover {
+  background: #E2E8F0;
+}
+
+/* ========== BUTTONS ========== */
+.kpro-btn {
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.kpro-btn-primary {
+  background: var(--kpro-primary);
+  border: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.kpro-btn-primary:hover {
+  background: var(--kpro-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(36, 105, 240, 0.2);
+}
+
+.kpro-btn-secondary {
+  background: #F1F5F9;
+  border: none;
+  color: var(--kpro-text-base);
+}
+
+.kpro-btn-secondary:hover {
+  background: #E2E8F0;
+}
+
+.kpro-btn-ghost {
+  background: transparent;
+}
+
+.kpro-btn-ghost:hover {
+  background: #F1F5F9;
+}
+
+/* ========== CARDS ========== */
+.kpro-card {
+  background: var(--kpro-bg-surface);
+  border: 1px solid var(--kpro-border);
+  border-radius: 20px;
+  box-shadow: var(--kpro-shadow-sm);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.kpro-card:hover {
+  box-shadow: var(--kpro-shadow-md);
+}
+
+.kpro-card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--kpro-border);
+}
+
+.kpro-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--kpro-text-base);
+}
+
+.kpro-card-body {
+  padding: 20px 24px;
+}
+
+/* ========== STAT CARDS (Dashboard) ========== */
+.kpro-stat-card {
+  background: var(--kpro-bg-surface);
+  border: 1px solid var(--kpro-border);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.kpro-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--kpro-shadow-md);
+}
+
+.kpro-stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--kpro-text-muted);
+}
+
+.kpro-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--kpro-text-base);
+  line-height: 1.2;
+  margin: 8px 0 4px;
+}
+
+/* ========== TABLES ========== */
+.kpro-table-wrap {
+  border-radius: 16px;
+  border: 1px solid var(--kpro-border);
+}
+
+.kpro-table {
+  font-size: 14px;
+}
+
+.kpro-table thead tr {
+  background: #F8FAFC;
+  border-bottom: 1px solid var(--kpro-border);
+}
+
+.kpro-table thead th {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--kpro-text-muted);
+}
+
+.kpro-table tbody tr {
+  border-bottom: 1px solid var(--kpro-border);
+  transition: background 0.2s ease;
+}
+
+.kpro-table tbody tr:hover {
+  background: #F8FAFC;
+}
+
+.kpro-table tbody td {
+  padding: 14px 16px;
+  color: var(--kpro-text-base);
+}
+
+/* ========== FORMS ========== */
+.kpro-input, .kpro-select, .kpro-textarea {
+  border: 1px solid var(--kpro-border-strong);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.kpro-input:focus, .kpro-select:focus, .kpro-textarea:focus {
+  border-color: var(--kpro-primary);
+  box-shadow: 0 0 0 3px rgba(36, 105, 240, 0.1);
+}
+
+.kpro-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--kpro-text-base);
+}
+
+/* ========== BADGES ========== */
+.kpro-badge {
+  border-radius: 40px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.kpro-badge-success {
+  background: var(--kpro-success-bg);
+  color: var(--kpro-success-text);
+}
+
+.kpro-badge-warning {
+  background: var(--kpro-warning-bg);
+  color: var(--kpro-warning-text);
+}
+
+.kpro-badge-danger {
+  background: var(--kpro-danger-bg);
+  color: var(--kpro-danger-text);
+}
+
+.kpro-badge-info {
+  background: var(--kpro-info-bg);
+  color: var(--kpro-info-text);
+}
+
+.kpro-badge-gray {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+/* ========== MODALS ========== */
+.kpro-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.kpro-modal {
+  border-radius: 24px;
+  box-shadow: var(--kpro-shadow-lg);
+}
+
+.kpro-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--kpro-border);
+}
+
+.kpro-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.kpro-modal-body {
+  padding: 20px 24px;
+}
+
+.kpro-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--kpro-border);
+}
+
+/* ========== PRICE LIST SPECIFIC ========== */
+.pl-tab {
+  border-radius: 40px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.pl-tab.active {
+  background: var(--kpro-primary);
+  color: white;
+}
+
+.pl-product-card {
+  border-radius: 16px;
+  background: white;
+  border: 1px solid var(--kpro-border);
+  transition: all 0.2s ease;
+}
+
+.pl-product-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--kpro-primary);
+  box-shadow: var(--kpro-shadow-md);
+}
+
+.pl-add-icon {
+  background: var(--kpro-primary);
+}
+
+/* ========== TOAST ========== */
+#kpro-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kpro-toast {
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: 500;
+  box-shadow: var(--kpro-shadow-lg);
+  backdrop-filter: blur(8px);
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kpro-page.is-active {
+  animation: fadeIn 0.3s ease forwards;
+}

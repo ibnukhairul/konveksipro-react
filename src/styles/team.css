@@ -1,0 +1,333 @@
+/* ============================================================
+   TEAM PAGE - KHUSUS UNTUK HALAMAN TEAM SAJA
+   ============================================================ */
+
+/* Pastikan CSS ini hanya berlaku saat halaman team ACTIVE */
+#page-team.is-active {
+  display: block !important;
+}
+
+/* Card styling untuk halaman team - hanya saat active */
+#page-team.is-active .kpro-card {
+  overflow-x: auto;
+}
+
+/* Table wrapper untuk scrolling - hanya saat active */
+#page-team.is-active .kpro-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table styling base - hanya untuk team table saat active */
+#page-team.is-active #team-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 300px;
+}
+
+/* Desktop: tampilan tabel normal - hanya saat active */
+@media (min-width: 769px) {
+  #page-team.is-active #team-table {
+    min-width: 100%;
+  }
+
+  #page-team.is-active #team-table thead {
+    display: table-header-group;
+  }
+
+  #page-team.is-active #team-table thead th {
+    padding: 12px 16px;
+    background: var(--kpro-slate-50);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--kpro-text-muted);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--kpro-border);
+  }
+
+  #page-team.is-active #team-table tbody tr {
+    border-bottom: 1px solid var(--kpro-border);
+    transition: background 0.2s;
+  }
+
+  #page-team.is-active #team-table tbody tr:hover {
+    background: var(--kpro-slate-50);
+  }
+
+  #page-team.is-active #team-table tbody td {
+    padding: 12px 16px;
+    white-space: nowrap;
+  }
+
+  /* Sembunyikan label pseudo-element di desktop */
+  #page-team.is-active #team-table td::before {
+    display: none !important;
+  }
+}
+
+/* Mobile: tampilan card - HANYA saat halaman team active */
+@media (max-width: 768px) {
+  #page-team.is-active .kpro-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Sembunyikan header tabel di mobile */
+  #page-team.is-active #team-table thead {
+    display: none !important;
+  }
+
+  /* Setiap baris menjadi card */
+  #page-team.is-active #team-table tbody tr {
+    display: block !important;
+    margin-bottom: 16px;
+    border: 1px solid var(--kpro-border);
+    border-radius: 12px;
+    background: var(--kpro-bg-surface);
+    padding: 12px;
+    box-shadow: var(--kpro-shadow-xs);
+  }
+
+  /* Setiap cell menjadi baris flex */
+  #page-team.is-active #team-table tbody td {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--kpro-border);
+    font-size: 13px;
+    gap: 12px;
+  }
+
+  /* Hapus border-bottom di cell terakhir */
+  #page-team.is-active #team-table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  /* Label untuk setiap field (pseudo-element) */
+  #page-team.is-active #team-table tbody td::before {
+    content: attr(data-label);
+    display: block !important;
+    font-weight: 600;
+    color: var(--kpro-text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+
+  /* Specific styling untuk kolom aksi (button) */
+  #page-team.is-active #team-table tbody td:last-child {
+    display: flex !important;
+    justify-content: flex-end;
+    padding-top: 12px;
+    padding-bottom: 4px;
+  }
+
+  #page-team.is-active #team-table tbody td:last-child::before {
+    content: 'AKSI' !important;
+  }
+
+  /* Styling untuk tombol di mobile */
+  #page-team.is-active #team-table .kpro-btn-sm,
+  #page-team.is-active .team-delete-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Action buttons wrapper */
+  #page-team.is-active #team-table td:last-child .kpro-d-flex {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    width: 100%;
+  }
+}
+
+/* Extra small devices (di bawah 480px) - HANYA saat active */
+@media (max-width: 480px) {
+  #page-team.is-active #team-table tbody td {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  #page-team.is-active #team-table tbody td::before {
+    margin-bottom: 4px;
+    min-width: auto;
+  }
+
+  #page-team.is-active #team-table tbody td:last-child {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #page-team.is-active #team-table tbody td:last-child::before {
+    margin-bottom: 0;
+  }
+
+  /* Tombol di extra small */
+  #page-team.is-active #team-table .kpro-btn-sm,
+  #page-team.is-active .team-delete-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+/* User info styling - HANYA saat active */
+#page-team.is-active .team-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+#page-team.is-active .team-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--kpro-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+#page-team.is-active .team-user-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Search bar styling - HANYA saat active */
+@media (max-width: 768px) {
+  #page-team.is-active .kpro-card:first-child .kpro-d-flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #page-team.is-active #search-team {
+    width: 100% !important;
+  }
+
+  #page-team.is-active #team-total-count {
+    text-align: center;
+    display: inline-block;
+    width: auto;
+  }
+}
+
+/* Role badges khusus untuk halaman team */
+#page-team.is-active .team-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+#page-team.is-active .team-role-badge-owner {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+#page-team.is-active .team-role-badge-developer {
+  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+#page-team.is-active .team-role-badge-team {
+  background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+/* Animasi hover untuk card di mobile - HANYA saat active */
+@media (max-width: 768px) {
+  #page-team.is-active #team-table tbody tr {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #page-team.is-active #team-table tbody tr:active {
+    transform: scale(0.99);
+    box-shadow: var(--kpro-shadow-sm);
+  }
+}
+
+/* Current user highlight - HANYA saat active */
+#page-team.is-active #team-table tbody tr.team-current-user {
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border-left: 3px solid var(--kpro-primary);
+}
+
+/* Team stats - HANYA saat active */
+#page-team.is-active .team-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#page-team.is-active .team-total-badge {
+  background: linear-gradient(135deg, var(--kpro-primary) 0%, var(--kpro-primary-hover) 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Tombol delete khusus team */
+#page-team.is-active .team-delete-btn {
+  background: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #DC2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#page-team.is-active .team-delete-btn:hover {
+  background: #DC2626;
+  color: white;
+  border-color: #DC2626;
+  transform: translateY(-1px);
+}
+
+/* Tombol warning dan success */
+#page-team.is-active .kpro-btn-warning {
+  background: #F59E0B;
+  color: white;
+  border: none;
+}
+
+#page-team.is-active .kpro-btn-warning:hover {
+  background: #D97706;
+}
+
+#page-team.is-active .kpro-btn-success {
+  background: #22C55E;
+  color: white;
+  border: none;
+}
+
+#page-team.is-active .kpro-btn-success:hover {
+  background: #16A34A;
+}
