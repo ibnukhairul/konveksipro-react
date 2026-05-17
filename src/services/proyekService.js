@@ -1,10 +1,10 @@
 import { supabase } from './supabase'
 
 export const proyekService = {
-  // Ambil semua proyek (untuk tabel list)
+  // Ambil semua proyek
   async getAll(filter = {}) {
     let query = supabase.from('proyek').select('*')
-    
+
     if (filter.status_bayar && filter.status_bayar !== '') {
       query = query.eq('status_bayar', filter.status_bayar)
     }
@@ -14,7 +14,7 @@ export const proyekService = {
     if (filter.search && filter.search.trim() !== '') {
       query = query.ilike('nama_client', `%${filter.search}%`)
     }
-    
+
     const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
     return data || []
@@ -61,6 +61,7 @@ export const proyekService = {
       status_produksi: payload.status_produksi || 'antri',
       catatan: payload.catatan || '',
       nota_number: payload.nota_number || null,
+      brand: payload.brand || 'SERAGAMAN',  // ← BRAND DI SINI
       owner_id: ownerId,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -76,11 +77,10 @@ export const proyekService = {
     if (produkList && produkList.length > 0) {
       const produkWithId = produkList.map(p => ({
         proyek_id: proyekBaru.id,
-        brand: p.brand,
         nama_produk: p.nama_produk,
         jumlah_pcs: p.jumlah_pcs,
         harga_satuan: p.harga_satuan,
-        subtotal: p.jumlah_pcs * p.harga_satuan,
+        subtotal: (p.jumlah_pcs || 0) * (p.harga_satuan || 0),
         keterangan: p.keterangan || null
       }))
       const { error: produkError } = await supabase.from('proyek_produk').insert(produkWithId)
@@ -90,13 +90,12 @@ export const proyekService = {
     return proyekBaru
   },
 
-  // Update proyek (termasuk produk)
+  // Update proyek
   async update(id, updates, produkList) {
-    // Update tabel proyek
     const allowedFields = [
       'nama_client', 'no_wa', 'tanggal_order', 'sumber_info',
       'instansi', 'organisasi', 'jabatan', 'nama_proyek',
-      'total_harga', 'dp_dibayar', 'status_bayar', 'status_produksi', 'catatan'
+      'total_harga', 'dp_dibayar', 'status_bayar', 'status_produksi', 'catatan', 'brand'
     ]
     const cleanUpdates = {}
     for (const key of allowedFields) {
@@ -110,17 +109,15 @@ export const proyekService = {
       .eq('id', id)
     if (updateError) throw updateError
 
-    // Update produk: hapus semua, insert ulang
     if (produkList !== undefined) {
       await supabase.from('proyek_produk').delete().eq('proyek_id', id)
       if (produkList.length > 0) {
         const produkBaru = produkList.map(p => ({
           proyek_id: id,
-          brand: p.brand,
           nama_produk: p.nama_produk,
           jumlah_pcs: p.jumlah_pcs,
           harga_satuan: p.harga_satuan,
-          subtotal: p.jumlah_pcs * p.harga_satuan,
+          subtotal: (p.jumlah_pcs || 0) * (p.harga_satuan || 0),
           keterangan: p.keterangan || null
         }))
         const { error: produkError } = await supabase.from('proyek_produk').insert(produkBaru)
@@ -128,7 +125,6 @@ export const proyekService = {
       }
     }
 
-    // Ambil data terbaru
     const { data: updated } = await supabase.from('proyek').select('*').eq('id', id).single()
     return updated
   },

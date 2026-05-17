@@ -1,20 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProyek } from '../hooks/useProyek'
 import ProyekTable from '../components/proyek/ProyekTable'
 import { proyekService } from '../services/proyekService'
+import { exportService } from '../services/exportService'
+import { useToast } from '../hooks/useToast'  // ← TAMBAHKAN INI
 
 const formatRupiah = (num) => `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
 
 export default function ProyekPage() {
   const { proyek, loading, refresh, setSearch, setStatusBayar, setStatusProduksi, resetFilters, sortField, sortOrder, sort } = useProyek()
+  const toast = useToast()  // ← TAMBAHKAN INI
   const [modalTambah, setModalTambah] = useState(false)
+  const [exporting, setExporting] = useState(false)  // ← TAMBAHKAN INI
   const [form, setForm] = useState({
     nama_client: '', no_wa: '', tanggal_order: new Date().toISOString().split('T')[0],
     sumber_info: '', instansi: '', organisasi: '', jabatan: '',
     nama_proyek: '', brand: 'SERAGAMAN', status_bayar: 'belum_dp', catatan: ''
   })
-  const [produkList, setProdukList] = useState([{ id: Date.now(), nama_produk: '', jumlah_pcs: 0, harga_satuan: 0, subtotal: 0, brand: 'SERAGAMAN' }])
+  const [produkList, setProdukList] = useState([{ id: Date.now(), nama_produk: '', jumlah_pcs: 0, harga_satuan: 0, subtotal: 0 }])
   const [dpDibayar, setDpDibayar] = useState(0)
+
+  // 🔥 UPDATE BRAND SEMUA PRODUK SAAT FORM BRAND BERUBAH
+  useEffect(() => {
+    setProdukList(prev => prev.map(p => ({ ...p, brand: form.brand })))
+  }, [form.brand])
 
   const hitungTotalHarga = (list) => list.reduce((sum, p) => sum + (p.jumlah_pcs * p.harga_satuan), 0)
 
@@ -61,7 +70,6 @@ export default function ProyekPage() {
       newList[idx][field] = value
     }
     setProdukList(newList)
-    // Update status bayar jika total berubah dan DP sudah ada
     const totalBaru = hitungTotalHarga(newList)
     if (dpDibayar > 0) {
       const newStatus = getStatusBayarFromDp(dpDibayar, totalBaru)
@@ -69,8 +77,44 @@ export default function ProyekPage() {
     }
   }
 
+  const handleExportExcel = async () => {
+    if (proyek.length === 0) {
+      toast.warning('Tidak ada data proyek untuk diexport')
+      return
+    }
+    
+    setExporting(true)
+    try {
+      const allProyek = await proyekService.getAll({})
+      exportService.exportProyekToExcel(allProyek, 'laporan_proyek')
+      toast.success(`Berhasil mengeksport ${allProyek.length} data proyek`)
+    } catch (err) {
+      toast.error('Gagal export: ' + err.message)
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const resetForm = () => {
+    setForm({
+      nama_client: '',
+      no_wa: '',
+      tanggal_order: new Date().toISOString().split('T')[0],
+      sumber_info: '',
+      instansi: '',
+      organisasi: '',
+      jabatan: '',
+      nama_proyek: '',
+      brand: 'SERAGAMAN',
+      status_bayar: 'belum_dp',
+      catatan: ''
+    })
+    setProdukList([{ id: Date.now(), nama_produk: '', jumlah_pcs: 0, harga_satuan: 0, subtotal: 0 }])
+    setDpDibayar(0)
+  }
+
   const tambahProduk = () => {
-    setProdukList([...produkList, { id: Date.now(), nama_produk: '', jumlah_pcs: 0, harga_satuan: 0, subtotal: 0, brand: form.brand }])
+    setProdukList([...produkList, { id: Date.now(), nama_produk: '', jumlah_pcs: 0, harga_satuan: 0, subtotal: 0 }])
   }
 
   const hapusProduk = (idx) => {
@@ -90,33 +134,34 @@ export default function ProyekPage() {
     if (produkList.some(p => !p.nama_produk || p.jumlah_pcs <= 0 || p.harga_satuan <= 0)) {
       return alert('Semua produk harus diisi lengkap dengan jumlah dan harga > 0')
     }
+
     const totalHarga = hitungTotalHarga(produkList)
     let statusBayar = form.status_bayar
-    // Pastikan status bayar konsisten dengan DP
-    const calculatedStatus = getStatusBayarFromDp(dpDibayar, totalHarga)
-    if (calculatedStatus !== statusBayar) statusBayar = calculatedStatus
+    if (dpDibayar >= totalHarga) statusBayar = 'lunas'
+    else if (dpDibayar >= totalHarga * 0.5) statusBayar = 'dp_50'
+    else if (dpDibayar >= totalHarga * 0.3) statusBayar = 'dp_30'
+    else statusBayar = 'belum_dp'
 
     const notaNumber = `INV-${Date.now()}`
+
     try {
       await proyekService.buat({
         ...form,
         total_harga: totalHarga,
         dp_dibayar: dpDibayar,
         status_bayar: statusBayar,
-        nota_number: notaNumber
+        nota_number: notaNumber,
+        brand: form.brand
       }, produkList.map(p => ({
-        brand: p.brand || form.brand,
         nama_produk: p.nama_produk,
         jumlah_pcs: p.jumlah_pcs,
         harga_satuan: p.harga_satuan
       })))
+
       alert('Proyek berhasil ditambahkan')
       setModalTambah(false)
       refresh()
-      // Reset form
-      setForm({ nama_client: '', no_wa: '', tanggal_order: new Date().toISOString().split('T')[0], sumber_info: '', instansi: '', organisasi: '', jabatan: '', nama_proyek: '', brand: 'SERAGAMAN', status_bayar: 'belum_dp', catatan: '' })
-      setProdukList([{ id: Date.now(), nama_produk: '', jumlah_pcs: 0, harga_satuan: 0, subtotal: 0, brand: 'SERAGAMAN' }])
-      setDpDibayar(0)
+      resetForm()
     } catch (err) {
       alert('Gagal simpan: ' + err.message)
     }
@@ -127,7 +172,13 @@ export default function ProyekPage() {
       <div className="kpro-page-header">
         <div><h2 className="kpro-page-title">Manajemen Proyek</h2><p className="kpro-page-subtitle">Semua order & pesanan client</p></div>
         <div className="kpro-page-actions">
-          <button className="kpro-btn kpro-btn-secondary" onClick={() => alert('Fitur export akan segera hadir')}>📊 Export ke Excel</button>
+          <button 
+            className="kpro-btn kpro-btn-secondary" 
+            onClick={handleExportExcel} 
+            disabled={exporting}
+          >
+            {exporting ? '⏳ Mengexport...' : '📊 Export ke Excel'}
+          </button>
           <button className="kpro-btn kpro-btn-primary" onClick={() => setModalTambah(true)}>+ Tambah Proyek</button>
         </div>
       </div>
@@ -175,13 +226,13 @@ export default function ProyekPage() {
             <div className="kpro-modal-body">
               {/* Client info */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">👤 Informasi Client</div><div className="kpro-card-body">
-                <div className="kpro-form-group"><label>Nama Client *</label><input className="kpro-input" value={form.nama_client} onChange={e => setForm({...form, nama_client: e.target.value})} /></div>
-                <div className="kpro-form-row"><div className="kpro-form-group"><label>No. WhatsApp</label><input className="kpro-input" value={form.no_wa} onChange={e => setForm({...form, no_wa: e.target.value})} /></div><div className="kpro-form-group"><label>Tanggal Order</label><input type="date" className="kpro-input" value={form.tanggal_order} onChange={e => setForm({...form, tanggal_order: e.target.value})} /></div></div>
+                <div className="kpro-form-group"><label>Nama Client *</label><input className="kpro-input" value={form.nama_client} onChange={e => setForm({ ...form, nama_client: e.target.value })} /></div>
+                <div className="kpro-form-row"><div className="kpro-form-group"><label>No. WhatsApp</label><input className="kpro-input" value={form.no_wa} onChange={e => setForm({ ...form, no_wa: e.target.value })} /></div><div className="kpro-form-group"><label>Tanggal Order</label><input type="date" className="kpro-input" value={form.tanggal_order} onChange={e => setForm({ ...form, tanggal_order: e.target.value })} /></div></div>
               </div></div>
               {/* Proyek detail */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">📦 Detail Proyek</div><div className="kpro-card-body">
-                <div className="kpro-form-group"><label>Nama Proyek *</label><input className="kpro-input" value={form.nama_proyek} onChange={e => setForm({...form, nama_proyek: e.target.value})} /></div>
-                <div className="kpro-form-group"><label>Brand</label><select className="kpro-select" value={form.brand} onChange={e => setForm({...form, brand: e.target.value})}><option>SERAGAMAN</option><option>CLOTHINGWELL</option><option>KAMPUS APPAREL</option></select></div>
+                <div className="kpro-form-group"><label>Nama Proyek *</label><input className="kpro-input" value={form.nama_proyek} onChange={e => setForm({ ...form, nama_proyek: e.target.value })} /></div>
+                <div className="kpro-form-group"><label>Brand</label><select className="kpro-select" value={form.brand} onChange={e => setForm({ ...form, brand: e.target.value })}><option>SERAGAMAN</option><option>CLOTHINGWELL</option><option>KAMPUS APPAREL</option></select></div>
               </div></div>
               {/* Daftar Produk */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">🛍️ Daftar Produk</div><div className="kpro-card-body">
@@ -189,8 +240,8 @@ export default function ProyekPage() {
                   <div key={p.id} style={{ background: '#F8FAFC', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
                     <div className="kpro-form-row"><div className="kpro-form-group" style={{ flex: 2 }}><label>Nama Produk</label><input className="kpro-input" value={p.nama_produk} onChange={e => updateProduk(idx, 'nama_produk', e.target.value)} /></div></div>
                     <div className="kpro-form-row">
-                      <div className="kpro-form-group"><label>Jumlah (pcs)</label><input type="number" className="kpro-input" value={p.jumlah_pcs} onChange={e => updateProduk(idx, 'jumlah_pcs', e.target.value)} /></div>
-                      <div className="kpro-form-group"><label>Harga Satuan</label><input type="number" className="kpro-input" value={p.harga_satuan} onChange={e => updateProduk(idx, 'harga_satuan', e.target.value)} /></div>
+                      <div className="kpro-form-group"><label>Jumlah (pcs)</label><input type="text" inputMode="numeric" className="kpro-input" value={p.jumlah_pcs} onChange={e => updateProduk(idx, 'jumlah_pcs', e.target.value)} /></div>
+                      <div className="kpro-form-group"><label>Harga Satuan</label><input type="text" inputMode="numeric" className="kpro-input" value={p.harga_satuan} onChange={e => updateProduk(idx, 'harga_satuan', e.target.value)} /></div>
                       <div className="kpro-form-group"><label>Subtotal</label><input className="kpro-input" readOnly value={formatRupiah(p.jumlah_pcs * p.harga_satuan)} style={{ background: '#f5f5f5' }} /></div>
                       <div className="kpro-form-group"><button className="kpro-btn kpro-btn-danger kpro-btn-sm" onClick={() => hapusProduk(idx)}>🗑</button></div>
                     </div>
@@ -210,15 +261,15 @@ export default function ProyekPage() {
                       <option value="lunas">Lunas</option>
                     </select>
                   </div>
-                  <div className="kpro-form-group"><label>DP Dibayar (Rp)</label><input type="number" className="kpro-input" value={dpDibayar} onChange={e => handleDpChange(e.target.value)} /></div>
+                  <div className="kpro-form-group"><label>DP Dibayar (Rp)</label><input type="text" inputMode="numeric" className="kpro-input" value={dpDibayar} onChange={e => handleDpChange(e.target.value)} /></div>
                 </div>
               </div></div>
               {/* Informasi Tambahan Client */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">ℹ️ Informasi Tambahan Client</div><div className="kpro-card-body">
-                <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={form.sumber_info} onChange={e => setForm({...form, sumber_info: e.target.value})} /></div>
-                <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={form.instansi} onChange={e => setForm({...form, instansi: e.target.value})} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={form.organisasi} onChange={e => setForm({...form, organisasi: e.target.value})} /></div></div>
-                <div className="kpro-form-group"><label>Jabatan</label><input className="kpro-input" value={form.jabatan} onChange={e => setForm({...form, jabatan: e.target.value})} /></div>
-                <div className="kpro-form-group"><label>Catatan</label><textarea className="kpro-textarea" rows="2" value={form.catatan} onChange={e => setForm({...form, catatan: e.target.value})} /></div>
+                <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={form.sumber_info} onChange={e => setForm({ ...form, sumber_info: e.target.value })} /></div>
+                <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={form.instansi} onChange={e => setForm({ ...form, instansi: e.target.value })} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={form.organisasi} onChange={e => setForm({ ...form, organisasi: e.target.value })} /></div></div>
+                <div className="kpro-form-group"><label>Jabatan</label><input className="kpro-input" value={form.jabatan} onChange={e => setForm({ ...form, jabatan: e.target.value })} /></div>
+                <div className="kpro-form-group"><label>Catatan</label><textarea className="kpro-textarea" rows="2" value={form.catatan} onChange={e => setForm({ ...form, catatan: e.target.value })} /></div>
               </div></div>
             </div>
             <div className="kpro-modal-footer">

@@ -13,13 +13,22 @@ export function useProyek() {
     setLoading(true)
     try {
       let data = await proyekService.getAll(filters)
-      // Sorting manual
+      
+      // Brand sudah ada di tabel proyek, tidak perlu ambil dari produk lagi
+      for (const proyek of data) {
+        proyek.brand = proyek.brand || 'SERAGAMAN'
+      }
+      
+      // Sorting
       data.sort((a, b) => {
         let valA = a[sortField] ?? ''
         let valB = b[sortField] ?? ''
         if (sortField === 'total_harga') {
           valA = Number(valA) || 0
           valB = Number(valB) || 0
+        } else if (sortField === 'brand') {
+          valA = (a.brand || 'SERAGAMAN').toLowerCase()
+          valB = (b.brand || 'SERAGAMAN').toLowerCase()
         } else {
           valA = String(valA).toLowerCase()
           valB = String(valB).toLowerCase()
@@ -28,6 +37,7 @@ export function useProyek() {
         if (valA > valB) return sortOrder === 'asc' ? 1 : -1
         return 0
       })
+      
       setProyek(data)
     } catch (err) {
       console.error('Load proyek error:', err)
