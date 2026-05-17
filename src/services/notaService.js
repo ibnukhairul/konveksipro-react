@@ -11,23 +11,24 @@ export const notaService = {
   // ----------------------------------------------------------
 
   generateNotaData(proyek) {
-    const totalHarga  = proyek.total_harga  || 0
-    const dpDibayar   = proyek.dp_dibayar   || 0
+    const totalHarga = proyek.total_harga || 0
+    const dpDibayar = proyek.dp_dibayar || 0
     const sisaTagihan = totalHarga - dpDibayar
-    const brand       = proyek.brand || 'SERAGAMAN'
+    const brand = proyek.brand || 'SERAGAMAN'
 
     let backgroundImage = ''
-    let lunasImage      = ''
+    let lunasImage = ''
 
+    // Di dalam fungsi generateNotaData, ubah menjadi:
     if (brand === 'CLOTHINGWELL') {
-      backgroundImage = '/src/assets/nota_clothingwell.jpg'
-      lunasImage      = '/src/assets/label_lunas_clothingwell.png'
+      backgroundImage = '/images/nota_clothingwell.jpg'
+      lunasImage = '/images/label_lunas_clothingwell.png'
     } else if (brand === 'KAMPUS APPAREL') {
-      backgroundImage = '/src/assets/nota_kampusapparel.jpg'
-      lunasImage      = '/src/assets/label_lunas_kampusapparel.png'
+      backgroundImage = '/images/nota_kampusapparel.jpg'
+      lunasImage = '/images/label_lunas_kampusapparel.png'
     } else {
-      backgroundImage = '/src/assets/nota_seragaman.jpg'
-      lunasImage      = '/src/assets/label_lunas_seragaman.png'
+      backgroundImage = '/images/nota_seragaman.jpg'
+      lunasImage = '/images/label_lunas_seragaman.png'
     }
 
     return {
@@ -44,14 +45,14 @@ export const notaService = {
   getTglLong(tanggalOrder) {
     const d = tanggalOrder ? new Date(tanggalOrder) : new Date()
     const months = [
-      'JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI',
-      'JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER',
+      'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
+      'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER',
     ]
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
   },
 
   getTglDDMMYYYY(tanggalOrder) {
-    const d  = tanggalOrder ? new Date(tanggalOrder) : new Date()
+    const d = tanggalOrder ? new Date(tanggalOrder) : new Date()
     const dd = String(d.getDate()).padStart(2, '0')
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     return `${dd} / ${mm} / ${d.getFullYear()}`
@@ -107,17 +108,17 @@ export const notaService = {
       totalHarga, dpDibayar, sisaTagihan, notaNumber,
     } = notaData
 
-    const client      = this.escapeHtml(proyek.nama_client  || '-')
-    const noWa        = this.escapeHtml(proyek.no_wa        || '-')
-    const proyekName  = this.escapeHtml(proyek.nama_proyek  || 'INVOICE')
-    const organisasi  = this.escapeHtml(proyek.organisasi   || '-')
-    const instansi    = this.escapeHtml(proyek.instansi     || '-')
-    const jabatan     = this.escapeHtml(proyek.jabatan      || '-')
-    const sumberInfo  = this.escapeHtml(proyek.sumber_info  || '-')
-    const produkList  = proyek.produk_list || []
-    const filledRows  = produkList.length || 1
+    const client = this.escapeHtml(proyek.nama_client || '-')
+    const noWa = this.escapeHtml(proyek.no_wa || '-')
+    const proyekName = this.escapeHtml(proyek.nama_proyek || 'INVOICE')
+    const organisasi = this.escapeHtml(proyek.organisasi || '-')
+    const instansi = this.escapeHtml(proyek.instansi || '-')
+    const jabatan = this.escapeHtml(proyek.jabatan || '-')
+    const sumberInfo = this.escapeHtml(proyek.sumber_info || '-')
+    const produkList = proyek.produk_list || []
+    const filledRows = produkList.length || 1
     const emptyNeeded = Math.max(0, 5 - filledRows)
-    const produkRows  = this.buildProdukRows(produkList) + this.generateEmptyRows(emptyNeeded)
+    const produkRows = this.buildProdukRows(produkList) + this.generateEmptyRows(emptyNeeded)
 
     if (brand === 'SERAGAMAN') {
       const tableTop = 248
@@ -328,7 +329,7 @@ export const notaService = {
     return new Promise((resolve, reject) => {
       const img = new Image()
       img.crossOrigin = 'anonymous'
-      img.onload  = () => resolve(img)
+      img.onload = () => resolve(img)
       img.onerror = () => reject(new Error(`Gagal load gambar: ${src}`))
       // Tambahkan cache-buster agar browser tidak pakai cache yang corrupt
       img.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + Date.now()
@@ -343,7 +344,7 @@ export const notaService = {
     ctx.fillRect(x, y, w, h)
     if (strokeColor) {
       ctx.strokeStyle = strokeColor
-      ctx.lineWidth   = 1
+      ctx.lineWidth = 1
       ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1)
     }
   },
@@ -353,7 +354,7 @@ export const notaService = {
    * x adalah titik referensi sesuai align
    */
   _text(ctx, str, x, y, { size = 13, bold = false, color = '#000000', align = 'left', font = 'Arial' } = {}) {
-    ctx.font      = `${bold ? '700' : '400'} ${size}px ${font}`
+    ctx.font = `${bold ? '700' : '400'} ${size}px ${font}`
     ctx.fillStyle = color
     ctx.textAlign = align
     ctx.textBaseline = 'alphabetic'
@@ -371,9 +372,9 @@ export const notaService = {
     })
     // Teks tiap kolom
     cols.forEach(col => {
-      const tx = col.align === 'right'  ? col.x + col.w - 7
-               : col.align === 'center' ? col.x + col.w / 2
-               : col.x + 7
+      const tx = col.align === 'right' ? col.x + col.w - 7
+        : col.align === 'center' ? col.x + col.w / 2
+          : col.x + 7
       this._text(ctx, col.text, tx, y + rowH * 0.68, {
         size: 12, color: col.color || '#000000',
         bold: col.bold || false, align: col.align || 'left',
@@ -390,12 +391,12 @@ export const notaService = {
     const bg = await this._loadImage(backgroundImage)
 
     // Canvas ukuran fixed 600px lebar, tinggi proporsional dari gambar asli
-    const W     = 600
+    const W = 600
     const SCALE = 3
-    const H     = Math.round(bg.naturalHeight * (W / bg.naturalWidth))
+    const H = Math.round(bg.naturalHeight * (W / bg.naturalWidth))
 
-    const canvas  = document.createElement('canvas')
-    canvas.width  = W * SCALE
+    const canvas = document.createElement('canvas')
+    canvas.width = W * SCALE
     canvas.height = H * SCALE
 
     const ctx = canvas.getContext('2d')
@@ -404,14 +405,14 @@ export const notaService = {
     // Background
     ctx.drawImage(bg, 0, 0, W, H)
 
-    const client     = proyek.nama_client  || '-'
-    const noWa       = proyek.no_wa        || '-'
-    const proyekName = proyek.nama_proyek  || 'INVOICE'
-    const organisasi = proyek.organisasi   || '-'
-    const instansi   = proyek.instansi     || '-'
-    const jabatan    = proyek.jabatan      || '-'
-    const sumberInfo = proyek.sumber_info  || '-'
-    const produkList = proyek.produk_list  || []
+    const client = proyek.nama_client || '-'
+    const noWa = proyek.no_wa || '-'
+    const proyekName = proyek.nama_proyek || 'INVOICE'
+    const organisasi = proyek.organisasi || '-'
+    const instansi = proyek.instansi || '-'
+    const jabatan = proyek.jabatan || '-'
+    const sumberInfo = proyek.sumber_info || '-'
+    const produkList = proyek.produk_list || []
 
     // ── Header kiri ──
     this._text(ctx, client, 42, 205, { size: 15, bold: true })
@@ -423,19 +424,19 @@ export const notaService = {
     this._text(ctx, `No. Nota: ${notaNumber}`, W - 42, 240, { size: 10, color: '#666666', align: 'right', font: 'monospace' })
 
     // ── Tabel produk ──
-    const TABLE_LEFT  = 42
+    const TABLE_LEFT = 42
     const TABLE_RIGHT = W - 42
-    const TABLE_W     = TABLE_RIGHT - TABLE_LEFT
-    const TABLE_TOP   = 252
-    const HEADER_H    = 32
-    const ROW_H       = 30
+    const TABLE_W = TABLE_RIGHT - TABLE_LEFT
+    const TABLE_TOP = 252
+    const HEADER_H = 32
+    const ROW_H = 30
 
     // Definisi kolom: x relatif, w
     const cols = [
-      { key: 'item',    label: 'ITEM',    x: TABLE_LEFT,           w: 196, align: 'left'   },
-      { key: 'jumlah',  label: 'JUMLAH',  x: TABLE_LEFT + 196,     w: 114, align: 'center' },
-      { key: 'harga',   label: 'HARGA',   x: TABLE_LEFT + 310,     w: 118, align: 'right'  },
-      { key: 'total',   label: 'TOTAL',   x: TABLE_LEFT + 428,     w: TABLE_W - 428, align: 'right' },
+      { key: 'item', label: 'ITEM', x: TABLE_LEFT, w: 196, align: 'left' },
+      { key: 'jumlah', label: 'JUMLAH', x: TABLE_LEFT + 196, w: 114, align: 'center' },
+      { key: 'harga', label: 'HARGA', x: TABLE_LEFT + 310, w: 118, align: 'right' },
+      { key: 'total', label: 'TOTAL', x: TABLE_LEFT + 428, w: TABLE_W - 428, align: 'right' },
     ]
 
     // Header tabel
@@ -443,49 +444,49 @@ export const notaService = {
       this._rect(ctx, col.x, TABLE_TOP, col.w, HEADER_H, '#1a1a1a', '#555555')
     })
     cols.forEach(col => {
-      const tx = col.align === 'right'  ? col.x + col.w - 7
-               : col.align === 'center' ? col.x + col.w / 2
-               : col.x + 7
+      const tx = col.align === 'right' ? col.x + col.w - 7
+        : col.align === 'center' ? col.x + col.w / 2
+          : col.x + 7
       this._text(ctx, col.label, tx, TABLE_TOP + HEADER_H * 0.68, {
         size: 12, bold: true, color: '#f59e0b', align: col.align,
       })
     })
 
     // Baris produk
-    const filledRows  = produkList.length || 0
+    const filledRows = produkList.length || 0
     const emptyNeeded = Math.max(0, 5 - filledRows)
-    const allRows     = [
+    const allRows = [
       ...produkList.map(p => ({
-        item:   p.nama_produk,
+        item: p.nama_produk,
         jumlah: p.jumlah_pcs.toLocaleString('id-ID'),
-        harga:  this.formatRupiah(p.harga_satuan),
-        total:  this.formatRupiah(p.jumlah_pcs * p.harga_satuan),
+        harga: this.formatRupiah(p.harga_satuan),
+        total: this.formatRupiah(p.jumlah_pcs * p.harga_satuan),
       })),
       ...Array(emptyNeeded).fill({ item: '', jumlah: '', harga: '', total: '' }),
     ]
 
     allRows.forEach((row, ri) => {
-      const y  = TABLE_TOP + HEADER_H + ri * ROW_H
+      const y = TABLE_TOP + HEADER_H + ri * ROW_H
       const bg = ri % 2 === 0 ? '#ffffff' : '#f9f9f9'
       cols.forEach(col => {
         this._rect(ctx, col.x, y, col.w, ROW_H, bg, '#cccccc')
-        const tx = col.align === 'right'  ? col.x + col.w - 7
-                 : col.align === 'center' ? col.x + col.w / 2
-                 : col.x + 7
+        const tx = col.align === 'right' ? col.x + col.w - 7
+          : col.align === 'center' ? col.x + col.w / 2
+            : col.x + 7
         this._text(ctx, row[col.key] || '', tx, y + ROW_H * 0.68, { size: 12, align: col.align })
       })
     })
 
     // ── Tabel total ──
-    const TOTAL_TOP   = TABLE_TOP + HEADER_H + allRows.length * ROW_H + 14
-    const TOTAL_W     = 280
-    const TOTAL_LEFT  = W - 42 - TOTAL_W
+    const TOTAL_TOP = TABLE_TOP + HEADER_H + allRows.length * ROW_H + 14
+    const TOTAL_W = 280
+    const TOTAL_LEFT = W - 42 - TOTAL_W
     const TOTAL_ROW_H = 32
 
     const totalRows = [
-      { label: 'SUB TOTAL',  value: this.formatRupiah(totalHarga),   bg: '#1a1a1a', fg: '#f59e0b', bold: true  },
-      { label: 'DP 1',       value: this.formatRupiah(dpDibayar),    bg: '#1a1a1a', fg: '#ffffff', bold: false },
-      { label: 'PELUNASAN',  value: '-',                              bg: '#1a1a1a', fg: '#ffffff', bold: false },
+      { label: 'SUB TOTAL', value: this.formatRupiah(totalHarga), bg: '#1a1a1a', fg: '#f59e0b', bold: true },
+      { label: 'DP 1', value: this.formatRupiah(dpDibayar), bg: '#1a1a1a', fg: '#ffffff', bold: false },
+      { label: 'PELUNASAN', value: '-', bg: '#1a1a1a', fg: '#ffffff', bold: false },
       {
         label: 'KEKURANGAN',
         value: sisaTagihan <= 0 ? 'LUNAS' : this.formatRupiah(sisaTagihan),
@@ -496,7 +497,7 @@ export const notaService = {
     totalRows.forEach((row, i) => {
       const y = TOTAL_TOP + i * TOTAL_ROW_H
       this._rect(ctx, TOTAL_LEFT, y, TOTAL_W, TOTAL_ROW_H, row.bg, '#555555')
-      this._text(ctx, row.label, TOTAL_LEFT + 10,        y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg })
+      this._text(ctx, row.label, TOTAL_LEFT + 10, y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg })
       this._text(ctx, row.value, TOTAL_LEFT + TOTAL_W - 10, y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg, align: 'right' })
     })
 
@@ -516,8 +517,8 @@ export const notaService = {
     if (sisaTagihan <= 0) {
       try {
         const lunas = await this._loadImage(lunasImage)
-        const lw    = 226
-        const lh    = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
+        const lw = 226
+        const lh = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
         ctx.globalAlpha = 0.92
         ctx.drawImage(lunas, W - 42 - lw, H - lh - Math.round(H * 0.06), lw, lh)
         ctx.globalAlpha = 1
@@ -537,91 +538,91 @@ export const notaService = {
 
     const bg = await this._loadImage(backgroundImage)
 
-    const W     = 600
+    const W = 600
     const SCALE = 3
-    const H     = Math.round(bg.naturalHeight * (W / bg.naturalWidth))
+    const H = Math.round(bg.naturalHeight * (W / bg.naturalWidth))
 
-    const canvas  = document.createElement('canvas')
-    canvas.width  = W * SCALE
+    const canvas = document.createElement('canvas')
+    canvas.width = W * SCALE
     canvas.height = H * SCALE
 
     const ctx = canvas.getContext('2d')
     ctx.scale(SCALE, SCALE)
     ctx.drawImage(bg, 0, 0, W, H)
 
-    const client     = proyek.nama_client  || '-'
-    const noWa       = proyek.no_wa        || '-'
-    const proyekName = proyek.nama_proyek  || 'INVOICE'
-    const organisasi = proyek.organisasi   || '-'
-    const instansi   = proyek.instansi     || '-'
-    const jabatan    = proyek.jabatan      || '-'
-    const sumberInfo = proyek.sumber_info  || '-'
-    const produkList = proyek.produk_list  || []
+    const client = proyek.nama_client || '-'
+    const noWa = proyek.no_wa || '-'
+    const proyekName = proyek.nama_proyek || 'INVOICE'
+    const organisasi = proyek.organisasi || '-'
+    const instansi = proyek.instansi || '-'
+    const jabatan = proyek.jabatan || '-'
+    const sumberInfo = proyek.sumber_info || '-'
+    const produkList = proyek.produk_list || []
 
     // ── Header ──
-    this._text(ctx, proyekName,                                   42, 210, { size: 16, bold: true, color: '#cc0000' })
-    this._text(ctx, client,                                        42, 232, { size: 15, bold: true })
-    this._text(ctx, `WA : ${noWa}`,                               42, 252, { size: 13 })
-    this._text(ctx, `No. Nota: ${notaNumber}`,                   W - 42, 210, { size: 10, color: '#666666', align: 'right', font: 'monospace' })
+    this._text(ctx, proyekName, 42, 210, { size: 16, bold: true, color: '#cc0000' })
+    this._text(ctx, client, 42, 232, { size: 15, bold: true })
+    this._text(ctx, `WA : ${noWa}`, 42, 252, { size: 13 })
+    this._text(ctx, `No. Nota: ${notaNumber}`, W - 42, 210, { size: 10, color: '#666666', align: 'right', font: 'monospace' })
     this._text(ctx, `Tanggal : ${this.getTglDDMMYYYY(proyek.tanggal_order)}`, W - 42, 232, { size: 13, align: 'right' })
-    this._text(ctx, `Jenis Order : ${proyekName}`,               W - 42, 250, { size: 13, align: 'right' })
+    this._text(ctx, `Jenis Order : ${proyekName}`, W - 42, 250, { size: 13, align: 'right' })
 
     // ── Tabel produk ──
-    const TABLE_LEFT  = 42
+    const TABLE_LEFT = 42
     const TABLE_RIGHT = W - 42
-    const TABLE_W     = TABLE_RIGHT - TABLE_LEFT
-    const TABLE_TOP   = 300
-    const HEADER_H    = 32
-    const ROW_H       = 30
+    const TABLE_W = TABLE_RIGHT - TABLE_LEFT
+    const TABLE_TOP = 300
+    const HEADER_H = 32
+    const ROW_H = 30
 
     const cols = [
-      { key: 'item',   label: 'JENIS PESANAN', x: TABLE_LEFT,       w: 196, align: 'left'   },
-      { key: 'jumlah', label: 'JUMLAH',         x: TABLE_LEFT + 196, w: 114, align: 'center' },
-      { key: 'harga',  label: 'HARGA',          x: TABLE_LEFT + 310, w: 118, align: 'right'  },
-      { key: 'total',  label: 'TOTAL',          x: TABLE_LEFT + 428, w: TABLE_W - 428, align: 'right' },
+      { key: 'item', label: 'JENIS PESANAN', x: TABLE_LEFT, w: 196, align: 'left' },
+      { key: 'jumlah', label: 'JUMLAH', x: TABLE_LEFT + 196, w: 114, align: 'center' },
+      { key: 'harga', label: 'HARGA', x: TABLE_LEFT + 310, w: 118, align: 'right' },
+      { key: 'total', label: 'TOTAL', x: TABLE_LEFT + 428, w: TABLE_W - 428, align: 'right' },
     ]
 
     cols.forEach(col => this._rect(ctx, col.x, TABLE_TOP, col.w, HEADER_H, '#f5e800', '#aaaaaa'))
     cols.forEach(col => {
-      const tx = col.align === 'right'  ? col.x + col.w - 7
-               : col.align === 'center' ? col.x + col.w / 2
-               : col.x + 7
+      const tx = col.align === 'right' ? col.x + col.w - 7
+        : col.align === 'center' ? col.x + col.w / 2
+          : col.x + 7
       this._text(ctx, col.label, tx, TABLE_TOP + HEADER_H * 0.68, { size: 12, bold: true, color: '#111111', align: col.align })
     })
 
-    const filledRows  = produkList.length || 0
+    const filledRows = produkList.length || 0
     const emptyNeeded = Math.max(0, 5 - filledRows)
-    const allRows     = [
+    const allRows = [
       ...produkList.map(p => ({
-        item:   p.nama_produk,
+        item: p.nama_produk,
         jumlah: p.jumlah_pcs.toLocaleString('id-ID'),
-        harga:  this.formatRupiah(p.harga_satuan),
-        total:  this.formatRupiah(p.jumlah_pcs * p.harga_satuan),
+        harga: this.formatRupiah(p.harga_satuan),
+        total: this.formatRupiah(p.jumlah_pcs * p.harga_satuan),
       })),
       ...Array(emptyNeeded).fill({ item: '', jumlah: '', harga: '', total: '' }),
     ]
 
     allRows.forEach((row, ri) => {
-      const y  = TABLE_TOP + HEADER_H + ri * ROW_H
+      const y = TABLE_TOP + HEADER_H + ri * ROW_H
       const bg = ri % 2 === 0 ? '#ffffff' : '#f9f9f9'
       cols.forEach(col => {
         this._rect(ctx, col.x, y, col.w, ROW_H, bg, '#cccccc')
-        const tx = col.align === 'right'  ? col.x + col.w - 7
-                 : col.align === 'center' ? col.x + col.w / 2
-                 : col.x + 7
+        const tx = col.align === 'right' ? col.x + col.w - 7
+          : col.align === 'center' ? col.x + col.w / 2
+            : col.x + 7
         this._text(ctx, row[col.key] || '', tx, y + ROW_H * 0.68, { size: 12, align: col.align })
       })
     })
 
     // ── Tabel total ──
-    const TOTAL_TOP   = TABLE_TOP + HEADER_H + allRows.length * ROW_H + 14
-    const TOTAL_W     = 280
-    const TOTAL_LEFT  = W - 42 - TOTAL_W
+    const TOTAL_TOP = TABLE_TOP + HEADER_H + allRows.length * ROW_H + 14
+    const TOTAL_W = 280
+    const TOTAL_LEFT = W - 42 - TOTAL_W
     const TOTAL_ROW_H = 32
 
     const totalRows = [
-      { label: 'TOTAL',      value: this.formatRupiah(totalHarga),  bg: '#f5f5f5', fg: '#000000', bold: false },
-      { label: 'DP CASH/TF', value: this.formatRupiah(dpDibayar),   bg: '#f5e800', fg: '#000000', bold: true  },
+      { label: 'TOTAL', value: this.formatRupiah(totalHarga), bg: '#f5f5f5', fg: '#000000', bold: false },
+      { label: 'DP CASH/TF', value: this.formatRupiah(dpDibayar), bg: '#f5e800', fg: '#000000', bold: true },
       {
         label: 'KEKURANGAN',
         value: sisaTagihan <= 0 ? 'LUNAS' : this.formatRupiah(sisaTagihan),
@@ -632,24 +633,24 @@ export const notaService = {
     totalRows.forEach((row, i) => {
       const y = TOTAL_TOP + i * TOTAL_ROW_H
       this._rect(ctx, TOTAL_LEFT, y, TOTAL_W, TOTAL_ROW_H, row.bg, '#bbbbbb')
-      this._text(ctx, row.label, TOTAL_LEFT + 10,             y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg })
-      this._text(ctx, row.value, TOTAL_LEFT + TOTAL_W - 10,  y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg, align: 'right' })
+      this._text(ctx, row.label, TOTAL_LEFT + 10, y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg })
+      this._text(ctx, row.value, TOTAL_LEFT + TOTAL_W - 10, y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg, align: 'right' })
     })
 
     // ── Data pemesan ──
     const DATA_TOP = TOTAL_TOP + totalRows.length * TOTAL_ROW_H + 24
-    this._text(ctx, 'DATA PEMESAN', 62, DATA_TOP,        { size: 12, bold: true, color: '#000000' })
-    this._text(ctx, `ORGANISASI : ${organisasi}`, 62, DATA_TOP + 20,  { size: 11 })
-    this._text(ctx, `INSTANSI : ${instansi}`,     62, DATA_TOP + 36,  { size: 11 })
-    this._text(ctx, `JABATAN : ${jabatan}`,       62, DATA_TOP + 52,  { size: 11 })
-    this._text(ctx, `SUMBER INFO : ${sumberInfo}`,62, DATA_TOP + 68,  { size: 11 })
+    this._text(ctx, 'DATA PEMESAN', 62, DATA_TOP, { size: 12, bold: true, color: '#000000' })
+    this._text(ctx, `ORGANISASI : ${organisasi}`, 62, DATA_TOP + 20, { size: 11 })
+    this._text(ctx, `INSTANSI : ${instansi}`, 62, DATA_TOP + 36, { size: 11 })
+    this._text(ctx, `JABATAN : ${jabatan}`, 62, DATA_TOP + 52, { size: 11 })
+    this._text(ctx, `SUMBER INFO : ${sumberInfo}`, 62, DATA_TOP + 68, { size: 11 })
 
     // ── Label LUNAS ──
     if (sisaTagihan <= 0) {
       try {
         const lunas = await this._loadImage(lunasImage)
-        const lw    = 126
-        const lh    = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
+        const lw = 126
+        const lh = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
         ctx.globalAlpha = 0.92
         // posisi: bottom 19%, right 49% dari lebar
         ctx.drawImage(lunas, W * 0.51 - lw / 2, H - H * 0.19 - lh, lw, lh)
@@ -670,115 +671,115 @@ export const notaService = {
 
     const bg = await this._loadImage(backgroundImage)
 
-    const W     = 600
+    const W = 600
     const SCALE = 3
-    const H     = Math.round(bg.naturalHeight * (W / bg.naturalWidth))
+    const H = Math.round(bg.naturalHeight * (W / bg.naturalWidth))
 
-    const canvas  = document.createElement('canvas')
-    canvas.width  = W * SCALE
+    const canvas = document.createElement('canvas')
+    canvas.width = W * SCALE
     canvas.height = H * SCALE
 
     const ctx = canvas.getContext('2d')
     ctx.scale(SCALE, SCALE)
     ctx.drawImage(bg, 0, 0, W, H)
 
-    const client     = proyek.nama_client  || '-'
-    const noWa       = proyek.no_wa        || '-'
-    const proyekName = proyek.nama_proyek  || 'INVOICE'
-    const organisasi = proyek.organisasi   || '-'
-    const instansi   = proyek.instansi     || '-'
-    const jabatan    = proyek.jabatan      || '-'
-    const sumberInfo = proyek.sumber_info  || '-'
-    const produkList = proyek.produk_list  || []
+    const client = proyek.nama_client || '-'
+    const noWa = proyek.no_wa || '-'
+    const proyekName = proyek.nama_proyek || 'INVOICE'
+    const organisasi = proyek.organisasi || '-'
+    const instansi = proyek.instansi || '-'
+    const jabatan = proyek.jabatan || '-'
+    const sumberInfo = proyek.sumber_info || '-'
+    const produkList = proyek.produk_list || []
 
     // ── Info klien (tabel kiri atas) ──
     const INFO_LEFT = 30
-    const INFO_TOP  = 123
-    const INFO_W    = W * 0.46
-    const LBL_W     = 110
-    const VAL_W     = INFO_W - LBL_W
+    const INFO_TOP = 123
+    const INFO_W = W * 0.46
+    const LBL_W = 110
+    const VAL_W = INFO_W - LBL_W
     const INFO_ROW_H = 28
 
     const infoRows = [
-      ['NAMA KLIEN',  client],
-      ['WHATSAPP',    noWa],
-      ['ORGANISASI',  organisasi],
-      ['INSTANSI',    instansi],
-      ['JABATAN',     jabatan],
+      ['NAMA KLIEN', client],
+      ['WHATSAPP', noWa],
+      ['ORGANISASI', organisasi],
+      ['INSTANSI', instansi],
+      ['JABATAN', jabatan],
       ['SUMBER INFO', sumberInfo],
-      ['JENIS PRODUK',proyekName],
+      ['JENIS PRODUK', proyekName],
     ]
 
     infoRows.forEach(([lbl, val], i) => {
       const y = INFO_TOP + i * INFO_ROW_H
-      this._rect(ctx, INFO_LEFT,         y, LBL_W, INFO_ROW_H, '#cff4fc', '#aaaaaa')
+      this._rect(ctx, INFO_LEFT, y, LBL_W, INFO_ROW_H, '#cff4fc', '#aaaaaa')
       this._rect(ctx, INFO_LEFT + LBL_W, y, VAL_W, INFO_ROW_H, '#ffffff', '#aaaaaa')
-      this._text(ctx, lbl, INFO_LEFT + 6,               y + INFO_ROW_H * 0.68, { size: 11, bold: true,  color: '#000000' })
-      this._text(ctx, val, INFO_LEFT + LBL_W + 6,       y + INFO_ROW_H * 0.68, { size: 11, bold: false, color: '#000000' })
+      this._text(ctx, lbl, INFO_LEFT + 6, y + INFO_ROW_H * 0.68, { size: 11, bold: true, color: '#000000' })
+      this._text(ctx, val, INFO_LEFT + LBL_W + 6, y + INFO_ROW_H * 0.68, { size: 11, bold: false, color: '#000000' })
     })
 
     // ── Header kanan ──
     const RIGHT_START = W * 0.54
-    this._text(ctx, `No. Nota: ${notaNumber}`,                    W - 129, 148, { size: 10, color: '#666666', font: 'monospace' })
-    this._text(ctx, proyekName,                                    RIGHT_START, 168, { size: 17, bold: true, color: '#cc0000' })
+    this._text(ctx, `No. Nota: ${notaNumber}`, W - 129, 148, { size: 10, color: '#666666', font: 'monospace' })
+    this._text(ctx, proyekName, RIGHT_START, 168, { size: 17, bold: true, color: '#cc0000' })
     this._text(ctx, `TANGGAL : ${this.getTglDDMMYYYY(proyek.tanggal_order)}`, RIGHT_START, 188, { size: 14, bold: true, color: '#0077b6' })
 
     // ── Tabel produk ──
-    const TABLE_LEFT  = 30
+    const TABLE_LEFT = 30
     const TABLE_RIGHT = W - 28
-    const TABLE_W     = TABLE_RIGHT - TABLE_LEFT
-    const TABLE_TOP   = 325
-    const HEADER_H    = 32
-    const ROW_H       = 30
+    const TABLE_W = TABLE_RIGHT - TABLE_LEFT
+    const TABLE_TOP = 325
+    const HEADER_H = 32
+    const ROW_H = 30
 
     const cols = [
-      { key: 'item',   label: 'BARANG',  x: TABLE_LEFT,       w: 196, align: 'left'   },
-      { key: 'jumlah', label: 'JUMLAH',  x: TABLE_LEFT + 196, w: 114, align: 'center' },
-      { key: 'harga',  label: 'HARGA',   x: TABLE_LEFT + 310, w: 118, align: 'right'  },
-      { key: 'total',  label: 'TOTAL',   x: TABLE_LEFT + 428, w: TABLE_W - 428, align: 'right' },
+      { key: 'item', label: 'BARANG', x: TABLE_LEFT, w: 196, align: 'left' },
+      { key: 'jumlah', label: 'JUMLAH', x: TABLE_LEFT + 196, w: 114, align: 'center' },
+      { key: 'harga', label: 'HARGA', x: TABLE_LEFT + 310, w: 118, align: 'right' },
+      { key: 'total', label: 'TOTAL', x: TABLE_LEFT + 428, w: TABLE_W - 428, align: 'right' },
     ]
 
     cols.forEach(col => this._rect(ctx, col.x, TABLE_TOP, col.w, HEADER_H, '#00b4d8', '#aaaaaa'))
     cols.forEach(col => {
-      const tx = col.align === 'right'  ? col.x + col.w - 7
-               : col.align === 'center' ? col.x + col.w / 2
-               : col.x + 7
+      const tx = col.align === 'right' ? col.x + col.w - 7
+        : col.align === 'center' ? col.x + col.w / 2
+          : col.x + 7
       this._text(ctx, col.label, tx, TABLE_TOP + HEADER_H * 0.68, { size: 12, bold: true, color: '#ffffff', align: col.align })
     })
 
-    const filledRows  = produkList.length || 0
+    const filledRows = produkList.length || 0
     const emptyNeeded = Math.max(0, 5 - filledRows)
-    const allRows     = [
+    const allRows = [
       ...produkList.map(p => ({
-        item:   p.nama_produk,
+        item: p.nama_produk,
         jumlah: p.jumlah_pcs.toLocaleString('id-ID'),
-        harga:  this.formatRupiah(p.harga_satuan),
-        total:  this.formatRupiah(p.jumlah_pcs * p.harga_satuan),
+        harga: this.formatRupiah(p.harga_satuan),
+        total: this.formatRupiah(p.jumlah_pcs * p.harga_satuan),
       })),
       ...Array(emptyNeeded).fill({ item: '', jumlah: '', harga: '', total: '' }),
     ]
 
     allRows.forEach((row, ri) => {
-      const y  = TABLE_TOP + HEADER_H + ri * ROW_H
+      const y = TABLE_TOP + HEADER_H + ri * ROW_H
       const bg = ri % 2 === 0 ? '#ffffff' : '#f9f9f9'
       cols.forEach(col => {
         this._rect(ctx, col.x, y, col.w, ROW_H, bg, '#cccccc')
-        const tx = col.align === 'right'  ? col.x + col.w - 7
-                 : col.align === 'center' ? col.x + col.w / 2
-                 : col.x + 7
+        const tx = col.align === 'right' ? col.x + col.w - 7
+          : col.align === 'center' ? col.x + col.w / 2
+            : col.x + 7
         this._text(ctx, row[col.key] || '', tx, y + ROW_H * 0.68, { size: 12, align: col.align })
       })
     })
 
     // ── Tabel total ──
-    const TOTAL_TOP   = TABLE_TOP + HEADER_H + allRows.length * ROW_H + 14
-    const TOTAL_W     = 280
-    const TOTAL_LEFT  = W - 28 - TOTAL_W
+    const TOTAL_TOP = TABLE_TOP + HEADER_H + allRows.length * ROW_H + 14
+    const TOTAL_W = 280
+    const TOTAL_LEFT = W - 28 - TOTAL_W
     const TOTAL_ROW_H = 32
 
     const totalRows = [
-      { label: 'SUB TOTAL',  value: this.formatRupiah(totalHarga),  bg: '#cff4fc', fg: '#000000', bold: true  },
-      { label: 'DP CASH/TF', value: this.formatRupiah(dpDibayar),   bg: '#cff4fc', fg: '#000000', bold: false },
+      { label: 'SUB TOTAL', value: this.formatRupiah(totalHarga), bg: '#cff4fc', fg: '#000000', bold: true },
+      { label: 'DP CASH/TF', value: this.formatRupiah(dpDibayar), bg: '#cff4fc', fg: '#000000', bold: false },
       {
         label: 'KEKURANGAN',
         value: sisaTagihan <= 0 ? '-' : this.formatRupiah(sisaTagihan),
@@ -789,7 +790,7 @@ export const notaService = {
     totalRows.forEach((row, i) => {
       const y = TOTAL_TOP + i * TOTAL_ROW_H
       this._rect(ctx, TOTAL_LEFT, y, TOTAL_W, TOTAL_ROW_H, row.bg, '#bbbbbb')
-      this._text(ctx, row.label, TOTAL_LEFT + 10,            y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg })
+      this._text(ctx, row.label, TOTAL_LEFT + 10, y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg })
       this._text(ctx, row.value, TOTAL_LEFT + TOTAL_W - 10, y + TOTAL_ROW_H * 0.68, { size: 12, bold: row.bold, color: row.fg, align: 'right' })
     })
 
@@ -797,8 +798,8 @@ export const notaService = {
     if (sisaTagihan <= 0) {
       try {
         const lunas = await this._loadImage(lunasImage)
-        const lw    = 113
-        const lh    = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
+        const lw = 113
+        const lh = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
         ctx.globalAlpha = 0.92
         ctx.drawImage(lunas, W * 0.52 - lw / 2, H - H * 0.22 - lh, lw, lh)
         ctx.globalAlpha = 1
