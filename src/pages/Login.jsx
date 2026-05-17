@@ -105,22 +105,18 @@ export default function Login() {
               </div>
 
               <div className="lp-hero">
-                <h1>Selamat<br />datang</h1>
-                <p>Kelola stok, proyek, dan keuangan konveksi Anda dalam satu platform terintegrasi.</p>
+                <h1>Selamat datang!</h1>
+                <p>di era kerja yang lebih cepat, lebih rapi, dan lebih professional.</p>
               </div>
 
-              <ul className="lp-feat">
+              {/* <ul className="lp-feat">
                 {['Stok & inventori real-time', 'Laporan keuangan otomatis', 'Price list & kalkulasi cepat'].map((f, i) => (
                   <li key={i}><CheckCircle />{f}</li>
                 ))}
-              </ul>
+              </ul> */}
             </div>
 
-            <div className="lp-left-footer">
-              <a href="#">Pelajari lebih lanjut</a>
-              <span>·</span>
-              <a href="#">Hubungi kami</a>
-            </div>
+           
 
             {/* Organic wave SVG divider */}
             <div className="lp-wave" aria-hidden="true">

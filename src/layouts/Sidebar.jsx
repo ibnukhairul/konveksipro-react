@@ -1,25 +1,38 @@
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { 
+  LayoutDashboard, 
+  Package, 
+  FolderKanban, 
+  Tag, 
+  BarChart3, 
+  Bell, 
+  User, 
+  Users, 
+  Database, 
+  Settings,
+  LogOut
+} from 'lucide-react'
 
 const MENU_ITEMS = {
   owner: [
-    { path: '/dashboard', label: 'Dashboard', icon: '⊞', roleNote: 'owner' },
-    { path: '/stok', label: 'Kelola Stok', icon: '◫' },
-    { path: '/proyek', label: 'Proyek', icon: '◈', roleNote: 'owner' },
-    { path: '/pricelist', label: 'Price List', icon: '💰' },
-    { path: '/keuangan', label: 'Rekap Keuangan', icon: '◑', roleNote: 'owner' },
-    { path: '/notifikasi', label: 'Notifikasi', icon: '◍' },
-    { path: '/akun', label: 'Akun', icon: '◯' },
-    { path: '/team', label: 'Tim', icon: '👥', roleNote: 'owner' },
-    { path: '/backup', label: 'Backup & Restore', icon: '💾', roleNote: 'owner' },
-    { path: '/admin-pricelist', label: 'Pengaturan Price List', icon: '⚙️', roleNote: 'owner' }
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roleNote: 'owner' },
+    { path: '/stok', label: 'Kelola Stok', icon: Package },
+    { path: '/proyek', label: 'Proyek', icon: FolderKanban, roleNote: 'owner' },
+    { path: '/pricelist', label: 'Price List', icon: Tag },
+    { path: '/keuangan', label: 'Rekap Keuangan', icon: BarChart3, roleNote: 'owner' },
+    { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
+    { path: '/akun', label: 'Akun', icon: User },
+    { path: '/team', label: 'Tim', icon: Users, roleNote: 'owner' },
+    { path: '/backup', label: 'Backup & Restore', icon: Database, roleNote: 'owner' },
+    { path: '/admin-pricelist', label: 'Pengaturan Price List', icon: Settings, roleNote: 'owner' }
   ],
   team: [
-    { path: '/stok', label: 'Kelola Stok', icon: '◫' },
-    { path: '/pricelist', label: 'Price List', icon: '💰' },
-    { path: '/notifikasi', label: 'Notifikasi', icon: '◍' },
-    { path: '/akun', label: 'Akun', icon: '◯' },
-    { path: '/team', label: 'Tim', icon: '👥' }
+    { path: '/stok', label: 'Kelola Stok', icon: Package },
+    { path: '/pricelist', label: 'Price List', icon: Tag },
+    { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
+    { path: '/akun', label: 'Akun', icon: User },
+    { path: '/team', label: 'Tim', icon: Users }
   ]
 }
 
@@ -36,7 +49,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const handleNavigate = (path) => {
     navigate(path)
-    if (window.innerWidth <= 768) onClose()  // tutup sidebar di mobile
+    if (window.innerWidth <= 768) onClose()
   }
 
   const handleLogout = async () => {
@@ -45,39 +58,50 @@ export default function Sidebar({ isOpen, onClose }) {
   }
 
   return (
-    <aside className={`kpro-sidebar ${isOpen ? 'is-open' : ''}`}>
-      <div className="kpro-sidebar-logo">
-        <div className="kpro-sidebar-logo-icon">KP</div>
+    <aside className={`sidebar-blue ${isOpen ? 'is-open' : ''}`}>
+      <div className="sidebar-blue-logo">
+        <div className="sidebar-blue-logo-icon">
+          <span>KP</span>
+        </div>
         <div>
-          <div className="kpro-sidebar-logo-name">KonveksiPro</div>
-          <div className="kpro-sidebar-logo-sub">Management System</div>
+          <div className="sidebar-blue-logo-name">KonveksiPro</div>
+          <div className="sidebar-blue-logo-sub">Management System</div>
         </div>
       </div>
 
-      <nav className="kpro-sidebar-body">
-        <div className="kpro-sidebar-section">Utama</div>
-        {menu.map(item => (
-          <div
-            key={item.path}
-            className={`kpro-nav-item ${location.pathname === item.path ? 'is-active' : ''}`}
-            onClick={() => handleNavigate(item.path)}
-          >
-            <i className="kpro-nav-icon">{item.icon}</i>
-            {item.label}
-            {item.roleNote && <span style={{ fontSize: '9px', marginLeft: 'auto' }}>{item.roleNote}</span>}
-          </div>
-        ))}
+      <nav className="sidebar-blue-nav">
+        {menu.map(item => {
+          const isActive = location.pathname === item.path
+          const Icon = item.icon
+          return (
+            <div
+              key={item.path}
+              className={`sidebar-blue-nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => handleNavigate(item.path)}
+            >
+              <div className="sidebar-blue-nav-icon">
+                <Icon size={20} strokeWidth={1.75} />
+              </div>
+              <span className="sidebar-blue-nav-label">{item.label}</span>
+              {item.roleNote && <span className="sidebar-blue-nav-badge">{item.roleNote}</span>}
+            </div>
+          )
+        })}
       </nav>
 
-      <div className="kpro-sidebar-footer">
-        <div className="kpro-avatar kpro-avatar-md kpro-avatar-blue">{userInitial}</div>
-        <div>
-          <div className="kpro-sidebar-user-name">{userName}</div>
-          <div className="kpro-sidebar-user-role">{roleLabel}</div>
+      <div className="sidebar-blue-footer">
+        <div className="sidebar-blue-user">
+          <div className="sidebar-blue-user-avatar">
+            {userInitial}
+          </div>
+          <div className="sidebar-blue-user-info">
+            <div className="sidebar-blue-user-name">{userName}</div>
+            <div className="sidebar-blue-user-role">{roleLabel}</div>
+          </div>
+          <button onClick={handleLogout} className="sidebar-blue-logout-btn" title="Logout">
+            <LogOut size={18} strokeWidth={1.5} />
+          </button>
         </div>
-        <button onClick={handleLogout} className="kpro-btn kpro-btn-ghost kpro-btn-sm kpro-ml-auto" style={{ fontSize: '11px' }}>
-          ⏻ Logout
-        </button>
       </div>
     </aside>
   )

@@ -1,12 +1,25 @@
 import { useState, useEffect } from 'react'
 import { keuanganService } from '../services/keuanganService'
 import { useAuth } from '../contexts/AuthContext'
+import { 
+  TrendingUp, 
+  FileText, 
+  AlertTriangle, 
+  FolderKanban,
+  BarChart3,
+  Users,
+  Download,
+  DollarSign,
+  Clock,
+  CheckCircle
+} from 'lucide-react'
 
 const formatRupiah = (num) => `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
 
 export default function KeuanganPage() {
   const { profile } = useAuth()
   const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
   const [rekap, setRekap] = useState({
     totalPemasukan: 0,
     totalTagihan: 0,
@@ -35,114 +48,162 @@ export default function KeuanganPage() {
     loadData()
   }, [])
 
-  if (loading) {
-    return <div className="kpro-empty">🔄 Memuat data keuangan...</div>
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      // Fungsi export akan ditambahkan nanti
+      alert('Fitur export akan segera hadir')
+    } catch (err) {
+      console.error('Export error:', err)
+    } finally {
+      setExporting(false)
+    }
   }
 
   // Badge status untuk tabel piutang
   const statusBayarBadge = (status) => {
-    const badges = {
-      belum_dp: <span className="kpro-badge kpro-badge-gray">Belum DP</span>,
-      dp_30: <span className="kpro-badge kpro-badge-warning">DP 30%</span>,
-      dp_50: <span className="kpro-badge kpro-badge-warning">DP 50%</span>,
-      lunas: <span className="kpro-badge kpro-badge-success">Lunas</span>
-    }
+    if (status === 'belum_dp') return <span className="keuangan-badge gray">Belum DP</span>
+    if (status === 'lunas') return <span className="keuangan-badge success">Lunas</span>
+    if (status === 'dp_30') return <span className="keuangan-badge warning">DP 30%</span>
+    if (status === 'dp_50') return <span className="keuangan-badge warning">DP 50%</span>
     if (status && status.startsWith('dp_')) {
       const percent = status.split('_')[1]
-      return <span className="kpro-badge kpro-badge-info">DP {percent}%</span>
+      return <span className="keuangan-badge info">DP {percent}%</span>
     }
-    return badges[status] || status
+    return <span className="keuangan-badge gray">{status || 'Belum DP'}</span>
   }
 
   // Chart: cari nilai maksimum untuk skala
   const maxTotal = Math.max(...monthlyData.map(m => m.total), 1)
 
+  const statCards = [
+    {
+      title: 'Total Pemasukan',
+      value: formatRupiah(rekap.totalPemasukan),
+      change: 'dari DP yang dibayar',
+      icon: TrendingUp,
+      color: '#10b981',
+      bg: '#ecfdf5'
+    },
+    {
+      title: 'Total Tagihan',
+      value: formatRupiah(rekap.totalTagihan),
+      change: 'semua proyek',
+      icon: FileText,
+      color: '#3b82f6',
+      bg: '#eff6ff'
+    },
+    {
+      title: 'Piutang Belum Lunas',
+      value: formatRupiah(rekap.totalPiutang),
+      change: 'sisa tagihan',
+      icon: AlertTriangle,
+      color: '#f59e0b',
+      bg: '#fffbeb'
+    },
+    {
+      title: 'Proyek Aktif',
+      value: rekap.proyekAktif,
+      change: 'belum selesai',
+      icon: FolderKanban,
+      color: '#ef4444',
+      bg: '#fef2f2'
+    }
+  ]
+
+  if (loading) {
+    return (
+      <div className="keuangan-loading">
+        <div className="keuangan-loading-spinner"></div>
+        <p>Memuat data keuangan...</p>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <div className="kpro-page-header">
+    <div className="keuangan-page">
+      <div className="keuangan-header">
         <div>
-          <h2 className="kpro-page-title">Rekap Keuangan</h2>
-          <p className="kpro-page-subtitle">Laporan pemasukan & piutang</p>
+          <h1 className="keuangan-title">Rekap Keuangan</h1>
+          <p className="keuangan-subtitle">Laporan pemasukan & piutang</p>
         </div>
-        <div className="kpro-page-actions">
-          <button className="kpro-btn kpro-btn-secondary" onClick={() => alert('Fitur export PDF akan datang')}>
-            ⬇ Export PDF
-          </button>
-        </div>
+        <button 
+          className="keuangan-export-btn" 
+          onClick={handleExport}
+          disabled={exporting}
+        >
+          <Download size={16} />
+          {exporting ? 'Memproses...' : 'Export PDF'}
+        </button>
       </div>
 
-      {/* Stat Cards */}
-      <div className="kpro-stats-grid kpro-mb-6">
-        <div className="kpro-stat-card">
-          <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
-            <div className="kpro-stat-label">Total Pemasukan</div>
-            <div className="kpro-stat-icon kpro-stat-icon-green">💰</div>
-          </div>
-          <div className="kpro-stat-value">{formatRupiah(rekap.totalPemasukan)}</div>
-          <div className="kpro-stat-change">dari DP yang dibayar</div>
-        </div>
-        <div className="kpro-stat-card">
-          <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
-            <div className="kpro-stat-label">Total Tagihan</div>
-            <div className="kpro-stat-icon kpro-stat-icon-blue">📋</div>
-          </div>
-          <div className="kpro-stat-value">{formatRupiah(rekap.totalTagihan)}</div>
-          <div className="kpro-stat-change">semua proyek</div>
-        </div>
-        <div className="kpro-stat-card">
-          <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
-            <div className="kpro-stat-label">Piutang Belum Lunas</div>
-            <div className="kpro-stat-icon kpro-stat-icon-amber">⚠️</div>
-          </div>
-          <div className="kpro-stat-value">{formatRupiah(rekap.totalPiutang)}</div>
-          <div className="kpro-stat-change">sisa tagihan</div>
-        </div>
-        <div className="kpro-stat-card">
-          <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
-            <div className="kpro-stat-label">Proyek Aktif</div>
-            <div className="kpro-stat-icon kpro-stat-icon-red">◈</div>
-          </div>
-          <div className="kpro-stat-value">{rekap.proyekAktif}</div>
-          <div className="kpro-stat-change">belum selesai</div>
-        </div>
-      </div>
-
-      <div className="kpro-row">
-        {/* Chart pemasukan per bulan */}
-        <div className="kpro-col-6">
-          <div className="kpro-card">
-            <div className="kpro-card-header">
-              <span className="kpro-card-title">Pemasukan per Bulan</span>
+      {/* Stat Cards Grid */}
+      <div className="keuangan-stats">
+        {statCards.map((card, idx) => (
+          <div key={idx} className="keuangan-stat-card">
+            <div className="keuangan-stat-icon" style={{ background: card.bg, color: card.color }}>
+              <card.icon size={22} />
             </div>
-            <div className="kpro-card-body">
-              <div className="kpro-bar-chart" id="keu-chart">
-                {monthlyData.map((month, idx) => {
-                  const heightPercent = Math.max(5, Math.round((month.total / maxTotal) * 80))
-                  let displayValue = ''
-                  if (month.total >= 1000000) displayValue = (month.total / 1000000).toFixed(1) + 'jt'
-                  else if (month.total >= 1000) displayValue = (month.total / 1000).toFixed(0) + 'rb'
-                  else displayValue = month.total > 0 ? month.total.toString() : '0'
-                  return (
-                    <div key={idx} className="kpro-bar-wrap">
-                      <div className="kpro-bar-value">{displayValue}</div>
-                      <div className="kpro-bar kpro-bar-green" style={{ height: `${heightPercent}%`, width: '100%', maxWidth: '50px' }}></div>
-                      <div className="kpro-bar-label">{month.label}</div>
-                    </div>
-                  )
-                })}
+            <div className="keuangan-stat-content">
+              <span className="keuangan-stat-title">{card.title}</span>
+              <span className="keuangan-stat-value">{card.value}</span>
+              <span className="keuangan-stat-change">{card.change}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="keuangan-row">
+        {/* Chart pemasukan per bulan */}
+        <div className="keuangan-col">
+          <div className="keuangan-card">
+            <div className="keuangan-card-header">
+              <div className="keuangan-card-title">
+                <BarChart3 size={18} />
+                <span>Pemasukan per Bulan</span>
+              </div>
+            </div>
+            <div className="keuangan-card-body">
+              <div className="keuangan-chart">
+                {monthlyData.length === 0 ? (
+                  <div className="keuangan-empty-chart">
+                    <p>Belum ada data pemasukan</p>
+                  </div>
+                ) : (
+                  monthlyData.map((month, idx) => {
+                    const heightPercent = Math.max(5, Math.round((month.total / maxTotal) * 80))
+                    let displayValue = ''
+                    if (month.total >= 1000000) displayValue = (month.total / 1000000).toFixed(1) + 'jt'
+                    else if (month.total >= 1000) displayValue = (month.total / 1000).toFixed(0) + 'rb'
+                    else displayValue = month.total > 0 ? month.total.toString() : '0'
+                    return (
+                      <div key={idx} className="keuangan-chart-bar">
+                        <div className="keuangan-chart-value">{displayValue}</div>
+                        <div 
+                          className="keuangan-chart-fill" 
+                          style={{ height: `${heightPercent}%`, backgroundColor: '#10b981' }}
+                        />
+                        <div className="keuangan-chart-label">{month.label}</div>
+                      </div>
+                    )
+                  })
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Daftar Piutang */}
-        <div className="kpro-col-6">
-          <div className="kpro-card">
-            <div className="kpro-card-header">
-              <span className="kpro-card-title">Piutang Belum Lunas</span>
+        <div className="keuangan-col">
+          <div className="keuangan-card">
+            <div className="keuangan-card-header">
+              <div className="keuangan-card-title">
+                <DollarSign size={18} />
+                <span>Piutang Belum Lunas</span>
+              </div>
             </div>
-            <div className="kpro-table-wrap">
-              <table className="kpro-table">
+            <div className="keuangan-table-wrapper">
+              <table className="keuangan-table">
                 <thead>
                   <tr>
                     <th>Client</th>
@@ -152,12 +213,17 @@ export default function KeuanganPage() {
                 </thead>
                 <tbody>
                   {rekap.piutangData.length === 0 ? (
-                    <tr><td colSpan="3" style={{ textAlign: 'center', padding: '24px' }}>✓ Tidak ada piutang</td></tr>
+                    <tr className="keuangan-table-empty">
+                      <td colSpan="3">
+                        <CheckCircle size={32} />
+                        <span>Tidak ada piutang</span>
+                      </td>
+                    </tr>
                   ) : (
                     rekap.piutangData.map((item, idx) => (
                       <tr key={idx}>
-                        <td style={{ fontWeight: 600 }}>{item.client}</td>
-                        <td className="kpro-text-right">{formatRupiah(item.sisa)}</td>
+                        <td className="keuangan-table-client">{item.client}</td>
+                        <td className="keuangan-table-amount">{formatRupiah(item.sisa)}</td>
                         <td>{statusBayarBadge(item.status)}</td>
                       </tr>
                     ))

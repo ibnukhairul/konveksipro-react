@@ -24,7 +24,6 @@ export default function DashboardLayout() {
   const location = useLocation()
   const pageTitle = getPageTitle(location.pathname)
 
-  // Tutup sidebar saat resize ke desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) setSidebarOpen(false)
@@ -36,7 +35,11 @@ export default function DashboardLayout() {
   return (
     <div className="kpro-app">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="kpro-sidebar-overlay" style={{ display: sidebarOpen ? 'block' : 'none' }} onClick={() => setSidebarOpen(false)}></div>
+      <div 
+        className="sidebar-blue-overlay" 
+        style={{ display: sidebarOpen ? 'block' : 'none' }} 
+        onClick={() => setSidebarOpen(false)}
+      />
       
       <div className="kpro-main">
         <Topbar title={pageTitle} onMenuToggle={() => setSidebarOpen(prev => !prev)} />

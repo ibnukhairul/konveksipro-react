@@ -10,6 +10,8 @@ import './styles/kpro-layout.css'
 import './styles/theme-finly.css' 
 import './styles/team.css'
 import './styles/pricelist.css'
+import './styles/dashboard.css'
+import './styles/keuangan.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>

@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react'
 import { dashboardService } from '../services/dashboardService'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { 
+  TrendingUp, 
+  Package, 
+  AlertTriangle, 
+  DollarSign,
+  FolderKanban,
+  BarChart3,
+  Clock
+} from 'lucide-react'
 
 export default function DashboardPage() {
   const { profile } = useAuth()
@@ -79,11 +88,15 @@ export default function DashboardPage() {
     loadDashboard()
   }, [])
 
-  // Hitung max untuk chart
   const maxOmzet = Math.max(...omzetChart.map(m => m.total), 1)
 
   if (loading) {
-    return <div className="kpro-empty">🔄 Memuat dashboard...</div>
+    return (
+      <div className="dashboard-loading">
+        <div className="dashboard-loading-spinner"></div>
+        <p>Memuat dashboard...</p>
+      </div>
+    )
   }
 
   return (
@@ -95,36 +108,47 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stat Cards - Layout seperti sebelumnya */}
       <div className="kpro-stats-grid kpro-mb-6">
         <div className="kpro-stat-card">
           <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
             <div className="kpro-stat-label">Proyek Aktif</div>
-            <div className="kpro-stat-icon kpro-stat-icon-green">◈</div>
+            <div className="kpro-stat-icon kpro-stat-icon-green">
+              <FolderKanban size={18} />
+            </div>
           </div>
           <div className="kpro-stat-value">{ringkasan.proyekAktif}</div>
           <div className="kpro-stat-change">proyek berjalan</div>
         </div>
+        
         <div className="kpro-stat-card">
           <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
             <div className="kpro-stat-label">Omzet Bulan Ini</div>
-            <div className="kpro-stat-icon kpro-stat-icon-amber">◑</div>
+            <div className="kpro-stat-icon kpro-stat-icon-amber">
+              <TrendingUp size={18} />
+            </div>
           </div>
           <div className="kpro-stat-value">{formatRupiah(ringkasan.omzetBulanIni)}</div>
           <div className="kpro-stat-change">bulan berjalan</div>
         </div>
+        
         <div className="kpro-stat-card">
           <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
             <div className="kpro-stat-label">Piutang</div>
-            <div className="kpro-stat-icon kpro-stat-icon-red">💰</div>
+            <div className="kpro-stat-icon kpro-stat-icon-red">
+              <DollarSign size={18} />
+            </div>
           </div>
           <div className="kpro-stat-value">{formatRupiah(ringkasan.piutang)}</div>
           <div className="kpro-stat-change">belum dilunasi</div>
         </div>
+        
         <div className="kpro-stat-card">
           <div className="kpro-d-flex kpro-justify-between kpro-align-center kpro-mb-3">
             <div className="kpro-stat-label">Stok Kritis</div>
-            <div className="kpro-stat-icon kpro-stat-icon-red">⚠</div>
+            <div className="kpro-stat-icon kpro-stat-icon-red">
+              <AlertTriangle size={18} />
+            </div>
           </div>
           <div className="kpro-stat-value" style={{ color: ringkasan.stokKritis > 0 ? 'var(--kpro-danger)' : 'inherit' }}>
             {ringkasan.stokKritis}
@@ -138,7 +162,10 @@ export default function DashboardPage() {
         <div className="kpro-col-6">
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">📊 Omzet 6 Bulan Terakhir</span>
+              <span className="kpro-card-title">
+                <BarChart3 size={16} style={{ marginRight: '8px' }} />
+                Omzet 6 Bulan Terakhir
+              </span>
               {!isTeam && (
                 <button className="kpro-btn kpro-btn-ghost kpro-btn-sm" onClick={() => navigate('/keuangan')} style={{ fontSize: '12px' }}>
                   Lihat detail →
@@ -170,7 +197,10 @@ export default function DashboardPage() {
         <div className="kpro-col-6">
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">📋 Progres Proyek Aktif</span>
+              <span className="kpro-card-title">
+                <Clock size={16} style={{ marginRight: '8px' }} />
+                Progres Proyek Aktif
+              </span>
               {!isTeam && (
                 <button className="kpro-btn kpro-btn-ghost kpro-btn-sm" onClick={() => navigate('/proyek')} style={{ fontSize: '12px' }}>
                   Lihat semua →
@@ -207,7 +237,10 @@ export default function DashboardPage() {
       {/* Stok Kritis */}
       <div className="kpro-card">
         <div className="kpro-card-header">
-          <span className="kpro-card-title">⚠ Stok Kritis — Perlu Restock</span>
+          <span className="kpro-card-title">
+            <AlertTriangle size={16} style={{ marginRight: '8px' }} />
+            Stok Kritis — Perlu Restock
+          </span>
           <button className="kpro-btn kpro-btn-ghost kpro-btn-sm" onClick={() => navigate('/stok')} style={{ fontSize: '12px' }}>
             Kelola stok →
           </button>
@@ -215,15 +248,24 @@ export default function DashboardPage() {
         <div className="kpro-table-wrap">
           <table className="kpro-table">
             <thead>
-              <tr><th>Nama Bahan</th><th>Sisa Stok</th><th>Min Stok</th><th>Status</th></tr>
+              <tr>
+                <th>Nama Bahan</th>
+                <th>Sisa Stok</th>
+                <th>Min Stok</th>
+                <th>Status</th>
+              </tr>
             </thead>
             <tbody>
               {stokKritisList.length === 0 ? (
-                <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: 'var(--kpro-success-text)' }}>✓ Semua stok dalam kondisi aman</td></tr>
+                <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: 'var(--kpro-success-text)' }}>
+                  <Package size={24} style={{ marginBottom: '8px', opacity: 0.5 }} />
+                  <div>✓ Semua stok dalam kondisi aman</div>
+                </td>
+              </tr>
               ) : (
                 stokKritisList.map(item => (
                   <tr key={item.id}>
-                    <td><strong>{item.nama_bahan}</strong></td>
+                    <td style={{ fontWeight: 600 }}>{item.nama_bahan}</td>
                     <td>{item.stok_saat_ini} {item.satuan}</td>
                     <td>{item.min_stok} {item.satuan}</td>
                     <td><span className="kpro-badge kpro-badge-danger">Kritis</span></td>

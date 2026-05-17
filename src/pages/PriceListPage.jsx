@@ -98,16 +98,16 @@ export default function PriceListPage() {
   return (
     <div>
       <div className="pl-tabs">
-        <button className={`pl-tab ${brand === 'SERAGAMAN' ? 'active' : ''}`} onClick={() => switchBrand('SERAGAMAN')}>🏢 SERAGAMAN</button>
-        <button className={`pl-tab ${brand === 'CLOTHINGWELL' ? 'active' : ''}`} onClick={() => switchBrand('CLOTHINGWELL')}>👕 CLOTHINGWELL</button>
-        <button className={`pl-tab ${brand === 'KAMPUS APPAREL' ? 'active' : ''}`} onClick={() => switchBrand('KAMPUS APPAREL')}>🎓 KAMPUS APPAREL</button>
+        <button className={`pl-tab ${brand === 'SERAGAMAN' ? 'active' : ''}`} onClick={() => switchBrand('SERAGAMAN')}>SERAGAMAN</button>
+        <button className={`pl-tab ${brand === 'CLOTHINGWELL' ? 'active' : ''}`} onClick={() => switchBrand('CLOTHINGWELL')}>CLOTHINGWELL</button>
+        <button className={`pl-tab ${brand === 'KAMPUS APPAREL' ? 'active' : ''}`} onClick={() => switchBrand('KAMPUS APPAREL')}>KAMPUS APPAREL</button>
       </div>
 
       <div className="pl-two-columns">
         <div className="pl-products-section">
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">📦 Pilih Produk</span>
+              <span className="kpro-card-title">Pilih Produk</span>
             </div>
             <div className="kpro-card-body">
               <ProductTypeSelector

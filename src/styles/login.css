@@ -253,6 +253,7 @@ button { cursor: pointer; font-family: var(--ff-body); }
 /* ── Tabs ── */
 .lp-tabs {
   display: flex;
+  justify-content: center;
   gap: 0;
   margin-bottom: 28px;
   border-bottom: 2px solid var(--border);
@@ -596,9 +597,10 @@ button { cursor: pointer; font-family: var(--ff-body); }
    RESPONSIVE
    ══════════════════════ */
 @media (max-width: 780px) {
-  .lp-page { padding: 16px 12px; align-items: flex-start; }
+  .lp-page { padding: 16px 12px; align-items: center; }
 
   .lp-card {
+    
     flex-direction: column;
     max-width: 480px;
     min-height: unset;
@@ -614,11 +616,19 @@ button { cursor: pointer; font-family: var(--ff-body); }
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
-  .lp-left-body { padding: 28px 24px 24px; gap: 20px; }
+  .lp-hero {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+  .lp-left-body { padding: 28px 24px 24px; gap: 20px; display: flex; align-items: center;}
   .lp-left-footer { padding: 12px 24px 20px; }
 
-  .lp-hero h1 { font-size: 26px; }
-  .lp-hero p  { max-width: 100%; font-size: 13px; }
+  .lp-hero h1 { font-size: 32px; text-align: center; }
+  .lp-hero p  { max-width: 100%; font-size: 13px; text-align: center;}
   .lp-feat    { display: none; } /* clean on mobile */
 
   .lp-right { padding: 28px 24px 32px; }
@@ -628,6 +638,6 @@ button { cursor: pointer; font-family: var(--ff-body); }
 @media (max-width: 400px) {
   .lp-left-body { padding: 24px 20px 20px; }
   .lp-right     { padding: 24px 20px 28px; }
-  .lp-hero h1   { font-size: 22px; }
+  .lp-hero h1   { font-size: 32px; }
   .lp-modal     { padding: 28px 20px 24px; }
 }

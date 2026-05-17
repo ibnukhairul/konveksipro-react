@@ -1,45 +1,139 @@
 import { useAuth } from '../contexts/AuthContext'
-import { useNotifikasi } from '../contexts/NotifikasiContext'  // ← pindah dari hooks
+import { useNotifikasi } from '../contexts/NotifikasiContext'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { 
+  Bell, 
+  User, 
+  LogOut, 
+  Menu,
+  ChevronDown,
+  Settings,
+  HelpCircle
+} from 'lucide-react'
 
 export default function Topbar({ title, onMenuToggle }) {
-  const { profile, user } = useAuth()
-  const { unreadCount } = useNotifikasi()  // ← dari context, bukan hook
+  const { profile, user, logout } = useAuth()
+  const { unreadCount } = useNotifikasi()
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
 
   const userName = profile?.nama_lengkap || user?.email?.split('@')[0] || 'User'
   const userInitial = userName.charAt(0).toUpperCase()
+  const userRole = profile?.role === 'owner' ? 'Owner' : profile?.role === 'developer' ? 'Developer' : 'Team'
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleLogout = async () => {
-    // Implement logout
+    try {
+      await logout()
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
+
+  const getRoleBadgeColor = () => {
+    if (profile?.role === 'owner') return '#f97316'
+    if (profile?.role === 'developer') return '#3b82f6'
+    return '#64748b'
   }
 
   return (
-    <header className="kpro-topbar">
-      <div className="kpro-topbar-left">
-        <button className="kpro-mobile-menu-toggle" onClick={onMenuToggle}>☰</button>
-        <h1 className="kpro-topbar-title">{title}</h1>
+    <header className="topbar-modern">
+      <div className="topbar-modern-left">
+        <button className="topbar-modern-menu-btn" onClick={onMenuToggle}>
+          <Menu size={20} />
+        </button>
+        <div className="topbar-modern-title">
+          <h1>{title}</h1>
+        </div>
       </div>
-      <div className="kpro-topbar-right">
-        <button className="kpro-notif-btn" onClick={() => navigate('/notifikasi')}>
-          🔔
+
+      <div className="topbar-modern-right">
+        {/* Notification Button */}
+        <button 
+          className="topbar-modern-notif-btn" 
+          onClick={() => navigate('/notifikasi')}
+        >
+          <Bell size={18} />
           {unreadCount > 0 && (
-            <span className="kpro-notif-pip" style={{ display: 'inline-flex' }}>
+            <span className="topbar-modern-notif-badge">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </button>
-        <div className={`kpro-dropdown ${dropdownOpen ? 'is-open' : ''}`}>
-          <button className="kpro-avatar kpro-avatar-md kpro-avatar-blue" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            {userInitial}
+
+        {/* User Dropdown */}
+        <div className="topbar-modern-dropdown" ref={dropdownRef}>
+          <button 
+            className="topbar-modern-dropdown-toggle"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            <div className="topbar-modern-avatar">
+              {userInitial}
+            </div>
+            <div className="topbar-modern-user-info">
+              <span className="topbar-modern-user-name">{userName}</span>
+              <span className="topbar-modern-user-role" style={{ color: getRoleBadgeColor() }}>
+                {userRole}
+              </span>
+            </div>
+            <ChevronDown size={16} className={`dropdown-arrow ${dropdownOpen ? 'rotated' : ''}`} />
           </button>
-          <div className="kpro-dropdown-menu">
-            <div className="kpro-dropdown-item" onClick={() => navigate('/akun')}>👤 Profil Saya</div>
-            <div className="kpro-dropdown-divider"></div>
-            <div className="kpro-dropdown-item" onClick={handleLogout}>🚪 Keluar</div>
-          </div>
+
+          {dropdownOpen && (
+            <div className="topbar-modern-dropdown-menu">
+              <div className="topbar-modern-dropdown-header">
+                <div className="topbar-modern-dropdown-avatar">
+                  {userInitial}
+                </div>
+                <div>
+                  <div className="topbar-modern-dropdown-name">{userName}</div>
+                  <div className="topbar-modern-dropdown-email">{user?.email}</div>
+                </div>
+              </div>
+              <div className="topbar-modern-dropdown-divider" />
+              <button 
+                className="topbar-modern-dropdown-item"
+                onClick={() => {
+                  setDropdownOpen(false)
+                  navigate('/akun')
+                }}
+              >
+                <User size={16} />
+                <span>Profil Saya</span>
+              </button>
+              {/* <button 
+                className="topbar-modern-dropdown-item"
+                onClick={() => {
+                  setDropdownOpen(false)
+                  navigate('/akun')
+                }}
+              >
+                <Settings size={16} />
+                <span>Pengaturan</span>
+              </button> */}
+              <div className="topbar-modern-dropdown-divider" />
+              <button 
+                className="topbar-modern-dropdown-item logout"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                <span>Keluar</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
