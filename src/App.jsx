@@ -12,6 +12,8 @@ import TeamPage from './pages/TeamPage'
 import BakupPage from './pages/BackupPage'
 import AdminPriceListPage from './pages/AdminPriceListPage'
 import DashboardPage from './pages/DashboardPage'
+import './styles/login.css'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 // Placeholder halaman lainnya (tidak termasuk PriceListPage)
 // const DashboardPage = () => <div className="kpro-card"><div className="kpro-card-body">Dashboard Page</div></div>
@@ -51,6 +53,7 @@ function AppRoutes() {
         <Route path="team" element={<TeamPage />} />
         <Route path="backup" element={<BakupPage />} />
         <Route path="admin-pricelist" element={<AdminPriceListPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
     </Routes>
   )

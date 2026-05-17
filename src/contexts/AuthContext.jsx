@@ -33,6 +33,12 @@ export const AuthProvider = ({ children }) => {
     return prof
   }
 
+  // 🔥 PASTIKAN FUNGSI REGISTER ADA
+  const register = async (email, password, namaLengkap) => {
+    const result = await auth.register(email, password, namaLengkap)
+    return result
+  }
+
   const logout = async () => {
     await auth.logout()
     setUser(null)
@@ -47,7 +53,15 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      profile, 
+      loading, 
+      login, 
+      register,  // ← PASTIKAN INI DIEXPORT
+      logout, 
+      refreshProfile 
+    }}>
       {children}
     </AuthContext.Provider>
   )
