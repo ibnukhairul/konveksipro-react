@@ -1,17 +1,18 @@
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Package, 
-  FolderKanban, 
-  Tag, 
-  BarChart3, 
-  Bell, 
-  User, 
-  Users, 
-  Database, 
+import {
+  LayoutDashboard,
+  Package,
+  FolderKanban,
+  Tag,
+  BarChart3,
+  Bell,
+  User,
+  Users,
+  Database,
   Settings,
-  LogOut
+  LogOut,
+  Wallet
 } from 'lucide-react'
 
 const MENU_ITEMS = {
@@ -21,6 +22,8 @@ const MENU_ITEMS = {
     { path: '/proyek', label: 'Proyek', icon: FolderKanban, roleNote: 'owner' },
     { path: '/pricelist', label: 'Price List', icon: Tag },
     { path: '/keuangan', label: 'Rekap Keuangan', icon: BarChart3, roleNote: 'owner' },
+    // Di MENU_ITEMS.owner, tambahkan:
+    { path: '/pengeluaran', label: 'Pengeluaran', icon: Wallet, roleNote: 'owner' },
     { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
     { path: '/akun', label: 'Akun', icon: User },
     { path: '/team', label: 'Tim', icon: Users, roleNote: 'owner' },
@@ -40,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const { profile, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  
+
   const role = profile?.role === 'owner' || profile?.role === 'developer' ? 'owner' : 'team'
   const menu = MENU_ITEMS[role]
   const userName = profile?.nama_lengkap || profile?.email?.split('@')[0] || 'User'
