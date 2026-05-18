@@ -3,15 +3,22 @@ import { useProyek } from '../hooks/useProyek'
 import ProyekTable from '../components/proyek/ProyekTable'
 import { proyekService } from '../services/proyekService'
 import { exportService } from '../services/exportService'
-import { useToast } from '../hooks/useToast'  // ← TAMBAHKAN INI
+import { useToast } from '../hooks/useToast'
+import {
+ 
+  Download
+  
+} from 'lucide-react'
+import { Chart, registerables } from 'chart.js'
 
 const formatRupiah = (num) => `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
 
 export default function ProyekPage() {
   const { proyek, loading, refresh, setSearch, setStatusBayar, setStatusProduksi, resetFilters, sortField, sortOrder, sort } = useProyek()
-  const toast = useToast()  // ← TAMBAHKAN INI
+  const toast = useToast()
   const [modalTambah, setModalTambah] = useState(false)
-  const [exporting, setExporting] = useState(false)  // ← TAMBAHKAN INI
+  const [exporting, setExporting] = useState(false)
+  const [submitting, setSubmitting] = useState(false) // 🔥 Cegah spam klik tambah proyek
   const [form, setForm] = useState({
     nama_client: '', no_wa: '', tanggal_order: new Date().toISOString().split('T')[0],
     sumber_info: '', instansi: '', organisasi: '', jabatan: '',
@@ -27,7 +34,6 @@ export default function ProyekPage() {
 
   const hitungTotalHarga = (list) => list.reduce((sum, p) => sum + (p.jumlah_pcs * p.harga_satuan), 0)
 
-  // Fungsi menentukan status bayar dari DP dan total
   const getStatusBayarFromDp = (dp, total) => {
     if (total === 0) return 'belum_dp'
     const percent = Math.round((dp / total) * 100)
@@ -36,7 +42,6 @@ export default function ProyekPage() {
     return `dp_${percent}`
   }
 
-  // Handler DP manual
   const handleDpChange = (value) => {
     const dp = parseInt(value) || 0
     const total = hitungTotalHarga(produkList)
@@ -45,7 +50,6 @@ export default function ProyekPage() {
     setForm(prev => ({ ...prev, status_bayar: newStatus }))
   }
 
-  // Handler status bayar dari dropdown
   const handleStatusBayarChange = (selectedStatus) => {
     const total = hitungTotalHarga(produkList)
     let dp = 0
@@ -82,6 +86,7 @@ export default function ProyekPage() {
       toast.warning('Tidak ada data proyek untuk diexport')
       return
     }
+    if (exporting) return // 🔥 Cegah spam klik export
     
     setExporting(true)
     try {
@@ -118,7 +123,7 @@ export default function ProyekPage() {
   }
 
   const hapusProduk = (idx) => {
-    if (produkList.length === 1) return alert('Minimal 1 produk')
+    if (produkList.length === 1) return toast.warning('Minimal 1 produk')
     const newList = produkList.filter((_, i) => i !== idx)
     setProdukList(newList)
     const totalBaru = hitungTotalHarga(newList)
@@ -128,12 +133,14 @@ export default function ProyekPage() {
     }
   }
 
+  // 🔥 PERBAIKI: handleSimpan dengan cegah spam klik
   const handleSimpan = async () => {
-    if (!form.nama_client) return alert('Nama client wajib diisi')
-    if (!form.nama_proyek) return alert('Nama proyek wajib diisi')
+    if (!form.nama_client) return toast.warning('Nama client wajib diisi')
+    if (!form.nama_proyek) return toast.warning('Nama proyek wajib diisi')
     if (produkList.some(p => !p.nama_produk || p.jumlah_pcs <= 0 || p.harga_satuan <= 0)) {
-      return alert('Semua produk harus diisi lengkap dengan jumlah dan harga > 0')
+      return toast.warning('Semua produk harus diisi lengkap dengan jumlah dan harga > 0')
     }
+    if (submitting) return // 🔥 Cegah spam klik
 
     const totalHarga = hitungTotalHarga(produkList)
     let statusBayar = form.status_bayar
@@ -144,6 +151,7 @@ export default function ProyekPage() {
 
     const notaNumber = `INV-${Date.now()}`
 
+    setSubmitting(true)
     try {
       await proyekService.buat({
         ...form,
@@ -158,12 +166,14 @@ export default function ProyekPage() {
         harga_satuan: p.harga_satuan
       })))
 
-      alert('Proyek berhasil ditambahkan')
+      toast.success('Proyek berhasil ditambahkan')
       setModalTambah(false)
       refresh()
       resetForm()
     } catch (err) {
-      alert('Gagal simpan: ' + err.message)
+      toast.error('Gagal simpan: ' + err.message)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -173,17 +183,23 @@ export default function ProyekPage() {
         <div><h2 className="kpro-page-title">Manajemen Proyek</h2><p className="kpro-page-subtitle">Semua order & pesanan client</p></div>
         <div className="kpro-page-actions">
           <button 
-            className="kpro-btn kpro-btn-secondary" 
+            className="keu-export-btn" 
             onClick={handleExportExcel} 
             disabled={exporting}
-          >
-            {exporting ? '⏳ Mengexport...' : '📊 Export ke Excel'}
+          ><Download size={15} />
+            {exporting ? '⏳ Mengexport...' : ' Export ke Excel'}
           </button>
-          <button className="kpro-btn kpro-btn-primary" onClick={() => setModalTambah(true)}>+ Tambah Proyek</button>
+          <button 
+            className="kpro-btn kpro-btn-primary" 
+            onClick={() => setModalTambah(true)} 
+            disabled={submitting}
+          >
+            {submitting ? 'Memproses...' : '+ Tambah Proyek'}
+          </button>
         </div>
       </div>
 
-      {/* Filter Bar */}
+      {/* Filter Bar - sama seperti sebelumnya */}
       <div className="kpro-card kpro-mb-4">
         <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ flexWrap: 'wrap', gap: '12px', padding: '16px 20px' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
@@ -218,63 +234,74 @@ export default function ProyekPage() {
         <ProyekTable proyek={proyek} loading={loading} onRefresh={refresh} onSort={sort} sortField={sortField} sortOrder={sortOrder} />
       </div>
 
-      {/* Modal Tambah Proyek */}
+      {/* Modal Tambah Proyek - 🔥 dengan disabled button */}
       {modalTambah && (
-        <div className="kpro-modal-overlay is-open" onClick={() => setModalTambah(false)}>
+        <div className="kpro-modal-overlay is-open" onClick={() => !submitting && setModalTambah(false)}>
           <div className="kpro-modal" style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
-            <div className="kpro-modal-header"><h3>Tambah Proyek Baru</h3><button className="kpro-modal-close" onClick={() => setModalTambah(false)}>✕</button></div>
+            <div className="kpro-modal-header">
+              <h3>Tambah Proyek Baru</h3>
+              <button className="kpro-modal-close" onClick={() => !submitting && setModalTambah(false)} disabled={submitting}>✕</button>
+            </div>
             <div className="kpro-modal-body">
-              {/* Client info */}
+              {/* Client info - semua input disabled saat submitting */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">👤 Informasi Client</div><div className="kpro-card-body">
-                <div className="kpro-form-group"><label>Nama Client *</label><input className="kpro-input" value={form.nama_client} onChange={e => setForm({ ...form, nama_client: e.target.value })} /></div>
-                <div className="kpro-form-row"><div className="kpro-form-group"><label>No. WhatsApp</label><input className="kpro-input" value={form.no_wa} onChange={e => setForm({ ...form, no_wa: e.target.value })} /></div><div className="kpro-form-group"><label>Tanggal Order</label><input type="date" className="kpro-input" value={form.tanggal_order} onChange={e => setForm({ ...form, tanggal_order: e.target.value })} /></div></div>
+                <div className="kpro-form-group"><label>Nama Client *</label><input className="kpro-input" value={form.nama_client} onChange={e => setForm({ ...form, nama_client: e.target.value })} disabled={submitting} /></div>
+                <div className="kpro-form-row"><div className="kpro-form-group"><label>No. WhatsApp</label><input className="kpro-input" value={form.no_wa} onChange={e => setForm({ ...form, no_wa: e.target.value })} disabled={submitting} /></div><div className="kpro-form-group"><label>Tanggal Order</label><input type="date" className="kpro-input" value={form.tanggal_order} onChange={e => setForm({ ...form, tanggal_order: e.target.value })} disabled={submitting} /></div></div>
               </div></div>
+              
               {/* Proyek detail */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">📦 Detail Proyek</div><div className="kpro-card-body">
-                <div className="kpro-form-group"><label>Nama Proyek *</label><input className="kpro-input" value={form.nama_proyek} onChange={e => setForm({ ...form, nama_proyek: e.target.value })} /></div>
-                <div className="kpro-form-group"><label>Brand</label><select className="kpro-select" value={form.brand} onChange={e => setForm({ ...form, brand: e.target.value })}><option>SERAGAMAN</option><option>CLOTHINGWELL</option><option>KAMPUS APPAREL</option></select></div>
+                <div className="kpro-form-group"><label>Nama Proyek *</label><input className="kpro-input" value={form.nama_proyek} onChange={e => setForm({ ...form, nama_proyek: e.target.value })} disabled={submitting} /></div>
+                <div className="kpro-form-group"><label>Brand</label><select className="kpro-select" value={form.brand} onChange={e => setForm({ ...form, brand: e.target.value })} disabled={submitting}>
+                  <option>SERAGAMAN</option><option>CLOTHINGWELL</option><option>KAMPUS APPAREL</option>
+                </select></div>
               </div></div>
+              
               {/* Daftar Produk */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">🛍️ Daftar Produk</div><div className="kpro-card-body">
                 {produkList.map((p, idx) => (
                   <div key={p.id} style={{ background: '#F8FAFC', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
-                    <div className="kpro-form-row"><div className="kpro-form-group" style={{ flex: 2 }}><label>Nama Produk</label><input className="kpro-input" value={p.nama_produk} onChange={e => updateProduk(idx, 'nama_produk', e.target.value)} /></div></div>
+                    <div className="kpro-form-row"><div className="kpro-form-group" style={{ flex: 2 }}><label>Nama Produk</label><input className="kpro-input" value={p.nama_produk} onChange={e => updateProduk(idx, 'nama_produk', e.target.value)} disabled={submitting} /></div></div>
                     <div className="kpro-form-row">
-                      <div className="kpro-form-group"><label>Jumlah (pcs)</label><input type="text" inputMode="numeric" className="kpro-input" value={p.jumlah_pcs} onChange={e => updateProduk(idx, 'jumlah_pcs', e.target.value)} /></div>
-                      <div className="kpro-form-group"><label>Harga Satuan</label><input type="text" inputMode="numeric" className="kpro-input" value={p.harga_satuan} onChange={e => updateProduk(idx, 'harga_satuan', e.target.value)} /></div>
+                      <div className="kpro-form-group"><label>Jumlah (pcs)</label><input type="text" inputMode="numeric" className="kpro-input" value={p.jumlah_pcs} onChange={e => updateProduk(idx, 'jumlah_pcs', e.target.value)} disabled={submitting} /></div>
+                      <div className="kpro-form-group"><label>Harga Satuan</label><input type="text" inputMode="numeric" className="kpro-input" value={p.harga_satuan} onChange={e => updateProduk(idx, 'harga_satuan', e.target.value)} disabled={submitting} /></div>
                       <div className="kpro-form-group"><label>Subtotal</label><input className="kpro-input" readOnly value={formatRupiah(p.jumlah_pcs * p.harga_satuan)} style={{ background: '#f5f5f5' }} /></div>
-                      <div className="kpro-form-group"><button className="kpro-btn kpro-btn-danger kpro-btn-sm" onClick={() => hapusProduk(idx)}>🗑</button></div>
+                      <div className="kpro-form-group"><button className="kpro-btn kpro-btn-danger kpro-btn-sm" onClick={() => !submitting && hapusProduk(idx)} disabled={submitting}>🗑</button></div>
                     </div>
                   </div>
                 ))}
-                <button className="kpro-btn kpro-btn-outline-primary kpro-btn-sm" onClick={tambahProduk}>+ Tambah Produk</button>
+                <button className="kpro-btn kpro-btn-outline-primary kpro-btn-sm" onClick={() => !submitting && tambahProduk()} disabled={submitting}>+ Tambah Produk</button>
               </div></div>
+              
               {/* Keuangan */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">💰 Total & Pembayaran</div><div className="kpro-card-body">
                 <div className="kpro-form-group"><label>Total Keseluruhan</label><input className="kpro-input" readOnly value={formatRupiah(hitungTotalHarga(produkList))} style={{ background: '#EFF6FF', fontWeight: 'bold' }} /></div>
                 <div className="kpro-form-row">
                   <div className="kpro-form-group"><label>Status Pembayaran</label>
-                    <select className="kpro-select" value={form.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}>
+                    <select className="kpro-select" value={form.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)} disabled={submitting}>
                       <option value="belum_dp">Belum DP</option>
                       <option value="dp_30">DP 30%</option>
                       <option value="dp_50">DP 50%</option>
                       <option value="lunas">Lunas</option>
                     </select>
                   </div>
-                  <div className="kpro-form-group"><label>DP Dibayar (Rp)</label><input type="text" inputMode="numeric" className="kpro-input" value={dpDibayar} onChange={e => handleDpChange(e.target.value)} /></div>
+                  <div className="kpro-form-group"><label>DP Dibayar (Rp)</label><input type="text" inputMode="numeric" className="kpro-input" value={dpDibayar} onChange={e => handleDpChange(e.target.value)} disabled={submitting} /></div>
                 </div>
               </div></div>
+              
               {/* Informasi Tambahan Client */}
               <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">ℹ️ Informasi Tambahan Client</div><div className="kpro-card-body">
-                <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={form.sumber_info} onChange={e => setForm({ ...form, sumber_info: e.target.value })} /></div>
-                <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={form.instansi} onChange={e => setForm({ ...form, instansi: e.target.value })} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={form.organisasi} onChange={e => setForm({ ...form, organisasi: e.target.value })} /></div></div>
-                <div className="kpro-form-group"><label>Jabatan</label><input className="kpro-input" value={form.jabatan} onChange={e => setForm({ ...form, jabatan: e.target.value })} /></div>
-                <div className="kpro-form-group"><label>Catatan</label><textarea className="kpro-textarea" rows="2" value={form.catatan} onChange={e => setForm({ ...form, catatan: e.target.value })} /></div>
+                <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={form.sumber_info} onChange={e => setForm({ ...form, sumber_info: e.target.value })} disabled={submitting} /></div>
+                <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={form.instansi} onChange={e => setForm({ ...form, instansi: e.target.value })} disabled={submitting} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={form.organisasi} onChange={e => setForm({ ...form, organisasi: e.target.value })} disabled={submitting} /></div></div>
+                <div className="kpro-form-group"><label>Jabatan</label><input className="kpro-input" value={form.jabatan} onChange={e => setForm({ ...form, jabatan: e.target.value })} disabled={submitting} /></div>
+                <div className="kpro-form-group"><label>Catatan</label><textarea className="kpro-textarea" rows="2" value={form.catatan} onChange={e => setForm({ ...form, catatan: e.target.value })} disabled={submitting} /></div>
               </div></div>
             </div>
             <div className="kpro-modal-footer">
-              <button className="kpro-btn kpro-btn-secondary" onClick={() => setModalTambah(false)}>Batal</button>
-              <button className="kpro-btn kpro-btn-primary" onClick={handleSimpan}>Simpan Proyek</button>
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => !submitting && setModalTambah(false)} disabled={submitting}>Batal</button>
+              <button className="kpro-btn kpro-btn-primary" onClick={handleSimpan} disabled={submitting}>
+                {submitting ? 'Menyimpan...' : 'Simpan Proyek'}
+              </button>
             </div>
           </div>
         </div>

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { keuanganService } from '../services/keuanganService'
 import { useAuth } from '../contexts/AuthContext'
+import { exportService } from '../services/exportService'
+import { useToast } from '../hooks/useToast'
 import {
   TrendingUp,
   Wallet,
@@ -10,15 +12,13 @@ import {
   Download,
   CheckCircle,
   ArrowUpRight,
-  ArrowDownRight,
-  Minus
+  ArrowDownRight
 } from 'lucide-react'
 import { Chart, registerables } from 'chart.js'
 
 Chart.register(...registerables)
 
-const formatRupiah = (num) =>
-  `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
+const formatRupiah = (num) => `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
 
 const formatShort = (value) => {
   if (value >= 1000000) return 'Rp ' + (value / 1000000).toFixed(1) + 'jt'
@@ -45,6 +45,7 @@ const getStatusConfig = (status) => {
 
 export default function KeuanganPage() {
   const { profile } = useAuth()
+  const toast = useToast()
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
   const [chartView, setChartView] = useState('bar')
@@ -105,9 +106,7 @@ export default function KeuanganPage() {
           {
             label: 'Pemasukan',
             data: pemasukan,
-            backgroundColor: isLine
-              ? 'rgba(59,130,246,0.07)'
-              : 'rgba(59,130,246,0.85)',
+            backgroundColor: isLine ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.85)',
             borderColor: '#3b82f6',
             borderWidth: isLine ? 2.5 : 0,
             borderRadius: isLine ? 0 : 10,
@@ -124,9 +123,7 @@ export default function KeuanganPage() {
           {
             label: 'Pengeluaran',
             data: pengeluaran,
-            backgroundColor: isLine
-              ? 'rgba(248,113,113,0.07)'
-              : 'rgba(248,113,113,0.7)',
+            backgroundColor: isLine ? 'rgba(248,113,113,0.07)' : 'rgba(248,113,113,0.7)',
             borderColor: '#f87171',
             borderWidth: isLine ? 2.5 : 0,
             borderRadius: isLine ? 0 : 10,
@@ -158,8 +155,7 @@ export default function KeuanganPage() {
             bodyFont: { size: 13, weight: '500' },
             callbacks: {
               title: (ctx) => ctx[0].label,
-              label: (ctx) =>
-                '  ' + ctx.dataset.label + ': ' + formatShort(ctx.raw),
+              label: (ctx) => '  ' + ctx.dataset.label + ': ' + formatShort(ctx.raw),
               afterBody: (ctx) => {
                 const i = ctx[0].dataIndex
                 const laba = pemasukan[i] - pengeluaran[i]
@@ -173,24 +169,12 @@ export default function KeuanganPage() {
           x: {
             grid: { display: false },
             border: { display: false },
-            ticks: {
-              color: '#94a3b8',
-              font: { size: 12 },
-              autoSkip: false,
-            },
+            ticks: { color: '#94a3b8', font: { size: 12 }, autoSkip: false },
           },
           y: {
-            grid: {
-              color: 'rgba(148,163,184,0.1)',
-              drawTicks: false,
-            },
+            grid: { color: 'rgba(148,163,184,0.1)', drawTicks: false },
             border: { display: false },
-            ticks: {
-              color: '#94a3b8',
-              font: { size: 11 },
-              padding: 8,
-              callback: (v) => formatShort(v),
-            },
+            ticks: { color: '#94a3b8', font: { size: 11 }, padding: 8, callback: (v) => formatShort(v) },
             beginAtZero: true,
           },
         },
@@ -198,37 +182,46 @@ export default function KeuanganPage() {
     })
 
     return () => {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy()
-      }
+      if (chartInstanceRef.current) chartInstanceRef.current.destroy()
     }
   }, [incomeVsExpense, chartView, loading])
 
-  const handleExport = async () => {
+  // 🔥 FUNGSI EXPORT EXCEL LENGKAP
+  const handleExportExcel = async () => {
     setExporting(true)
+    toast.info('Mengambil data untuk diexport...')
+    
     try {
-      alert('Fitur export akan segera hadir')
+      const proyekList = await keuanganService.getAllProyek()
+      const pengeluaranList = await keuanganService.getAllPengeluaran()
+      const monthlyIncome = await keuanganService.getMonthlyIncome()
+      const monthlyExpense = await keuanganService.getMonthlyExpense()
+      const rekapData = keuanganService.getRekap(proyekList)
+      
+      await exportService.exportLaporanKeuangan(
+        proyekList,
+        pengeluaranList,
+        monthlyIncome,
+        monthlyExpense,
+        rekapData.piutangData
+      )
+      
+      toast.success('Laporan keuangan berhasil diexport!')
     } catch (err) {
       console.error('Export error:', err)
+      toast.error('Gagal export laporan: ' + err.message)
     } finally {
       setExporting(false)
     }
   }
 
-  const netPerMonth =
-    incomeVsExpense.length > 0
-      ? incomeVsExpense.reduce(
-          (sum, d) => sum + (d.pemasukan - d.pengeluaran),
-          0
-        ) / incomeVsExpense.length
-      : 0
+  const netPerMonth = incomeVsExpense.length > 0
+    ? incomeVsExpense.reduce((sum, d) => sum + (d.pemasukan - d.pengeluaran), 0) / incomeVsExpense.length
+    : 0
 
-  const bestMonth =
-    incomeVsExpense.length > 0
-      ? incomeVsExpense.reduce((best, cur) =>
-          cur.pemasukan > best.pemasukan ? cur : best
-        )
-      : null
+  const bestMonth = incomeVsExpense.length > 0
+    ? incomeVsExpense.reduce((best, cur) => cur.pemasukan > best.pemasukan ? cur : best)
+    : null
 
   if (loading) {
     return (
@@ -245,65 +238,51 @@ export default function KeuanganPage() {
       <div className="keu-header">
         <div>
           <h1 className="keu-title">Rekap Keuangan</h1>
-          <p className="keu-subtitle">
-            Laporan pemasukan, pengeluaran &amp; piutang
-          </p>
+          <p className="keu-subtitle">Laporan pemasukan, pengeluaran &amp; piutang</p>
         </div>
-        <button
-          className="keu-export-btn"
-          onClick={handleExport}
-          disabled={exporting}
-        >
-          <Download size={15} />
-          {exporting ? 'Memproses...' : 'Export PDF'}
-        </button>
+        <div className="keu-header-actions">
+          <button
+            className="keu-export-btn"
+            onClick={handleExportExcel}
+            disabled={exporting}
+          >
+            <Download size={15} />
+            {exporting ? 'Memproses...' : 'Export Excel Lengkap'}
+          </button>
+        </div>
       </div>
 
       {/* Metric Cards */}
       <div className="keu-metrics">
         <div className="keu-metric-card">
-          <div className="keu-metric-icon keu-icon-blue">
-            <TrendingUp size={20} />
-          </div>
+          <div className="keu-metric-icon keu-icon-blue"><TrendingUp size={20} /></div>
           <div className="keu-metric-body">
             <span className="keu-metric-label">Total Pemasukan</span>
-            <span className="keu-metric-value">
-              {formatRupiah(rekap.totalPemasukan)}
-            </span>
+            <span className="keu-metric-value">{formatRupiah(rekap.totalPemasukan)}</span>
             <span className="keu-metric-sub">dari DP yang dibayar</span>
           </div>
         </div>
 
         <div className="keu-metric-card">
-          <div className="keu-metric-icon keu-icon-red">
-            <Wallet size={20} />
-          </div>
+          <div className="keu-metric-icon keu-icon-red"><Wallet size={20} /></div>
           <div className="keu-metric-body">
             <span className="keu-metric-label">Total Pengeluaran</span>
-            <span className="keu-metric-value">
-              {formatRupiah(totalPengeluaran)}
-            </span>
+            <span className="keu-metric-value">{formatRupiah(totalPengeluaran)}</span>
             <span className="keu-metric-sub">semua waktu</span>
           </div>
         </div>
 
         <div className="keu-metric-card">
-          <div className="keu-metric-icon keu-icon-amber">
-            <AlertTriangle size={20} />
-          </div>
+          <div className="keu-metric-icon keu-icon-amber"><AlertTriangle size={20} /></div>
           <div className="keu-metric-body">
             <span className="keu-metric-label">Piutang Belum Lunas</span>
-            <span className="keu-metric-value">
-              {formatRupiah(rekap.totalPiutang)}
-            </span>
+            <span className="keu-metric-value">{formatRupiah(rekap.totalPiutang)}</span>
             <span className="keu-metric-sub">sisa tagihan</span>
           </div>
         </div>
 
         <div className="keu-metric-card">
-          <div className="keu-metric-icon keu-icon-purple">
-            <FolderKanban size={20} />
-          </div>
+          <div className="keu-metric-icon keu-icon-purple"><FolderKanban size={20} /></div>
           <div className="keu-metric-body">
             <span className="keu-metric-label">Proyek Aktif</span>
             <span className="keu-metric-value">{rekap.proyekAktif}</span>
@@ -321,83 +300,42 @@ export default function KeuanganPage() {
           </div>
           <div className="keu-chart-controls">
             <div className="keu-legend">
-              <span className="keu-legend-item">
-                <span className="keu-legend-dot keu-dot-blue" />
-                Pemasukan
-              </span>
-              <span className="keu-legend-item">
-                <span className="keu-legend-dot keu-dot-red" />
-                Pengeluaran
-              </span>
+              <span className="keu-legend-item"><span className="keu-legend-dot keu-dot-blue" />Pemasukan</span>
+              <span className="keu-legend-item"><span className="keu-legend-dot keu-dot-red" />Pengeluaran</span>
             </div>
             <div className="keu-tabs">
-              <button
-                className={`keu-tab ${chartView === 'bar' ? 'keu-tab-active' : ''}`}
-                onClick={() => setChartView('bar')}
-              >
-                Batang
-              </button>
-              <button
-                className={`keu-tab ${chartView === 'line' ? 'keu-tab-active' : ''}`}
-                onClick={() => setChartView('line')}
-              >
-                Garis
-              </button>
+              <button className={`keu-tab ${chartView === 'bar' ? 'keu-tab-active' : ''}`} onClick={() => setChartView('bar')}>Batang</button>
+              <button className={`keu-tab ${chartView === 'line' ? 'keu-tab-active' : ''}`} onClick={() => setChartView('line')}>Garis</button>
             </div>
           </div>
         </div>
 
         <div className="keu-card-body">
           {incomeVsExpense.length === 0 ? (
-            <div className="keu-empty-chart">
-              <BarChart3 size={40} />
-              <p>Belum ada data grafik</p>
-            </div>
+            <div className="keu-empty-chart"><BarChart3 size={40} /><p>Belum ada data grafik</p></div>
           ) : (
-            <div className="keu-chart-wrap">
-              <canvas
-                ref={chartRef}
-                role="img"
-                aria-label="Grafik pemasukan vs pengeluaran per bulan"
-              />
-            </div>
+            <div className="keu-chart-wrap"><canvas ref={chartRef} role="img" aria-label="Grafik pemasukan vs pengeluaran per bulan" /></div>
           )}
         </div>
 
-        {/* Summary Row */}
         {incomeVsExpense.length > 0 && (
           <div className="keu-summary-row">
             <div className="keu-summary-item">
-              <div className="keu-summary-icon keu-si-green">
-                <ArrowUpRight size={18} />
-              </div>
+              <div className="keu-summary-icon keu-si-green"><ArrowUpRight size={18} /></div>
               <div>
                 <div className="keu-summary-label">Bulan terbaik</div>
-                <div className="keu-summary-val">
-                  {bestMonth?.bulan}
-                  <span className="keu-badge-pos">
-                    {formatShort(bestMonth?.pemasukan)}
-                  </span>
-                </div>
+                <div className="keu-summary-val">{bestMonth?.bulan}<span className="keu-badge-pos">{formatShort(bestMonth?.pemasukan)}</span></div>
               </div>
             </div>
             <div className="keu-summary-item">
               <div className={`keu-summary-icon ${netPerMonth >= 0 ? 'keu-si-blue' : 'keu-si-red'}`}>
-                {netPerMonth >= 0 ? (
-                  <TrendingUp size={18} />
-                ) : (
-                  <ArrowDownRight size={18} />
-                )}
+                {netPerMonth >= 0 ? <TrendingUp size={18} /> : <ArrowDownRight size={18} />}
               </div>
               <div>
-                <div className="keu-summary-label">
-                  Rata-rata laba bersih / bulan
-                </div>
+                <div className="keu-summary-label">Rata-rata laba bersih / bulan</div>
                 <div className="keu-summary-val">
                   {formatShort(Math.abs(netPerMonth))}
-                  <span className={netPerMonth >= 0 ? 'keu-badge-pos' : 'keu-badge-neg'}>
-                    {netPerMonth >= 0 ? 'surplus' : 'defisit'}
-                  </span>
+                  <span className={netPerMonth >= 0 ? 'keu-badge-pos' : 'keu-badge-neg'}>{netPerMonth >= 0 ? 'surplus' : 'defisit'}</span>
                 </div>
               </div>
             </div>
@@ -408,47 +346,23 @@ export default function KeuanganPage() {
       {/* Piutang Table */}
       <div className="keu-card">
         <div className="keu-card-header">
-          <div className="keu-card-title">
-            <AlertTriangle size={17} />
-            <span>Piutang Belum Lunas</span>
-          </div>
-          {rekap.piutangData.length > 0 && (
-            <span className="keu-count-badge">
-              {rekap.piutangData.length} klien
-            </span>
-          )}
+          <div className="keu-card-title"><AlertTriangle size={17} /><span>Piutang Belum Lunas</span></div>
+          {rekap.piutangData.length > 0 && <span className="keu-count-badge">{rekap.piutangData.length} klien</span>}
         </div>
         <div className="keu-table-wrap">
           <table className="keu-table">
-            <thead>
-              <tr>
-                <th>Klien</th>
-                <th>Sisa Tagihan</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Klien</th><th>Sisa Tagihan</th><th>Status</th></tr></thead>
             <tbody>
               {rekap.piutangData.length === 0 ? (
-                <tr>
-                  <td colSpan="3" className="keu-table-empty">
-                    <CheckCircle size={30} />
-                    <span>Semua tagihan sudah lunas</span>
-                  </td>
-                </tr>
+                <tr><td colSpan="3" className="keu-table-empty"><CheckCircle size={30} /><span>Semua tagihan sudah lunas</span></td></tr>
               ) : (
                 rekap.piutangData.map((item, idx) => {
                   const cfg = getStatusConfig(item.status)
                   return (
                     <tr key={idx}>
                       <td className="keu-td-client">{item.client}</td>
-                      <td className="keu-td-amount">
-                        {formatRupiah(item.sisa)}
-                      </td>
-                      <td>
-                        <span className={`keu-badge ${cfg.cls}`}>
-                          {cfg.label}
-                        </span>
-                      </td>
+                      <td className="keu-td-amount">{formatRupiah(item.sisa)}</td>
+                      <td><span className={`keu-badge ${cfg.cls}`}>{cfg.label}</span></td>
                     </tr>
                   )
                 })

@@ -11,6 +11,16 @@ export const keuanganService = {
     return data || []
   },
 
+  // 🔥 TAMBAHKAN: Ambil semua pengeluaran untuk export
+  async getAllPengeluaran() {
+    const { data, error } = await supabase
+      .from('pengeluaran')
+      .select('*')
+      .order('tanggal', { ascending: false })
+    if (error) throw error
+    return data || []
+  },
+
   getRekap(proyekList) {
     let totalPemasukan = 0
     let totalTagihan = 0
@@ -72,12 +82,10 @@ export const keuanganService = {
     return months
   },
 
-  // 🔥 PERBAIKI: Ambil pengeluaran per bulan (6 bulan terakhir)
   async getMonthlyExpense() {
     const now = new Date()
     const months = []
     
-    // Buat array 6 bulan terakhir
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const year = d.getFullYear()
@@ -88,7 +96,6 @@ export const keuanganService = {
       months.push({ key, label, total: 0, year, month })
     }
 
-    // Ambil semua data pengeluaran
     const { data: pengeluaranList, error } = await supabase
       .from('pengeluaran')
       .select('tanggal, jumlah')
@@ -98,9 +105,6 @@ export const keuanganService = {
       return months
     }
 
-    console.log('📊 Data pengeluaran dari DB:', pengeluaranList)
-
-    // Kelompokkan per bulan
     for (const item of (pengeluaranList || [])) {
       if (!item.tanggal) continue
       const date = new Date(item.tanggal)
@@ -115,30 +119,22 @@ export const keuanganService = {
       }
     }
 
-    console.log('📊 Hasil grouping pengeluaran per bulan:', months)
     return months
   },
 
-  // 🔥 PERBAIKI: Ambil pemasukan vs pengeluaran (6 bulan terakhir)
   async getIncomeVsExpense() {
     const income = await this.getMonthlyIncome()
     const expense = await this.getMonthlyExpense()
     
-    console.log('📊 Income data:', income)
-    console.log('📊 Expense data:', expense)
-    
-    // Gabungkan data berdasarkan bulan yang sama
     const result = income.map((inc, idx) => ({
       bulan: inc.label,
       pemasukan: inc.total,
       pengeluaran: expense[idx]?.total || 0
     }))
     
-    console.log('📊 Income vs Expense result:', result)
     return result
   },
 
-  // 🔥 TAMBAHKAN: Ambil total pengeluaran semua waktu
   async getTotalPengeluaran() {
     const { data, error } = await supabase
       .from('pengeluaran')
@@ -150,7 +146,6 @@ export const keuanganService = {
     }
     
     const total = (data || []).reduce((sum, item) => sum + (item.jumlah || 0), 0)
-    console.log('📊 Total pengeluaran:', total)
     return total
   }
 }

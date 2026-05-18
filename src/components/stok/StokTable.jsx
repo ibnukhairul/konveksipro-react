@@ -17,6 +17,11 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
   const [modalLaporan, setModalLaporan] = useState(false)
   const [laporanText, setLaporanText] = useState('')
   const [generatingReport, setGeneratingReport] = useState(false)
+  
+  // 🔥 LOADING STATES untuk mencegah spam klik
+  const [submittingTambah, setSubmittingTambah] = useState(false)
+  const [submittingAmbil, setSubmittingAmbil] = useState(false)
+  const [submittingHapus, setSubmittingHapus] = useState(false)
 
   // Debounce search
   useEffect(() => {
@@ -39,9 +44,12 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
     setModalAksi(true)
   }
 
-  // Handler tambah stok (popup aksi)
+  // Handler tambah stok (popup aksi) - 🔥 CEK SUBMITTING
   const handleTambahStok = async () => {
     if (!selectedStok) return
+    if (submittingTambah) return // 🔥 Cegah spam klik
+    
+    setSubmittingTambah(true)
     try {
       await stokService.tambahStok(selectedStok.id, jumlah, user?.id, catatan)
       toast.success(`✅ ${selectedStok.nama_bahan} +${jumlah} unit`)
@@ -51,11 +59,17 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
       onRefresh()
     } catch (err) {
       toast.error(err.message)
+    } finally {
+      setSubmittingTambah(false)
     }
   }
 
+  // Handler ambil stok - 🔥 CEK SUBMITTING
   const handleAmbilStok = async () => {
     if (!selectedStok) return
+    if (submittingAmbil) return // 🔥 Cegah spam klik
+    
+    setSubmittingAmbil(true)
     try {
       await stokService.ambilStok(selectedStok.id, jumlah, user?.id, catatan)
       toast.success(`✅ ${selectedStok.nama_bahan} -${jumlah} unit`)
@@ -65,12 +79,18 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
       onRefresh()
     } catch (err) {
       toast.error(err.message)
+    } finally {
+      setSubmittingAmbil(false)
     }
   }
 
+  // Handler hapus stok - 🔥 CEK SUBMITTING
   const handleHapusStok = async () => {
     if (!selectedStok) return
+    if (submittingHapus) return // 🔥 Cegah spam klik
     if (!window.confirm(`⚠️ Yakin ingin menghapus stok "${selectedStok.nama_bahan}"?`)) return
+    
+    setSubmittingHapus(true)
     try {
       await stokService.hapusBahan(selectedStok.id, user?.id, catatan)
       toast.warning(`🗑 ${selectedStok.nama_bahan} dihapus`)
@@ -79,6 +99,8 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
       onRefresh()
     } catch (err) {
       toast.error(err.message)
+    } finally {
+      setSubmittingHapus(false)
     }
   }
 
@@ -278,10 +300,10 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
     )
   }
 
-  return (
+   return (
     <>
-      {/* ========== BARIS PENCARIAN & TOMBOL LAPORAN ========== */}
-      <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ padding: '16px 20px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--kpro-border)', backgroundColor: 'var(--kpro-bg-surface)' }}>
+      {/* Search bar */}
+      <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ padding: '16px 20px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--kpro-border)' }}>
         <div>
           <input
             type="text"
@@ -299,32 +321,18 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
         </div>
       </div>
 
-      {/* ========== TABEL STOK ========== */}
+      {/* Tabel Stok */}
       <div className="kpro-table-wrap">
         <table className="kpro-table" id="stok-table">
           <thead>
             <tr>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('nama_bahan')}>
-                Nama {sortField === 'nama_bahan' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('size')}>
-                Ukuran {sortField === 'size' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('stok_saat_ini')}>
-                Stok {sortField === 'stok_saat_ini' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('kategori')}>
-                Kategori {sortField === 'kategori' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('gramasi')}>
-                Gramasi {sortField === 'gramasi' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('satuan')}>
-                Satuan {sortField === 'satuan' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('catatan')}>
-                Catatan {sortField === 'catatan' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('nama_bahan')}>Nama {sortField === 'nama_bahan' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('size')}>Ukuran {sortField === 'size' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('stok_saat_ini')}>Stok {sortField === 'stok_saat_ini' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('kategori')}>Kategori {sortField === 'kategori' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('gramasi')}>Gramasi {sortField === 'gramasi' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('satuan')}>Satuan {sortField === 'satuan' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('catatan')}>Catatan {sortField === 'catatan' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -334,7 +342,7 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
             ) : (
               stok.map(item => (
                 <tr key={item.id} style={{ cursor: 'pointer' }} onClick={() => handleRowClick(item)}>
-                  <td><strong>{item.nama_bahan}</strong></td>
+                  <td style={{ fontWeight: 600 }}>{item.nama_bahan}</td>
                   <td>{item.size || '-'}</td>
                   <td>{item.stok_saat_ini}</td>
                   <td>{item.kategori}</td>
@@ -349,7 +357,7 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
         </table>
       </div>
 
-      {/* ========== MODAL AKSI ========== */}
+      {/* Modal Aksi */}
       {modalAksi && selectedStok && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalAksi(false)}>
           <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
@@ -358,39 +366,67 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
               <div><strong>{selectedStok.nama_bahan}</strong> {selectedStok.size && `(${selectedStok.size})`}</div>
               <div>Stok saat ini: {selectedStok.stok_saat_ini}</div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexDirection: 'column' }}>
-                <button className="kpro-btn kpro-btn-primary" onClick={() => { setModalAksi(false); setModalTambahStok(true); }}>➕ Tambah Stok</button>
-                <button className="kpro-btn kpro-btn-warning" onClick={() => { setModalAksi(false); setModalAmbilStok(true); }}>📤 Ambil Stok</button>
-                <button className="kpro-btn kpro-btn-danger" onClick={() => { setModalAksi(false); setModalHapus(true); }}>🗑 Hapus Stok</button>
+                <button 
+                  className="kpro-btn kpro-btn-primary" 
+                  onClick={() => { setModalAksi(false); setModalTambahStok(true); }}
+                  disabled={submittingTambah}
+                >
+                  {submittingTambah ? 'Memproses...' : '➕ Tambah Stok'}
+                </button>
+                <button 
+                  className="kpro-btn kpro-btn-warning" 
+                  onClick={() => { setModalAksi(false); setModalAmbilStok(true); }}
+                  disabled={submittingAmbil}
+                >
+                  {submittingAmbil ? 'Memproses...' : '📤 Ambil Stok'}
+                </button>
+                <button 
+                  className="kpro-btn kpro-btn-danger" 
+                  onClick={() => { setModalAksi(false); setModalHapus(true); }}
+                  disabled={submittingHapus}
+                >
+                  {submittingHapus ? 'Memproses...' : '🗑 Hapus Stok'}
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Tambah Stok */}
+      {/* Modal Tambah Stok - 🔥 dengan disabled */}
       {modalTambahStok && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalTambahStok(false)}>
           <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
             <div className="kpro-modal-header"><h3>Tambah Stok</h3><button className="kpro-modal-close" onClick={() => setModalTambahStok(false)}>✕</button></div>
             <div className="kpro-modal-body">
-              <div className="kpro-form-group"><label>Jumlah</label><input type="text" inputMode="numeric" className="kpro-input" value={jumlah} onChange={e => setJumlah(parseInt(e.target.value) || 0)} /></div>
-              <div className="kpro-form-group"><label>Catatan (opsional)</label><input type="text" className="kpro-input" value={catatan} onChange={e => setCatatan(e.target.value)} /></div>
+              <div className="kpro-form-group"><label>Jumlah</label><input type="text" inputMode="numeric" className="kpro-input" value={jumlah} onChange={e => setJumlah(parseInt(e.target.value) || 0)} disabled={submittingTambah} /></div>
+              <div className="kpro-form-group"><label>Catatan (opsional)</label><input type="text" className="kpro-input" value={catatan} onChange={e => setCatatan(e.target.value)} disabled={submittingTambah} /></div>
             </div>
-            <div className="kpro-modal-footer"><button className="kpro-btn kpro-btn-secondary" onClick={() => setModalTambahStok(false)}>Batal</button><button className="kpro-btn kpro-btn-primary" onClick={handleTambahStok}>Simpan</button></div>
+            <div className="kpro-modal-footer">
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => setModalTambahStok(false)} disabled={submittingTambah}>Batal</button>
+              <button className="kpro-btn kpro-btn-primary" onClick={handleTambahStok} disabled={submittingTambah}>
+                {submittingTambah ? 'Memproses...' : 'Simpan'}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Modal Ambil Stok */}
+      {/* Modal Ambil Stok - 🔥 dengan disabled */}
       {modalAmbilStok && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalAmbilStok(false)}>
           <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
             <div className="kpro-modal-header"><h3>Ambil Stok</h3><button className="kpro-modal-close" onClick={() => setModalAmbilStok(false)}>✕</button></div>
             <div className="kpro-modal-body">
-              <div className="kpro-form-group"><label>Jumlah</label><input type="text" inputMode="numeric" className="kpro-input" value={jumlah} onChange={e => setJumlah(parseInt(e.target.value) || 0)} /></div>
-              <div className="kpro-form-group"><label>Catatan (opsional)</label><input type="text" className="kpro-input" value={catatan} onChange={e => setCatatan(e.target.value)} /></div>
+              <div className="kpro-form-group"><label>Jumlah</label><input type="text" inputMode="numeric" className="kpro-input" value={jumlah} onChange={e => setJumlah(parseInt(e.target.value) || 0)} disabled={submittingAmbil} /></div>
+              <div className="kpro-form-group"><label>Catatan (opsional)</label><input type="text" className="kpro-input" value={catatan} onChange={e => setCatatan(e.target.value)} disabled={submittingAmbil} /></div>
             </div>
-            <div className="kpro-modal-footer"><button className="kpro-btn kpro-btn-secondary" onClick={() => setModalAmbilStok(false)}>Batal</button><button className="kpro-btn kpro-btn-primary" onClick={handleAmbilStok}>Simpan</button></div>
+            <div className="kpro-modal-footer">
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => setModalAmbilStok(false)} disabled={submittingAmbil}>Batal</button>
+              <button className="kpro-btn kpro-btn-primary" onClick={handleAmbilStok} disabled={submittingAmbil}>
+                {submittingAmbil ? 'Memproses...' : 'Simpan'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -402,9 +438,14 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
             <div className="kpro-modal-header"><h3>Hapus Stok</h3><button className="kpro-modal-close" onClick={() => setModalHapus(false)}>✕</button></div>
             <div className="kpro-modal-body">
               <p>Yakin ingin menghapus stok ini?</p>
-              <div className="kpro-form-group"><label>Catatan (opsional)</label><input type="text" className="kpro-input" value={catatan} onChange={e => setCatatan(e.target.value)} /></div>
+              <div className="kpro-form-group"><label>Catatan (opsional)</label><input type="text" className="kpro-input" value={catatan} onChange={e => setCatatan(e.target.value)} disabled={submittingHapus} /></div>
             </div>
-            <div className="kpro-modal-footer"><button className="kpro-btn kpro-btn-secondary" onClick={() => setModalHapus(false)}>Batal</button><button className="kpro-btn kpro-btn-danger" onClick={handleHapusStok}>Hapus</button></div>
+            <div className="kpro-modal-footer">
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => setModalHapus(false)} disabled={submittingHapus}>Batal</button>
+              <button className="kpro-btn kpro-btn-danger" onClick={handleHapusStok} disabled={submittingHapus}>
+                {submittingHapus ? 'Menghapus...' : 'Hapus'}
+              </button>
+            </div>
           </div>
         </div>
       )}

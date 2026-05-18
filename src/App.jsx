@@ -14,6 +14,7 @@ import AdminPriceListPage from './pages/AdminPriceListPage'
 import DashboardPage from './pages/DashboardPage'
 import './styles/login.css'
 import './styles/pengeluaran.css'
+import './styles/adminpricelist.css'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import PengeluaranPage from './pages/PengeluaranPage'
 

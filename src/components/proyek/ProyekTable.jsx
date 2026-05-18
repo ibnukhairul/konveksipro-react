@@ -229,7 +229,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
                   <td><strong>{formatRupiah(item.total_harga)}</strong></td>
                   <td>{statusBayarBadge(item.status_bayar)}</td>
                   <td>{statusProduksiBadge(item.status_produksi)}</td>
-                 </tr>
+                </tr>
               ))
             )}
           </tbody>
@@ -272,7 +272,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
             <div className="kpro-modal-body">
               {loadingDetail ? <div className="kpro-empty">Memuat detail...</div> : (
                 <>
-                <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">💰 Informasi Keuangan</div><div className="kpro-card-body">
+                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">💰 Informasi Keuangan</div><div className="kpro-card-body">
                     <div className="kpro-form-group"><label>Total Harga</label><input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} /></div>
                     <div className="kpro-form-row"><div className="kpro-form-group"><label>Status Pembayaran</label><select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}><option value="belum_dp">Belum DP</option><option value="dp_30">DP 30%</option><option value="dp_50">DP 50%</option><option value="lunas">Lunas</option></select></div><div className="kpro-form-group"><label>DP Dibayar</label><input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} /></div></div>
                     <div className="kpro-form-group"><label>Sisa Tagihan</label><input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} /></div>
@@ -296,7 +296,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
                     ))}
                     <button className="kpro-btn kpro-btn-outline-primary kpro-btn-sm" onClick={tambahProduk}>+ Tambah Produk</button>
                   </div></div>
-                                    <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">ℹ️ Informasi Tambahan Client</div><div className="kpro-card-body">
+                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">ℹ️ Informasi Tambahan Client</div><div className="kpro-card-body">
                     <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={formData.sumber_info || ''} onChange={e => setFormData({ ...formData, sumber_info: e.target.value })} /></div>
                     <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={formData.instansi || ''} onChange={e => setFormData({ ...formData, instansi: e.target.value })} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={formData.organisasi || ''} onChange={e => setFormData({ ...formData, organisasi: e.target.value })} /></div></div>
                     <div className="kpro-form-group"><label>Jabatan</label><input className="kpro-input" value={formData.jabatan || ''} onChange={e => setFormData({ ...formData, jabatan: e.target.value })} /></div>

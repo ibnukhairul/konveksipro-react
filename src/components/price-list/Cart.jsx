@@ -4,14 +4,17 @@ export default function Cart({ cart, onRemoveItem, onClearCart, onSendWhatsApp, 
   const calculateItemTotal = (item) => {
     let total = 0
     const totalQty = Object.values(item.quantities).reduce((a, b) => a + b, 0)
+    
     for (const [size, qty] of Object.entries(item.quantities)) {
       if (qty > 0) {
         const adjust = item.sizeAdjustments?.find(s => s.size === size)?.additional_price || 0
         total += (item.pricePerUnit + adjust) * qty
       }
     }
+    
     for (const addon of item.addons) {
-      total += (addon.price || addon.pricePerPcs) * totalQty
+      const addonPrice = addon.price || addon.pricePerPcs || 0
+      total += addonPrice * totalQty
     }
     return total
   }

@@ -205,10 +205,10 @@ export default function PengeluaranPage() {
           <p className="pengeluaran-subtitle">Catat semua belanja, biaya produksi, dan operasional</p>
         </div>
         <div className="pengeluaran-actions">
-          <button className="pengeluaran-export-btn" onClick={handleExport}>
+          {/* <button className="pengeluaran-export-btn" onClick={handleExport}>
             <Download size={16} />
             Export
-          </button>
+          </button> */}
           <button className="pengeluaran-add-btn" onClick={openAddModal}>
             <Plus size={16} />
             Tambah Pengeluaran
@@ -228,20 +228,7 @@ export default function PengeluaranPage() {
             <span className="pengeluaran-stat-change">{pengeluaran.length} transaksi</span>
           </div>
         </div>
-        <div className="pengeluaran-stat-card">
-          <div className="pengeluaran-stat-icon" style={{ background: '#ecfdf5', color: '#10b981' }}>
-            <Tag size={22} />
-          </div>
-          <div className="pengeluaran-stat-content">
-            <span className="pengeluaran-stat-title">Kategori Terbanyak</span>
-            <span className="pengeluaran-stat-value">
-              {rekapKategori[0]?.kategori || '-'}
-            </span>
-            <span className="pengeluaran-stat-change">
-              {rekapKategori[0] ? formatRupiah(rekapKategori[0].total) : ''}
-            </span>
-          </div>
-        </div>
+        
       </div>
 
       {/* Filter Bar */}

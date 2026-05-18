@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const [proyekAktifList, setProyekAktifList] = useState([])
   const [stokKritisList, setStokKritisList]   = useState([])
   const [loading, setLoading]     = useState(true)
-  const [chartView, setChartView] = useState('bar')
+  const [chartView, setChartView] = useState('line')
 
   const chartRef         = useRef(null)
   const chartInstanceRef = useRef(null)
