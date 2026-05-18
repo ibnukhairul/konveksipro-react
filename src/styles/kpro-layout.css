@@ -244,15 +244,13 @@
 .sidebar-blue-logo-icon {
   width: 42px;
   height: 42px;
-  background: var(--blue-bg);
-  border-radius: var(--radius-sm);
+  
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
   font-size: 18px;
   color: white;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
   transition: var(--transition);
 }
 

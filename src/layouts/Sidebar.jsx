@@ -18,12 +18,14 @@ import {
 const MENU_ITEMS = {
   owner: [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roleNote: 'owner' },
-    { path: '/stok', label: 'Kelola Stok', icon: Package },
     { path: '/proyek', label: 'Proyek', icon: FolderKanban, roleNote: 'owner' },
-    { path: '/pricelist', label: 'Price List', icon: Tag },
+    { path: '/pengeluaran', label: 'Pengeluaran', icon: Wallet, roleNote: 'owner' }, 
     { path: '/keuangan', label: 'Rekap Keuangan', icon: BarChart3, roleNote: 'owner' },
+  
+    { path: '/stok', label: 'Kelola Stok', icon: Package },
+
+    { path: '/pricelist', label: 'Price List', icon: Tag },
     // Di MENU_ITEMS.owner, tambahkan:
-    { path: '/pengeluaran', label: 'Pengeluaran', icon: Wallet, roleNote: 'owner' },
     { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
     { path: '/akun', label: 'Akun', icon: User },
     { path: '/team', label: 'Tim', icon: Users, roleNote: 'owner' },
@@ -64,7 +66,7 @@ export default function Sidebar({ isOpen, onClose }) {
     <aside className={`sidebar-blue ${isOpen ? 'is-open' : ''}`}>
       <div className="sidebar-blue-logo">
         <div className="sidebar-blue-logo-icon">
-          <span>KP</span>
+          <img src="/images/logo.png" alt="" />
         </div>
         <div>
           <div className="sidebar-blue-logo-name">KonveksiPro</div>

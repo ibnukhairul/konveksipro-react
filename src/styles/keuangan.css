@@ -509,3 +509,350 @@
     text-align: center;
   }
 }
+/* ========== FILTER SECTION ========== */
+.keu-filter-section {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.keu-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.keu-filter-tab {
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.keu-filter-tab:hover {
+  background: #e2e8f0;
+}
+
+.keu-filter-tab.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.keu-filter-custom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.keu-filter-select {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  font-size: 13px;
+  background: white;
+  cursor: pointer;
+}
+
+.keu-month-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keu-month-btn {
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.keu-month-btn:hover {
+  background: #e2e8f0;
+}
+
+.keu-month-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.keu-period-info {
+  margin-bottom: 24px;
+}
+
+.keu-period-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 40px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Toggle Detail */
+.keu-toggle-detail {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.keu-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.keu-toggle-btn:hover {
+  background: #e2e8f0;
+}
+
+/* Detail Section */
+.keu-detail-section {
+  margin-top: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.keu-text-green {
+  color: #10b981;
+}
+
+.keu-text-red {
+  color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .keu-filter-tabs {
+    gap: 8px;
+  }
+  
+  .keu-filter-tab {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+  
+  .keu-month-selector {
+    gap: 6px;
+  }
+  
+  .keu-month-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+/* ========== ANIMASI FILTER DINAMIS ========== */
+.keu-content-wrapper {
+  transition: opacity 0.2s ease;
+}
+
+.keu-content-wrapper.fade-out {
+  opacity: 0;
+}
+
+.keu-content-wrapper.fade-in {
+  opacity: 1;
+  animation: contentFadeIn 0.3s ease forwards;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.keu-loading-dot {
+  display: inline-block;
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Chart transition */
+canvas {
+  transition: all 0.3s ease;
+}
+
+/* Metric card hover effect */
+.keu-metric-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.keu-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.12);
+}
+/* ========== FILTER BARU - DROPDOWN + HORIZONTAL MONTH ========== */
+
+.keu-dropdown-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.keu-view-select, .keu-year-select {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.keu-view-select:hover, .keu-year-select:hover {
+  border-color: #3b82f6;
+}
+
+.keu-view-select:focus, .keu-year-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Horizontal Month Steps */
+.keu-month-row {
+  margin-bottom: 16px;
+}
+
+.keu-month-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.keu-month-step {
+  flex: 1;
+  min-width: 55px;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.keu-month-step:hover {
+  background: #e2e8f0;
+}
+
+.keu-month-step.active {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .keu-month-step {
+    min-width: 45px;
+    font-size: 10px;
+    padding: 6px 2px;
+  }
+  
+  .keu-view-select, .keu-year-select {
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .keu-month-step {
+    min-width: 38px;
+    font-size: 9px;
+  }
+  
+  .keu-dropdown-row {
+    flex-direction: column;
+  }
+  
+  .keu-view-select, .keu-year-select {
+    width: 100%;
+  }
+}
+
+/* Animations */
+.keu-content-wrapper {
+  transition: opacity 0.2s ease;
+}
+
+.keu-content-wrapper.fade-out {
+  opacity: 0;
+}
+
+.keu-content-wrapper.fade-in {
+  opacity: 1;
+  animation: contentFadeIn 0.3s ease forwards;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.keu-loading-dot {
+  display: inline-block;
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.keu-metric-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.keu-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.12);
+}

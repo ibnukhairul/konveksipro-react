@@ -4,61 +4,62 @@ import { keuanganService } from './keuanganService'
 
 export const dashboardService = {
   async getRingkasan() {
-    try {
-      const { data: stokData, error: stokError } = await supabase
-        .from('stok_barang')
-        .select('stok_saat_ini, min_stok')
-      if (stokError) throw stokError
+  try {
+    const { data: stokData, error: stokError } = await supabase
+      .from('stok_barang')
+      .select('stok_saat_ini, min_stok')
+    if (stokError) throw stokError
 
-      const { data: proyekData, error: proyekError } = await supabase
-        .from('proyek')
-        .select('total_harga, dp_dibayar, status_produksi, created_at')
-      if (proyekError) throw proyekError
+    const { data: proyekData, error: proyekError } = await supabase
+      .from('proyek')
+      .select('total_harga, dp_dibayar, status_produksi, tanggal_order, created_at')
+    if (proyekError) throw proyekError
 
-      const now = new Date()
-      const bulanIni = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-      const tanggalMulai = `${bulanIni}-01`
-      const tanggalSelesai = `${bulanIni}-${new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()}`
-      
-      // 🔥 PERBAIKI: Panggil dengan parameter yang benar
-      const pengeluaranBulanIni = await pengeluaranService.getTotalPengeluaran(tanggalMulai, tanggalSelesai)
+    const now = new Date()
+    const bulanIni = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    const tanggalMulai = `${bulanIni}-01`
+    const tanggalSelesai = `${bulanIni}-${new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()}`
+    
+    const pengeluaranBulanIni = await pengeluaranService.getTotalPengeluaran(tanggalMulai, tanggalSelesai)
 
-      const stokList = stokData || []
-      const stokKritis = stokList.filter(s => (s.stok_saat_ini || 0) < (s.min_stok || 0)).length
-      const totalStok = stokList.reduce((sum, s) => sum + (s.stok_saat_ini || 0), 0)
+    const stokList = stokData || []
+    const stokKritis = stokList.filter(s => (s.stok_saat_ini || 0) < (s.min_stok || 0)).length
+    const totalStok = stokList.reduce((sum, s) => sum + (s.stok_saat_ini || 0), 0)
 
-      const proyekList = proyekData || []
-      let totalPemasukan = 0
-      let totalTagihan = 0
-      let proyekAktif = 0
+    const proyekList = proyekData || []
+    let totalPemasukan = 0
+    let totalTagihan = 0
+    let proyekAktif = 0
 
-      for (const proyek of proyekList) {
-        totalPemasukan += proyek.dp_dibayar || 0
-        totalTagihan += proyek.total_harga || 0
-        if (proyek.status_produksi !== 'selesai') proyekAktif++
-      }
-
-      const piutang = totalTagihan - totalPemasukan
-      const labaKotor = totalPemasukan - pengeluaranBulanIni
-
-      const omzetBulanIni = proyekList
-        .filter(p => p.created_at?.startsWith(bulanIni))
-        .reduce((sum, p) => sum + (p.dp_dibayar || 0), 0)
-
-      return {
-        totalStok,
-        stokKritis,
-        proyekAktif,
-        omzetBulanIni,
-        piutang,
-        pengeluaranBulanIni,
-        labaKotor
-      }
-    } catch (err) {
-      console.error('Dashboard ringkasan error:', err)
-      return { totalStok: 0, stokKritis: 0, proyekAktif: 0, omzetBulanIni: 0, piutang: 0, pengeluaranBulanIni: 0, labaKotor: 0 }
+    for (const proyek of proyekList) {
+      totalPemasukan += proyek.dp_dibayar || 0
+      totalTagihan += proyek.total_harga || 0
+      if (proyek.status_produksi !== 'selesai') proyekAktif++
     }
-  },
+
+    const piutang = totalTagihan - totalPemasukan
+    
+    // 🔥 PERBAIKI: Omzet bulan ini berdasarkan tanggal_order (bukan created_at)
+    const omzetBulanIni = proyekList
+      .filter(p => p.tanggal_order?.startsWith(bulanIni))
+      .reduce((sum, p) => sum + (p.dp_dibayar || 0), 0)
+    
+    const labaKotor = omzetBulanIni - pengeluaranBulanIni
+
+    return {
+      totalStok,
+      stokKritis,
+      proyekAktif,
+      omzetBulanIni,
+      piutang,
+      pengeluaranBulanIni,
+      labaKotor
+    }
+  } catch (err) {
+    console.error('Dashboard ringkasan error:', err)
+    return { totalStok: 0, stokKritis: 0, proyekAktif: 0, omzetBulanIni: 0, piutang: 0, pengeluaranBulanIni: 0, labaKotor: 0 }
+  }
+},
 
   async getOmzetPerBulan() {
     const { data: proyekList, error } = await supabase

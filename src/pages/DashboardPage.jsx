@@ -228,7 +228,7 @@ export default function DashboardPage() {
         <div className="db-stat-card">
           <div className="db-stat-icon db-icon-amber"><DollarSign size={20} /></div>
           <div className="db-stat-body">
-            <span className="db-stat-label">Piutang</span>
+            <span className="db-stat-label">Piutang Keseluruhan</span>
             <span className="db-stat-value">{formatRupiah(ringkasan.piutang)}</span>
             <span className="db-stat-sub">belum dilunasi</span>
           </div>
@@ -248,7 +248,7 @@ export default function DashboardPage() {
             {ringkasan.labaKotor >= 0 ? <ArrowUpRight size={20} /> : <Wallet size={20} />}
           </div>
           <div className="db-stat-body">
-            <span className="db-stat-label">Laba Kotor</span>
+            <span className="db-stat-label">Laba</span>
             <span className={`db-stat-value ${ringkasan.labaKotor >= 0 ? 'db-val-green' : 'db-val-red'}`}>
               {formatRupiah(ringkasan.labaKotor)}
             </span>

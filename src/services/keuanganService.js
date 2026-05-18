@@ -11,7 +11,6 @@ export const keuanganService = {
     return data || []
   },
 
-  // 🔥 TAMBAHKAN: Ambil semua pengeluaran untuk export
   async getAllPengeluaran() {
     const { data, error } = await supabase
       .from('pengeluaran')
@@ -51,6 +50,156 @@ export const keuanganService = {
       proyekAktif,
       piutangData
     }
+  },
+
+  // 🔥 Filter proyek berdasarkan periode
+  filterProyekByPeriode(proyekList, periode, bulan, tahun) {
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth() + 1
+
+    return proyekList.filter(proyek => {
+      const tanggal = new Date(proyek.tanggal_order || proyek.created_at)
+      const tahunProyek = tanggal.getFullYear()
+      const bulanProyek = tanggal.getMonth() + 1
+
+      if (periode === 'bulan_ini') {
+        return tahunProyek === currentYear && bulanProyek === currentMonth
+      } else if (periode === 'tahun_ini') {
+        return tahunProyek === currentYear
+      } else if (periode === 'all_time') {
+        return true
+      } else if (periode === 'all_time_full_year') {
+        return true
+      } else if (periode === 'custom_bulan') {
+        return tahunProyek === tahun && bulanProyek === bulan
+      } else if (periode === 'custom_tahun') {
+        return tahunProyek === tahun
+      }
+      return true
+    })
+  },
+
+  // 🔥 Filter pengeluaran berdasarkan periode
+  filterPengeluaranByPeriode(pengeluaranList, periode, bulan, tahun) {
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth() + 1
+
+    return pengeluaranList.filter(item => {
+      const tanggal = new Date(item.tanggal)
+      const tahunItem = tanggal.getFullYear()
+      const bulanItem = tanggal.getMonth() + 1
+
+      if (periode === 'bulan_ini') {
+        return tahunItem === currentYear && bulanItem === currentMonth
+      } else if (periode === 'tahun_ini') {
+        return tahunItem === currentYear
+      } else if (periode === 'all_time') {
+        return true
+      } else if (periode === 'all_time_full_year') {
+        return true
+      } else if (periode === 'custom_bulan') {
+        return tahunItem === tahun && bulanItem === bulan
+      } else if (periode === 'custom_tahun') {
+        return tahunItem === tahun
+      }
+      return true
+    })
+  },
+
+  // 🔥 Hitung total berdasarkan periode
+  async getStatistikPerPeriode(periode, bulan = null, tahun = null) {
+    const proyekList = await this.getAllProyek()
+    const pengeluaranList = await this.getAllPengeluaran()
+
+    const filteredProyek = this.filterProyekByPeriode(proyekList, periode, bulan, tahun)
+    const filteredPengeluaran = this.filterPengeluaranByPeriode(pengeluaranList, periode, bulan, tahun)
+
+    const totalPemasukan = filteredProyek.reduce((sum, p) => sum + (p.dp_dibayar || 0), 0)
+    const totalPengeluaran = filteredPengeluaran.reduce((sum, p) => sum + (p.jumlah || 0), 0)
+    const totalTagihan = filteredProyek.reduce((sum, p) => sum + (p.total_harga || 0), 0)
+    const laba = totalPemasukan - totalPengeluaran
+    const piutang = totalTagihan - totalPemasukan
+
+    return {
+      totalPemasukan,
+      totalPengeluaran,
+      totalTagihan,
+      laba,
+      piutang,
+      jumlahProyek: filteredProyek.length,
+      jumlahTransaksiPengeluaran: filteredPengeluaran.length
+    }
+  },
+
+  // 🔥 Ambil data untuk grafik (bulanan dalam setahun)
+  async getMonthlyDataForYear(tahun) {
+    const proyekList = await this.getAllProyek()
+    const pengeluaranList = await this.getAllPengeluaran()
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+    const result = []
+
+    for (let i = 0; i < 12; i++) {
+      const bulan = i + 1
+      const filteredProyek = proyekList.filter(p => {
+        const tanggal = new Date(p.tanggal_order || p.created_at)
+        return tanggal.getFullYear() === tahun && tanggal.getMonth() + 1 === bulan
+      })
+      const filteredPengeluaran = pengeluaranList.filter(p => {
+        const tanggal = new Date(p.tanggal)
+        return tanggal.getFullYear() === tahun && tanggal.getMonth() + 1 === bulan
+      })
+
+      const pemasukan = filteredProyek.reduce((sum, p) => sum + (p.dp_dibayar || 0), 0)
+      const pengeluaran = filteredPengeluaran.reduce((sum, p) => sum + (p.jumlah || 0), 0)
+
+      result.push({
+        bulan: months[i],
+        pemasukan,
+        pengeluaran,
+        laba: pemasukan - pengeluaran
+      })
+    }
+
+    return result
+  },
+
+  // 🔥 Ambil ringkasan tahunan untuk chart line multi-tahun
+  async getYearlySummary() {
+    const proyekList = await this.getAllProyek()
+    const pengeluaranList = await this.getAllPengeluaran()
+
+    const tahunMap = new Map()
+
+    for (const proyek of proyekList) {
+      const tahun = new Date(proyek.tanggal_order || proyek.created_at).getFullYear()
+      if (!tahunMap.has(tahun)) {
+        tahunMap.set(tahun, { pemasukan: 0, pengeluaran: 0 })
+      }
+      tahunMap.get(tahun).pemasukan += proyek.dp_dibayar || 0
+    }
+
+    for (const item of pengeluaranList) {
+      const tahun = new Date(item.tanggal).getFullYear()
+      if (!tahunMap.has(tahun)) {
+        tahunMap.set(tahun, { pemasukan: 0, pengeluaran: 0 })
+      }
+      tahunMap.get(tahun).pengeluaran += item.jumlah || 0
+    }
+
+    const result = []
+    for (const [tahun, data] of tahunMap) {
+      result.push({
+        tahun,
+        pemasukan: data.pemasukan,
+        pengeluaran: data.pengeluaran,
+        laba: data.pemasukan - data.pengeluaran
+      })
+    }
+
+    return result.sort((a, b) => a.tahun - b.tahun)
   },
 
   async getMonthlyIncome() {
