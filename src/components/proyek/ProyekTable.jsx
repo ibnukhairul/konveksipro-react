@@ -3,6 +3,30 @@ import { proyekService } from '../../services/proyekService'
 import { useToast } from '../../hooks/useToast'
 import NotaModal from '../NotaModal'
 
+import {
+  Eye,
+  Printer,
+  Trash2,
+  X,
+  User,
+  Phone,
+  Calendar,
+  Package,
+  Tag,
+  DollarSign,
+  CreditCard,
+  Settings,
+  Info,
+  FileText,
+  Save,
+  ShoppingBag,
+  Plus,
+  Building,
+  Users,
+  Briefcase,
+  AlertCircle
+} from 'lucide-react'
+
 export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortField, sortOrder }) {
   const toast = useToast()
   const [selectedProyek, setSelectedProyek] = useState(null)
@@ -273,6 +297,58 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
         </table>
       </div>
 
+      {/* Modal Aksi Proyek - dengan icon lucide-react */}
+      {modalAksi && selectedProyek && (
+        <div className="kpro-modal-overlay is-open" onClick={() => setModalAksi(false)}>
+          <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+            <div className="kpro-modal-header" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)' }}>
+              <h3 className="kpro-modal-title" style={{ color: 'white' }}>⚡ Aksi Proyek</h3>
+              <button className="kpro-modal-close" onClick={() => setModalAksi(false)} style={{ color: 'white' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="kpro-modal-body" style={{ padding: '24px' }}>
+              <div style={{ background: '#F8FAFC', borderRadius: '16px', padding: '16px', marginBottom: '24px' }}>
+                <div style={{ fontWeight: 700, fontSize: '16px' }}>{selectedProyek.nama_client}</div>
+                <div style={{ fontSize: '13px', color: '#64748B' }}>{selectedProyek.nama_proyek}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #E2E8F0' }}>
+                  <span>Total: {formatRupiah(selectedProyek.total_harga)}</span>
+                  <span>{statusBayarBadge(selectedProyek.status_bayar)}</span>
+                  <span>{statusProduksiBadge(selectedProyek.status_produksi)}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  className="kpro-btn"
+                  style={{ background: '#7C3AED', color: 'white', padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  onClick={handleDetail}
+                >
+                  <Eye size={16} />
+                  Lihat Detail & Edit
+                </button>
+                <button
+                  className="kpro-btn"
+                  style={{ background: '#2563EB', color: 'white', padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  onClick={handleCetakNota}
+                >
+                  <Printer size={16} />
+                  Cetak Nota
+                </button>
+                <button
+                  className="kpro-btn"
+                  style={{ background: '#EF4444', color: 'white', padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  onClick={() => { setModalAksi(false); setModalHapus(true); }}
+                >
+                  <Trash2 size={16} />
+                  Hapus Proyek
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Modal Aksi */}
       {modalAksi && selectedProyek && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalAksi(false)}>
@@ -301,47 +377,241 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
         </div>
       )}
 
-      {/* Modal Detail */}
+      {/* Modal Detail & Edit Proyek - dengan icon lucide-react */}
       {modalDetail && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalDetail(false)}>
           <div className="kpro-modal" style={{ maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
-            <div className="kpro-modal-header"><h3>📋 Detail & Edit Proyek</h3><button className="kpro-modal-close" onClick={() => setModalDetail(false)}>✕</button></div>
+            <div className="kpro-modal-header">
+              <h3>📋 Detail & Edit Proyek</h3>
+              <button className="kpro-modal-close" onClick={() => setModalDetail(false)}>
+                <X size={18} />
+              </button>
+            </div>
             <div className="kpro-modal-body">
               {loadingDetail ? <div className="kpro-empty">Memuat detail...</div> : (
                 <>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">👤 Informasi Client</div><div className="kpro-card-body">
-                    <div className="kpro-form-row"><div className="kpro-form-group"><label>Nama Client *</label><input className="kpro-input" value={formData.nama_client || ''} onChange={e => setFormData({ ...formData, nama_client: e.target.value })} /></div><div className="kpro-form-group"><label>No. WhatsApp</label><input className="kpro-input" value={formData.no_wa || ''} onChange={e => setFormData({ ...formData, no_wa: e.target.value })} /></div></div>
-                    <div className="kpro-form-group"><label>Tanggal Order</label><input type="date" className="kpro-input" value={formData.tanggal_order || ''} onChange={e => setFormData({ ...formData, tanggal_order: e.target.value })} /></div>
-                  </div></div>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">📦 Detail Proyek</div><div className="kpro-card-body">
-                    <div className="kpro-form-group"><label>Nama Proyek *</label><input className="kpro-input" value={formData.nama_proyek || ''} onChange={e => setFormData({ ...formData, nama_proyek: e.target.value })} /></div>
-                    <div className="kpro-form-group"><label>Brand</label><select className="kpro-select" value={formData.brand || 'SERAGAMAN'} onChange={e => setFormData({ ...formData, brand: e.target.value })}><option value="SERAGAMAN">SERAGAMAN</option><option value="CLOTHINGWELL">CLOTHINGWELL</option><option value="KAMPUS APPAREL">KAMPUS APPAREL</option></select></div>
-                  </div></div>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">🛍️ Daftar Produk</div><div className="kpro-card-body">
-                    {produkList.map((p, idx) => (
-                      <div key={p.id || idx} style={{ background: '#F8FAFC', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
-                        <div className="kpro-form-row"><div className="kpro-form-group" style={{ flex: 2 }}><label>Nama Produk</label><input className="kpro-input" value={p.nama_produk} onChange={e => updateProduk(idx, 'nama_produk', e.target.value)} /></div></div>
-                        <div className="kpro-form-row"><div className="kpro-form-group"><label>Jumlah (pcs)</label><input type="text" inputMode="numeric" className="kpro-input" value={p.jumlah_pcs} onChange={e => updateProduk(idx, 'jumlah_pcs', e.target.value)} /></div><div className="kpro-form-group"><label>Harga Satuan</label><input type="text" inputMode="numeric" className="kpro-input" value={p.harga_satuan} onChange={e => updateProduk(idx, 'harga_satuan', e.target.value)} /></div><div className="kpro-form-group"><label>Subtotal</label><input className="kpro-input" readOnly value={formatRupiah(p.jumlah_pcs * p.harga_satuan)} style={{ background: '#f5f5f5' }} /></div><div className="kpro-form-group"><button className="kpro-btn kpro-btn-danger kpro-btn-sm" onClick={() => hapusProduk(idx)}>🗑</button></div></div>
+                  {/* Informasi Client */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <User size={16} style={{ marginRight: '8px' }} />
+                        Informasi Client
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <div className="kpro-form-row">
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">Nama Client *</label>
+                          <input className="kpro-input" value={formData.nama_client || ''} onChange={e => setFormData({ ...formData, nama_client: e.target.value })} />
+                        </div>
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">
+                            <Phone size={12} style={{ marginRight: '4px' }} />
+                            No. WhatsApp
+                          </label>
+                          <input className="kpro-input" value={formData.no_wa || ''} onChange={e => setFormData({ ...formData, no_wa: e.target.value })} />
+                        </div>
                       </div>
-                    ))}
-                    <button className="kpro-btn kpro-btn-outline-primary kpro-btn-sm" onClick={tambahProduk}>+ Tambah Produk</button>
-                  </div></div>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">💰 Informasi Keuangan</div><div className="kpro-card-body">
-                    <div className="kpro-form-group"><label>Total Harga</label><input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} /></div>
-                    <div className="kpro-form-row"><div className="kpro-form-group"><label>Status Pembayaran</label><select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}><option value="belum_dp">Belum DP</option><option value="dp_30">DP 30%</option><option value="dp_50">DP 50%</option><option value="lunas">Lunas</option></select></div><div className="kpro-form-group"><label>DP Dibayar</label><input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} /></div></div>
-                    <div className="kpro-form-group"><label>Sisa Tagihan</label><input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} /></div>
-                  </div></div>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">⚙️ Status Produksi</div><div className="kpro-card-body"><select className="kpro-select" value={formData.status_produksi} onChange={e => setFormData({ ...formData, status_produksi: e.target.value })}><option value="antri">Antri / Menunggu</option><option value="proses">Proses Produksi</option><option value="qc">Quality Control (QC)</option><option value="dikirim">Dikirim ke Client</option><option value="selesai">Selesai / Siap</option></select></div></div>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">ℹ️ Informasi Tambahan Client</div><div className="kpro-card-body">
-                    <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={formData.sumber_info || ''} onChange={e => setFormData({ ...formData, sumber_info: e.target.value })} /></div>
-                    <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={formData.instansi || ''} onChange={e => setFormData({ ...formData, instansi: e.target.value })} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={formData.organisasi || ''} onChange={e => setFormData({ ...formData, organisasi: e.target.value })} /></div></div>
-                    <div className="kpro-form-group"><label>Jabatan</label><input className="kpro-input" value={formData.jabatan || ''} onChange={e => setFormData({ ...formData, jabatan: e.target.value })} /></div>
-                  </div></div>
-                  <div className="kpro-card"><div className="kpro-card-header">📝 Catatan</div><div className="kpro-card-body"><textarea className="kpro-textarea" rows="3" value={formData.catatan || ''} onChange={e => setFormData({ ...formData, catatan: e.target.value })} /></div></div>
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">
+                          <Calendar size={12} style={{ marginRight: '4px' }} />
+                          Tanggal Order
+                        </label>
+                        <input type="date" className="kpro-input" value={formData.tanggal_order || ''} onChange={e => setFormData({ ...formData, tanggal_order: e.target.value })} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Detail Proyek */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <Package size={16} style={{ marginRight: '8px' }} />
+                        Detail Proyek
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">Nama Proyek *</label>
+                        <input className="kpro-input" value={formData.nama_proyek || ''} onChange={e => setFormData({ ...formData, nama_proyek: e.target.value })} />
+                      </div>
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">
+                          <Tag size={12} style={{ marginRight: '4px' }} />
+                          Brand
+                        </label>
+                        <select className="kpro-select" value={formData.brand || 'SERAGAMAN'} onChange={e => setFormData({ ...formData, brand: e.target.value })}>
+                          <option value="SERAGAMAN">🏢 SERAGAMAN</option>
+                          <option value="CLOTHINGWELL">👕 CLOTHINGWELL</option>
+                          <option value="KAMPUS APPAREL">🎓 KAMPUS APPAREL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Daftar Produk */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <ShoppingBag size={16} style={{ marginRight: '8px' }} />
+                        Daftar Produk
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      {produkList.map((p, idx) => (
+                        <div key={p.id || idx} style={{ background: '#F8FAFC', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
+                          <div className="kpro-form-row">
+                            <div className="kpro-form-group" style={{ flex: 2 }}>
+                              <label className="kpro-label">Nama Produk</label>
+                              <input className="kpro-input" value={p.nama_produk} onChange={e => updateProduk(idx, 'nama_produk', e.target.value)} />
+                            </div>
+                          </div>
+                          <div className="kpro-form-row">
+                            <div className="kpro-form-group">
+                              <label className="kpro-label">Jumlah (pcs)</label>
+                              <input type="text" inputMode="numeric" className="kpro-input" value={p.jumlah_pcs} onChange={e => updateProduk(idx, 'jumlah_pcs', e.target.value)} />
+                            </div>
+                            <div className="kpro-form-group">
+                              <label className="kpro-label">Harga Satuan</label>
+                              <input type="text" inputMode="numeric" className="kpro-input" value={p.harga_satuan} onChange={e => updateProduk(idx, 'harga_satuan', e.target.value)} />
+                            </div>
+                            <div className="kpro-form-group">
+                              <label className="kpro-label">Subtotal</label>
+                              <input className="kpro-input" readOnly value={formatRupiah(p.jumlah_pcs * p.harga_satuan)} style={{ background: '#f5f5f5' }} />
+                            </div>
+                            <div className="kpro-form-group">
+                              <button className="kpro-btn kpro-btn-danger kpro-btn-sm" onClick={() => hapusProduk(idx)}>
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <button className="kpro-btn kpro-btn-outline-primary kpro-btn-sm" onClick={tambahProduk}>
+                        <Plus size={14} style={{ marginRight: '4px' }} />
+                        Tambah Produk
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Informasi Keuangan */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <DollarSign size={16} style={{ marginRight: '8px' }} />
+                        Informasi Keuangan
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">Total Harga</label>
+                        <input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} />
+                      </div>
+                      <div className="kpro-form-row">
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">
+                            <CreditCard size={12} style={{ marginRight: '4px' }} />
+                            Status Pembayaran
+                          </label>
+                          <select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}>
+                            <option value="belum_dp">Belum DP</option>
+                            <option value="dp_30">DP 30%</option>
+                            <option value="dp_50">DP 50%</option>
+                            <option value="lunas">Lunas</option>
+                          </select>
+                        </div>
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">DP Dibayar</label>
+                          <input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">Sisa Tagihan</label>
+                        <input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Produksi */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <Settings size={16} style={{ marginRight: '8px' }} />
+                        Status Produksi
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <select className="kpro-select" value={formData.status_produksi} onChange={e => setFormData({ ...formData, status_produksi: e.target.value })}>
+                        <option value="antri">Antri / Menunggu</option>
+                        <option value="proses">Proses Produksi</option>
+                        <option value="qc">Quality Control (QC)</option>
+                        <option value="dikirim">Dikirim ke Client</option>
+                        <option value="selesai">Selesai / Siap</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Informasi Tambahan Client */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <Info size={16} style={{ marginRight: '8px' }} />
+                        Informasi Tambahan Client
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">Sumber Info</label>
+                        <input className="kpro-input" value={formData.sumber_info || ''} onChange={e => setFormData({ ...formData, sumber_info: e.target.value })} />
+                      </div>
+                      <div className="kpro-form-row">
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">
+                            <Building size={12} style={{ marginRight: '4px' }} />
+                            Instansi
+                          </label>
+                          <input className="kpro-input" value={formData.instansi || ''} onChange={e => setFormData({ ...formData, instansi: e.target.value })} />
+                        </div>
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">
+                            <Users size={12} style={{ marginRight: '4px' }} />
+                            Organisasi
+                          </label>
+                          <input className="kpro-input" value={formData.organisasi || ''} onChange={e => setFormData({ ...formData, organisasi: e.target.value })} />
+                        </div>
+                      </div>
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">
+                          <Briefcase size={12} style={{ marginRight: '4px' }} />
+                          Jabatan
+                        </label>
+                        <input className="kpro-input" value={formData.jabatan || ''} onChange={e => setFormData({ ...formData, jabatan: e.target.value })} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Catatan */}
+                  <div className="kpro-card">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <FileText size={16} style={{ marginRight: '8px' }} />
+                        Catatan
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <textarea className="kpro-textarea" rows="3" value={formData.catatan || ''} onChange={e => setFormData({ ...formData, catatan: e.target.value })} />
+                    </div>
+                  </div>
                 </>
               )}
             </div>
-            <div className="kpro-modal-footer"><button className="kpro-btn kpro-btn-secondary" onClick={() => setModalDetail(false)}>Batal</button><button className="kpro-btn kpro-btn-primary" onClick={handleUpdateProyek}>💾 Simpan Perubahan</button></div>
+            <div className="kpro-modal-footer">
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => setModalDetail(false)}>Batal</button>
+              <button className="kpro-btn kpro-btn-primary" onClick={handleUpdateProyek} disabled={submittingUpdate}>
+                <Save size={16} style={{ marginRight: '8px' }} />
+                {submittingUpdate ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -350,9 +620,30 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
       {modalHapus && selectedProyek && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalHapus(false)}>
           <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
-            <div className="kpro-modal-header"><h3>⚠️ Konfirmasi Hapus</h3><button className="kpro-modal-close" onClick={() => setModalHapus(false)}>✕</button></div>
-            <div className="kpro-modal-body"><p>Apakah Anda yakin ingin menghapus proyek ini?</p><div style={{ background: '#FEF2F2', padding: '12px', borderRadius: '8px', marginTop: '12px' }}><strong>{selectedProyek.nama_client}</strong><br />{selectedProyek.nama_proyek}<br />Total: {formatRupiah(selectedProyek.total_harga)}</div></div>
-            <div className="kpro-modal-footer"><button className="kpro-btn kpro-btn-secondary" onClick={() => setModalHapus(false)}>Batal</button><button className="kpro-btn kpro-btn-danger" onClick={handleHapusProyek}>Ya, Hapus Proyek</button></div>
+            <div className="kpro-modal-header">
+              <h3>
+                <AlertCircle size={18} style={{ marginRight: '8px', color: '#EF4444' }} />
+                ⚠️ Konfirmasi Hapus
+              </h3>
+              <button className="kpro-modal-close" onClick={() => setModalHapus(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="kpro-modal-body">
+              <p>Apakah Anda yakin ingin menghapus proyek ini?</p>
+              <div style={{ background: '#FEF2F2', padding: '12px', borderRadius: '8px', marginTop: '12px' }}>
+                <strong>{selectedProyek.nama_client}</strong><br />
+                {selectedProyek.nama_proyek}<br />
+                Total: {formatRupiah(selectedProyek.total_harga)}
+              </div>
+            </div>
+            <div className="kpro-modal-footer">
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => setModalHapus(false)}>Batal</button>
+              <button className="kpro-btn kpro-btn-danger" onClick={handleHapusProyek} disabled={submittingDelete}>
+                <Trash2 size={16} style={{ marginRight: '8px' }} />
+                {submittingDelete ? 'Menghapus...' : 'Ya, Hapus Proyek'}
+              </button>
+            </div>
           </div>
         </div>
       )}

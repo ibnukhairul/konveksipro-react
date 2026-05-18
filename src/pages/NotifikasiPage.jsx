@@ -1,7 +1,25 @@
-import { useNotifikasi } from '../contexts/NotifikasiContext'  // ← pindah dari hooks
+import { useNotifikasi } from '../contexts/NotifikasiContext'
+import { useEffect, useState } from 'react'
 
 export default function NotifikasiPage() {
-  const { notifikasi, loading, unreadCount, markAsRead, markAllRead, refresh } = useNotifikasi()  // ← dari context
+  const { notifikasi, loading, unreadCount, markAsRead, markAllRead, refresh } = useNotifikasi()
+  const [lastUpdate, setLastUpdate] = useState(new Date())
+
+  // Auto refresh setiap 30 detik (fallback)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto refresh notifikasi...')
+      refresh()
+      setLastUpdate(new Date())
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [refresh])
+
+  // 🔥 Refresh saat halaman pertama kali dibuka (force load)
+  useEffect(() => {
+    console.log('📄 Halaman notifikasi dibuka, memuat data...')
+    refresh()
+  }, [])
 
   const formatRelativeTime = (isoDate) => {
     if (!isoDate) return '-'
@@ -24,7 +42,7 @@ export default function NotifikasiPage() {
     return 'kpro-notif-dot-blue'
   }
 
-  if (loading) {
+  if (loading && notifikasi.length === 0) {
     return (
       <div>
         <div className="kpro-page-header">
@@ -44,11 +62,14 @@ export default function NotifikasiPage() {
           <h2 className="kpro-page-title">Notifikasi</h2>
           <p className="kpro-page-subtitle">
             {unreadCount > 0 ? `${unreadCount} notifikasi belum dibaca` : 'Semua notifikasi sudah dibaca'}
+            <span className="kpro-text-muted" style={{ fontSize: '11px', marginLeft: '8px' }}>
+              (Diperbarui: {formatRelativeTime(lastUpdate)})
+            </span>
           </p>
         </div>
         <div className="kpro-page-actions">
           <button className="kpro-btn kpro-btn-secondary" onClick={markAllRead}>
-            Tandai semua dibaca
+            ✓ Tandai semua dibaca
           </button>
           <button className="kpro-btn kpro-btn-ghost" onClick={refresh}>
             🔄 Refresh
@@ -76,13 +97,22 @@ export default function NotifikasiPage() {
                 <div style={{ flex: 1 }}>
                   <div className="kpro-notif-text">
                     <strong>{notif.judul}</strong>
+                    {!isRead && <span className="kpro-badge kpro-badge-info" style={{ marginLeft: '8px', fontSize: '10px' }}>Baru</span>}
                     <br />
-                    {notif.pesan}
+                    {notif.pesan && notif.pesan.includes('\n') 
+                      ? notif.pesan.split('\n').map((line, i) => <span key={i}>{line}<br /></span>)
+                      : notif.pesan}
                   </div>
                   <div className="kpro-notif-time">{formatRelativeTime(notif.created_at)}</div>
                 </div>
                 {!isRead && (
-                  <div style={{ fontSize: '10px', color: '#2563EB' }}>Baru</div>
+                  <button 
+                    className="kpro-btn kpro-btn-sm kpro-btn-ghost"
+                    onClick={(e) => { e.stopPropagation(); markAsRead(notif.id) }}
+                    style={{ fontSize: '11px' }}
+                  >
+                    Tandai baca
+                  </button>
                 )}
               </div>
             )

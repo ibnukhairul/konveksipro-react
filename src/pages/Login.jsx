@@ -100,7 +100,7 @@ export default function Login() {
           <div className="lp-left">
             <div className="lp-left-body">
               <div className="lp-logo">
-                <div className="lp-logo-hex"><HexIcon /></div>
+                <div className="lp-logo-hex"><img src="/public/images/logo.png" alt="logo" /></div>
                 <span>KonveksiPro</span>
               </div>
 

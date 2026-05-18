@@ -138,12 +138,9 @@ button { cursor: pointer; font-family: var(--ff-body); }
 
 .lp-logo-hex {
   width: 38px; height: 38px;
-  background: rgba(255,255,255,0.18);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  color: white;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.25);
 }
 
 /* Hero text */

@@ -11,12 +11,18 @@ export function NotifikasiProvider({ children }) {
   const [unreadCount, setUnreadCount] = useState(0)
   const channelRef = useRef(null)
   const subscribedRef = useRef(false)
+  const initialLoadDone = useRef(false)
 
   const loadData = useCallback(async () => {
-    if (!user) return
+    if (!user) {
+      console.log('⏳ loadData: user belum siap')
+      return
+    }
+    console.log('📥 loadData: mengambil notifikasi untuk user:', user.id)
     setLoading(true)
     try {
       const data = await notifikasiService.getAll(user.id)
+      console.log(`📥 loadData: ${data.length} notifikasi diterima`)
       setNotifikasi(data)
       const count = await notifikasiService.getUnreadCount(user.id)
       setUnreadCount(count)
@@ -27,18 +33,28 @@ export function NotifikasiProvider({ children }) {
     }
   }, [user])
 
+  // 🔥 PERBAIKAN: Load data saat user tersedia
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    if (user && !initialLoadDone.current) {
+      initialLoadDone.current = true
+      loadData()
+    }
+  }, [user, loadData])
 
   // Setup realtime subscription
   useEffect(() => {
     if (!user) return
     if (subscribedRef.current) return
 
+    console.log('📡 Membuka channel realtime notifikasi untuk user:', user.id)
+
     const handleNewNotifikasi = (newNotif) => {
-      console.log('Notifikasi baru masuk:', newNotif)
-      setNotifikasi(prev => [{ ...newNotif, is_read: false }, ...prev])
+      console.log('🔔 Notifikasi baru via realtime:', newNotif)
+      setNotifikasi(prev => {
+        // Cegah duplikasi
+        if (prev.some(n => n.id === newNotif.id)) return prev
+        return [{ ...newNotif, is_read: false }, ...prev]
+      })
       setUnreadCount(prev => prev + 1)
     }
 
@@ -47,6 +63,7 @@ export function NotifikasiProvider({ children }) {
 
     return () => {
       if (channelRef.current) {
+        console.log('🔌 Menutup channel realtime notifikasi')
         channelRef.current.unsubscribe()
         channelRef.current = null
         subscribedRef.current = false

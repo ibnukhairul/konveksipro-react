@@ -14,7 +14,8 @@ const getPageTitle = (pathname) => {
     '/akun': 'Pengaturan Akun',
     '/team': 'Anggota Tim',
     '/backup': 'Backup & Restore',
-    '/admin-pricelist': 'Setting Price List'
+    '/admin-pricelist': 'Setting Price List',
+    '/pengeluaran': 'Pengeluaran'
   }
   return titles[pathname] || 'KonveksiPro'
 }
