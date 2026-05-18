@@ -15,15 +15,27 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [notaModalOpen, setNotaModalOpen] = useState(false)
   const [selectedProyekForNota, setSelectedProyekForNota] = useState(null)
+  const [submittingUpdate, setSubmittingUpdate] = useState(false)
+  const [submittingDelete, setSubmittingDelete] = useState(false)
 
   const formatRupiah = (num) => `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
 
-  // Handler cetak nota
+  // Format tanggal untuk display
+  const formatTanggal = (dateString) => {
+    if (!dateString) return '-'
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return '-'
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+    } catch {
+      return '-'
+    }
+  }
+
   const handleCetakNota = async () => {
     setModalAksi(false)
     try {
       const detail = await proyekService.getById(selectedProyek.id)
-      // Brand sudah ada di detail dari tabel proyek
       console.log('📄 Data untuk nota:', { nama: detail.nama_proyek, brand: detail.brand })
       setSelectedProyekForNota(detail)
       setNotaModalOpen(true)
@@ -157,6 +169,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
     if (produkList.length === 0) return toast.warning('Minimal 1 produk')
     const validProduk = produkList.every(p => p.nama_produk && p.jumlah_pcs > 0 && p.harga_satuan > 0)
     if (!validProduk) return toast.warning('Semua produk harus diisi nama, jumlah > 0, dan harga > 0')
+    if (submittingUpdate) return
 
     const totalHarga = hitungTotalHarga(produkList)
     let statusBayar = formData.status_bayar
@@ -164,6 +177,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
     const calculatedStatus = getStatusBayarFromDp(dp, totalHarga)
     if (calculatedStatus !== statusBayar) statusBayar = calculatedStatus
 
+    setSubmittingUpdate(true)
     try {
       await proyekService.update(selectedProyek.id, {
         ...formData,
@@ -180,11 +194,16 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
       onRefresh()
     } catch (err) {
       toast.error('Gagal update: ' + err.message)
+    } finally {
+      setSubmittingUpdate(false)
     }
   }
 
   const handleHapusProyek = async () => {
     if (!selectedProyek) return
+    if (submittingDelete) return
+
+    setSubmittingDelete(true)
     try {
       await proyekService.hapus(selectedProyek.id)
       toast.success('Proyek dihapus')
@@ -193,6 +212,8 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
       onRefresh()
     } catch (err) {
       toast.error('Gagal hapus: ' + err.message)
+    } finally {
+      setSubmittingDelete(false)
     }
   }
 
@@ -209,22 +230,38 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
         <table className="kpro-table">
           <thead>
             <tr>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('nama_client')}>Client {sortField === 'nama_client' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('nama_proyek')}>Proyek {sortField === 'nama_proyek' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('brand')}>Brand {sortField === 'brand' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('total_harga')}>Total {sortField === 'total_harga' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('status_bayar')}>Pembayaran {sortField === 'status_bayar' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ cursor: 'pointer' }} onClick={() => onSort('status_produksi')}>Produksi {sortField === 'status_produksi' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('nama_client')}>
+                Client {sortField === 'nama_client' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('nama_proyek')}>
+                Proyek {sortField === 'nama_proyek' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('tanggal_order')}>
+                Tgl Order {sortField === 'tanggal_order' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('brand')}>
+                Brand {sortField === 'brand' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('total_harga')}>
+                Total {sortField === 'total_harga' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('status_bayar')}>
+                Pembayaran {sortField === 'status_bayar' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('status_produksi')}>
+                Produksi {sortField === 'status_produksi' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
             </tr>
           </thead>
           <tbody>
             {proyek.length === 0 ? (
-              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Belum ada proyek</td></tr>
+              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>Belum ada proyek</td></tr>
             ) : (
               proyek.map(item => (
                 <tr key={item.id} style={{ cursor: 'pointer' }} onClick={() => handleRowClick(item)}>
                   <td style={{ fontWeight: 600 }}>{item.nama_client}</td>
                   <td>{item.nama_proyek}</td>
+                  <td>{formatTanggal(item.tanggal_order)}</td>
                   <td>{item.brand || 'SERAGAMAN'}</td>
                   <td><strong>{formatRupiah(item.total_harga)}</strong></td>
                   <td>{statusBayarBadge(item.status_bayar)}</td>
@@ -272,13 +309,6 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
             <div className="kpro-modal-body">
               {loadingDetail ? <div className="kpro-empty">Memuat detail...</div> : (
                 <>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">💰 Informasi Keuangan</div><div className="kpro-card-body">
-                    <div className="kpro-form-group"><label>Total Harga</label><input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} /></div>
-                    <div className="kpro-form-row"><div className="kpro-form-group"><label>Status Pembayaran</label><select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}><option value="belum_dp">Belum DP</option><option value="dp_30">DP 30%</option><option value="dp_50">DP 50%</option><option value="lunas">Lunas</option></select></div><div className="kpro-form-group"><label>DP Dibayar</label><input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} /></div></div>
-                    <div className="kpro-form-group"><label>Sisa Tagihan</label><input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} /></div>
-                  </div></div>
-                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">⚙️ Status Produksi</div><div className="kpro-card-body"><select className="kpro-select" value={formData.status_produksi} onChange={e => setFormData({ ...formData, status_produksi: e.target.value })}><option value="antri">Antri / Menunggu</option><option value="proses">Proses Produksi</option><option value="qc">Quality Control (QC)</option><option value="dikirim">Dikirim ke Client</option><option value="selesai">Selesai / Siap</option></select></div></div>
-
                   <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">👤 Informasi Client</div><div className="kpro-card-body">
                     <div className="kpro-form-row"><div className="kpro-form-group"><label>Nama Client *</label><input className="kpro-input" value={formData.nama_client || ''} onChange={e => setFormData({ ...formData, nama_client: e.target.value })} /></div><div className="kpro-form-group"><label>No. WhatsApp</label><input className="kpro-input" value={formData.no_wa || ''} onChange={e => setFormData({ ...formData, no_wa: e.target.value })} /></div></div>
                     <div className="kpro-form-group"><label>Tanggal Order</label><input type="date" className="kpro-input" value={formData.tanggal_order || ''} onChange={e => setFormData({ ...formData, tanggal_order: e.target.value })} /></div>
@@ -296,6 +326,12 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
                     ))}
                     <button className="kpro-btn kpro-btn-outline-primary kpro-btn-sm" onClick={tambahProduk}>+ Tambah Produk</button>
                   </div></div>
+                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">💰 Informasi Keuangan</div><div className="kpro-card-body">
+                    <div className="kpro-form-group"><label>Total Harga</label><input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} /></div>
+                    <div className="kpro-form-row"><div className="kpro-form-group"><label>Status Pembayaran</label><select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}><option value="belum_dp">Belum DP</option><option value="dp_30">DP 30%</option><option value="dp_50">DP 50%</option><option value="lunas">Lunas</option></select></div><div className="kpro-form-group"><label>DP Dibayar</label><input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} /></div></div>
+                    <div className="kpro-form-group"><label>Sisa Tagihan</label><input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} /></div>
+                  </div></div>
+                  <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">⚙️ Status Produksi</div><div className="kpro-card-body"><select className="kpro-select" value={formData.status_produksi} onChange={e => setFormData({ ...formData, status_produksi: e.target.value })}><option value="antri">Antri / Menunggu</option><option value="proses">Proses Produksi</option><option value="qc">Quality Control (QC)</option><option value="dikirim">Dikirim ke Client</option><option value="selesai">Selesai / Siap</option></select></div></div>
                   <div className="kpro-card kpro-mb-4"><div className="kpro-card-header">ℹ️ Informasi Tambahan Client</div><div className="kpro-card-body">
                     <div className="kpro-form-group"><label>Sumber Info</label><input className="kpro-input" value={formData.sumber_info || ''} onChange={e => setFormData({ ...formData, sumber_info: e.target.value })} /></div>
                     <div className="kpro-form-row"><div className="kpro-form-group"><label>Instansi</label><input className="kpro-input" value={formData.instansi || ''} onChange={e => setFormData({ ...formData, instansi: e.target.value })} /></div><div className="kpro-form-group"><label>Organisasi</label><input className="kpro-input" value={formData.organisasi || ''} onChange={e => setFormData({ ...formData, organisasi: e.target.value })} /></div></div>
