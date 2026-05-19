@@ -55,10 +55,10 @@ export default function PriceListPage() {
 }
       grandTotal += itemTotal
       text += `*${idx+1}. ${item.productName} + ${item.fabricName}*\n`
-      text += `   💰 Harga: ${item.isNegotiable ? 'NEGOTIABLE' : `Rp ${item.pricePerUnit.toLocaleString('id-ID')}`}/pcs\n`
+      text += `   Harga: ${item.isNegotiable ? 'NEGOTIABLE' : `Rp ${item.pricePerUnit.toLocaleString('id-ID')}`}/pcs\n`
       const sizesWithQty = Object.entries(item.quantities).filter(([_, qty]) => qty > 0)
       if (sizesWithQty.length) {
-        text += `   📏 Ukuran:\n`
+        text += `   Ukuran:\n`
         for (const [size, qty] of sizesWithQty) {
           const adjust = sizeAdjustments.find(s => s.size === size)?.additional_price || 0
           text += `      ${size}: ${qty} pcs x Rp ${(item.pricePerUnit + adjust).toLocaleString('id-ID')}\n`
@@ -66,9 +66,9 @@ export default function PriceListPage() {
       }
       if (item.addons.length) {
   const addonStr = item.addons.map(a => `${a.name} (+${formatRupiah(a.price || a.pricePerPcs)}/pcs x ${totalQty} pcs = ${formatRupiah((a.price || a.pricePerPcs) * totalQty)})`).join(', ')
-  text += `   🔧 Tambahan: ${addonStr}\n`
+  text += `    Tambahan: ${addonStr}\n`
 }
-      text += `   ✨ Include: ${item.includes || '-'}\n`
+      text += `   Include: ${item.includes || '-'}\n`
       text += `   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─\n`
       text += `   *Subtotal: Rp ${itemTotal.toLocaleString('id-ID')}*\n\n`
     })
@@ -88,8 +88,8 @@ export default function PriceListPage() {
     navigator.clipboard.writeText(text).then(() => alert('Teks disalin!'))
   }
 
-  if (loading) return <div className="pl-loading">🔄 Memuat data price list...</div>
-  if (error) return <div className="pl-empty">⚠️ Error: {error}</div>
+  if (loading) return <div className="pl-loading">Memuat data price list...</div>
+  if (error) return <div className="pl-empty">Error: {error}</div>
 
   // Cari includes dari produk yang dipilih
   const selectedProduct = products.find(p => p.id === selectedProductId)

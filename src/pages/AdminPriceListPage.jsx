@@ -293,7 +293,7 @@ export default function AdminPriceListPage() {
   if (!isAdmin) {
     return (
       <div>
-        <div className="kpro-page-header"><div><h2 className="kpro-page-title">⚙️ Setting Price List</h2></div></div>
+        <div className="kpro-page-header"><div><h2 className="kpro-page-title">Setting Price List</h2></div></div>
         <div className="kpro-card"><div className="kpro-empty"><div className="kpro-empty-icon">🔒</div><div className="kpro-empty-title">Akses Ditolak</div><div className="kpro-empty-desc">Halaman ini hanya untuk Owner dan Developer</div></div></div>
       </div>
     )
@@ -302,25 +302,25 @@ export default function AdminPriceListPage() {
   return (
     <div>
       <div className="kpro-page-header">
-        <div><h2 className="kpro-page-title">⚙️ Setting Price List</h2><p className="kpro-page-subtitle">Kelola produk, kain, harga tier, addons, dan ukuran</p></div>
+        <div><h2 className="kpro-page-title">Setting Price List</h2><p className="kpro-page-subtitle">Kelola produk, kain, harga tier, addons, dan ukuran</p></div>
       </div>
 
       {/* Brand Tabs */}
       <div className="admin-brand-tabs" style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
         {['SERAGAMAN', 'CLOTHINGWELL', 'KAMPUS APPAREL'].map(b => (
           <button key={b} className={`kpro-btn ${brand === b ? 'kpro-btn-primary' : 'kpro-btn-secondary'}`} onClick={() => setBrand(b)}>
-            {b === 'SERAGAMAN' ? '🏢 ' : b === 'CLOTHINGWELL' ? '👕 ' : '🎓 '}{b}
+            {b === 'SERAGAMAN' ? '' : b === 'CLOTHINGWELL' ? '' : ''}{b}
           </button>
         ))}
       </div>
 
-      {loading && <div className="kpro-empty">🔄 Memuat data...</div>}
+      {loading && <div className="kpro-empty">Memuat data...</div>}
 
       {!loading && (
         <>
           {/* Section 1: Products */}
           <div className="kpro-card kpro-mb-5">
-            <div className="kpro-card-header"><span className="kpro-card-title">📦 Produk (Jenis Pakaian)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openProductModal()}>+ Tambah Produk</button></div>
+            <div className="kpro-card-header"><span className="kpro-card-title">Produk (Jenis Pakaian)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openProductModal()}>+ Tambah Produk</button></div>
             <div className="kpro-table-wrap">
               <table className="kpro-table"><thead><tr><th>Nama Produk</th><th>Kategori</th><th>Include</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody>{products.length === 0 ? <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Belum ada produk</td></tr> : products.map(p => (<tr key={p.id}><td><strong>{p.product_type}</strong></td><td>{p.category}</td><td>{p.includes?.substring(0, 50) || '-'}</td><td>{p.sort_order}</td><td><span className={`kpro-badge ${p.is_active ? 'kpro-badge-success' : 'kpro-badge-danger'}`}>{p.is_active ? 'Aktif' : 'Nonaktif'}</span></td><td><button className="kpro-btn kpro-btn-sm kpro-btn-outline-primary" onClick={() => openProductModal(p)}>✏️</button> <button className="kpro-btn kpro-btn-sm kpro-btn-danger" onClick={() => deleteProduct(p.id, p.product_type)}>🗑</button></td></tr>))}</tbody></table>
@@ -329,7 +329,7 @@ export default function AdminPriceListPage() {
 
           {/* Section 2: Fabrics */}
           <div className="kpro-card kpro-mb-5">
-            <div className="kpro-card-header"><span className="kpro-card-title">🧵 Kain (Bahan)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openFabricModal()}>+ Tambah Kain</button></div>
+            <div className="kpro-card-header"><span className="kpro-card-title">Kain (Bahan)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openFabricModal()}>+ Tambah Kain</button></div>
             <div className="kpro-table-wrap">
               <table className="kpro-table"><thead><tr><th>Nama Kain</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody>{fabrics.length === 0 ? <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px' }}>Belum ada kain</td></tr> : fabrics.map(f => (<tr key={f.id}><td><strong>{f.fabric_name}</strong></td><td>{f.sort_order}</td><td><span className={`kpro-badge ${f.is_active ? 'kpro-badge-success' : 'kpro-badge-danger'}`}>{f.is_active ? 'Aktif' : 'Nonaktif'}</span></td><td><button className="kpro-btn kpro-btn-sm kpro-btn-outline-primary" onClick={() => openFabricModal(f)}>✏️</button> <button className="kpro-btn kpro-btn-sm kpro-btn-danger" onClick={() => deleteFabric(f.id, f.fabric_name)}>🗑</button></td></tr>))}</tbody></table>
@@ -338,7 +338,7 @@ export default function AdminPriceListPage() {
 
           {/* Section 3: Tiers - dengan filter */}
           <div className="kpro-card kpro-mb-5">
-            <div className="kpro-card-header"><span className="kpro-card-title">💰 Harga (Tier per Quantity)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openTierModal()}>+ Tambah Tier</button></div>
+            <div className="kpro-card-header"><span className="kpro-card-title">Harga (Tier per Quantity)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openTierModal()}>+ Tambah Tier</button></div>
             <div className="kpro-card-body" style={{ paddingBottom: '0' }}>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 <select className="kpro-select" style={{ minWidth: '180px' }} value={tierFilterProduct} onChange={e => setTierFilterProduct(e.target.value)}><option value="">Semua Produk</option>{products.map(p => <option key={p.id} value={p.id}>{p.product_type}</option>)}</select>
@@ -348,13 +348,13 @@ export default function AdminPriceListPage() {
             </div>
             <div className="kpro-table-wrap">
               <table className="kpro-table"><thead><tr><th>Produk</th><th>Kain</th><th>Min Qty</th><th>Max Qty</th><th>Harga</th><th>Aksi</th></tr></thead>
-              <tbody>{filteredTiers.length === 0 ? <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Belum ada tier harga</td></tr> : filteredTiers.map(t => (<tr key={t.id}><td>{t.price_products?.product_type || '-'}</td><td>{t.price_fabrics?.fabric_name || '-'}</td><td>{t.min_qty}</td><td>{t.max_qty || '∞'}</td><td>{t.price === 0 ? '🔄 NEGOTIABLE' : `Rp ${t.price.toLocaleString('id-ID')}`}</td><td><button className="kpro-btn kpro-btn-sm kpro-btn-outline-primary" onClick={() => openTierModal(t)}>✏️</button> <button className="kpro-btn kpro-btn-sm kpro-btn-danger" onClick={() => deleteTier(t.id)}>🗑</button></td></tr>))}</tbody></table>
+              <tbody>{filteredTiers.length === 0 ? <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Belum ada tier harga</td></tr> : filteredTiers.map(t => (<tr key={t.id}><td>{t.price_products?.product_type || '-'}</td><td>{t.price_fabrics?.fabric_name || '-'}</td><td>{t.min_qty}</td><td>{t.max_qty || '∞'}</td><td>{t.price === 0 ? 'NEGOTIABLE' : `Rp ${t.price.toLocaleString('id-ID')}`}</td><td><button className="kpro-btn kpro-btn-sm kpro-btn-outline-primary" onClick={() => openTierModal(t)}>✏️</button> <button className="kpro-btn kpro-btn-sm kpro-btn-danger" onClick={() => deleteTier(t.id)}>🗑</button></td></tr>))}</tbody></table>
             </div>
           </div>
 
           {/* Section 4: Addons */}
           <div className="kpro-card kpro-mb-5">
-            <div className="kpro-card-header"><span className="kpro-card-title">🔧 Addons (Tambahan)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openAddonModal()}>+ Tambah Addon</button></div>
+            <div className="kpro-card-header"><span className="kpro-card-title"> Addons (Tambahan)</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openAddonModal()}>+ Tambah Addon</button></div>
             <div className="kpro-card-body" style={{ paddingBottom: '0' }}>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <select className="kpro-select" style={{ minWidth: '200px' }} value={addonFilterProduct} onChange={e => setAddonFilterProduct(e.target.value)}><option value="">Semua Produk</option>{products.map(p => <option key={p.id} value={p.id}>{p.product_type}</option>)}</select>
@@ -369,7 +369,7 @@ export default function AdminPriceListPage() {
 
           {/* Section 5: Size Adjustments */}
           <div className="kpro-card">
-            <div className="kpro-card-header"><span className="kpro-card-title">📏 Penyesuaian Harga per Ukuran</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openSizeModal()}>+ Tambah Ukuran</button></div>
+            <div className="kpro-card-header"><span className="kpro-card-title">Penyesuaian Harga per Ukuran</span><button className="kpro-btn kpro-btn-primary kpro-btn-sm" onClick={() => openSizeModal()}>+ Tambah Ukuran</button></div>
             <div className="kpro-table-wrap">
               <table className="kpro-table"><thead><tr><th>Ukuran</th><th>Harga Tambahan</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody>{sizes.length === 0 ? <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px' }}>Belum ada penyesuaian ukuran</td></tr> : sizes.map(s => (<tr key={s.id}><td><strong>{s.size}</strong></td><td>Rp {s.additional_price.toLocaleString('id-ID')}</td><td><span className={`kpro-badge ${s.is_active ? 'kpro-badge-success' : 'kpro-badge-danger'}`}>{s.is_active ? 'Aktif' : 'Nonaktif'}</span></td><td><button className="kpro-btn kpro-btn-sm kpro-btn-outline-primary" onClick={() => openSizeModal(s)}>✏️</button> <button className="kpro-btn kpro-btn-sm kpro-btn-danger" onClick={() => deleteSize(s.id, s.size)}>🗑</button></td></tr>))}</tbody></table>

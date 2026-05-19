@@ -12,18 +12,20 @@ import {
   Calendar,
   Tag,
   FileText,
-  DollarSign
+  DollarSign,
+  MoreHorizontal,
+  X
 } from 'lucide-react'
 
 const KATEGORI = [
-  { value: 'Bahan Baku', label: '🧵 Bahan Baku', color: '#3b82f6' },
-  { value: 'Sablon', label: '🖨️ Sablon', color: '#10b981' },
-  { value: 'Ongkos Jahit', label: '✂️ Ongkos Jahit', color: '#f59e0b' },
-  { value: 'Packaging', label: '📦 Packaging', color: '#8b5cf6' },
-  { value: 'Transport', label: '🚚 Transport', color: '#ef4444' },
-  { value: 'Operasional', label: '📝 Operasional', color: '#64748b' },
-  { value: 'Marketing', label: '📢 Marketing', color: '#ec4899' },
-  { value: 'Lainnya', label: '📌 Lainnya', color: '#94a3b8' }
+  { value: 'Bahan Baku', label: 'Bahan Baku', color: '#3b82f6' },
+  { value: 'Sablon', label: 'Sablon', color: '#10b981' },
+  { value: 'Ongkos Jahit', label: 'Ongkos Jahit', color: '#f59e0b' },
+  { value: 'Packaging', label: 'Packaging', color: '#8b5cf6' },
+  { value: 'Transport', label: 'Transport', color: '#ef4444' },
+  { value: 'Operasional', label: 'Operasional', color: '#64748b' },
+  { value: 'Marketing', label: 'Marketing', color: '#ec4899' },
+  { value: 'Lainnya', label: 'Lainnya', color: '#94a3b8' }
 ]
 
 const formatRupiah = (num) => `Rp ${Math.round(num || 0).toLocaleString('id-ID')}`
@@ -52,6 +54,11 @@ export default function PengeluaranPage() {
     jumlah: ''
   })
   const [formLoading, setFormLoading] = useState(false)
+  
+  // 🔥 Popup Aksi states
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [popupOpen, setPopupOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const isAdmin = profile?.role === 'owner' || profile?.role === 'developer'
 
@@ -69,11 +76,9 @@ export default function PengeluaranPage() {
       const data = await pengeluaranService.getAll(filters)
       setPengeluaran(data)
       
-      // Hitung total
       const total = data.reduce((sum, item) => sum + (item.jumlah || 0), 0)
       setTotalPengeluaran(total)
       
-      // Rekap per kategori
       const rekap = {}
       for (const item of data) {
         if (!rekap[item.kategori]) rekap[item.kategori] = 0
@@ -120,6 +125,7 @@ export default function PengeluaranPage() {
       jumlah: item.jumlah.toString()
     })
     setModalOpen(true)
+    setPopupOpen(false)
   }
 
   const handleSave = async () => {
@@ -154,21 +160,34 @@ export default function PengeluaranPage() {
     }
   }
 
-  const handleDelete = async (id, deskripsi) => {
-    if (!window.confirm(`Hapus pengeluaran "${deskripsi}"?`)) return
+  // 🔥 Handle delete dari popup
+  const handleDelete = async () => {
+    if (!selectedItem) return
+    if (!window.confirm(`Hapus pengeluaran "${selectedItem.deskripsi}"?`)) return
+    
+    setSubmitting(true)
     try {
-      await pengeluaranService.delete(id)
+      await pengeluaranService.delete(selectedItem.id)
       toast.success('Pengeluaran dihapus')
+      setPopupOpen(false)
+      setSelectedItem(null)
       loadData()
     } catch (err) {
       toast.error('Gagal hapus: ' + err.message)
+    } finally {
+      setSubmitting(false)
     }
+  }
+
+  // 🔥 Buka popup aksi saat row diklik
+  const handleRowClick = (item) => {
+    setSelectedItem(item)
+    setPopupOpen(true)
   }
 
   const handleExport = async () => {
     try {
       const data = await pengeluaranService.getAll({})
-      // Fungsi export akan diimplementasikan nanti dengan xlsx
       alert('Fitur export akan segera hadir')
     } catch (err) {
       toast.error('Gagal export: ' + err.message)
@@ -178,6 +197,11 @@ export default function PengeluaranPage() {
   const getKategoriLabel = (kategori) => {
     const found = KATEGORI.find(k => k.value === kategori)
     return found ? found.label : kategori
+  }
+
+  const getKategoriColor = (kategori) => {
+    const found = KATEGORI.find(k => k.value === kategori)
+    return found?.color || '#94a3b8'
   }
 
   if (!isAdmin) {
@@ -205,10 +229,6 @@ export default function PengeluaranPage() {
           <p className="pengeluaran-subtitle">Catat semua belanja, biaya produksi, dan operasional</p>
         </div>
         <div className="pengeluaran-actions">
-          {/* <button className="pengeluaran-export-btn" onClick={handleExport}>
-            <Download size={16} />
-            Export
-          </button> */}
           <button className="pengeluaran-add-btn" onClick={openAddModal}>
             <Plus size={16} />
             Tambah Pengeluaran
@@ -228,7 +248,6 @@ export default function PengeluaranPage() {
             <span className="pengeluaran-stat-change">{pengeluaran.length} transaksi</span>
           </div>
         </div>
-        
       </div>
 
       {/* Filter Bar */}
@@ -282,7 +301,7 @@ export default function PengeluaranPage() {
         </button>
       </div>
 
-      {/* Tabel Pengeluaran */}
+      {/* Tabel Pengeluaran - dengan row click */}
       <div className="pengeluaran-card">
         <div className="pengeluaran-table-wrapper">
           <table className="pengeluaran-table">
@@ -292,35 +311,35 @@ export default function PengeluaranPage() {
                 <th>Kategori</th>
                 <th>Deskripsi</th>
                 <th>Jumlah</th>
-                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="5" className="pengeluaran-table-loading">Memuat data...</td></tr>
+                <tr><td colSpan="4" className="pengeluaran-table-loading">Memuat data...</td></tr>
               ) : pengeluaran.length === 0 ? (
-                <tr><td colSpan="5" className="pengeluaran-table-empty">Belum ada data pengeluaran</td></tr>
+                <tr><td colSpan="4" className="pengeluaran-table-empty">Belum ada data pengeluaran</td></tr>
               ) : (
                 pengeluaran.map(item => (
-                  <tr key={item.id}>
-                    <td>{new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
+                  <tr 
+                    key={item.id} 
+                    className="pengeluaran-table-row"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleRowClick(item)}
+                  >
+                    <td className="pengeluaran-tanggal">{new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
                     <td>
-                      <span className="pengeluaran-badge" style={{ backgroundColor: KATEGORI.find(k => k.value === item.kategori)?.color + '20', color: KATEGORI.find(k => k.value === item.kategori)?.color }}>
+                      <span 
+                        className="pengeluaran-badge" 
+                        style={{ 
+                          backgroundColor: getKategoriColor(item.kategori) + '20', 
+                          color: getKategoriColor(item.kategori) 
+                        }}
+                      >
                         {getKategoriLabel(item.kategori)}
                       </span>
                     </td>
                     <td className="pengeluaran-deskripsi">{item.deskripsi}</td>
                     <td className="pengeluaran-jumlah">{formatRupiah(item.jumlah)}</td>
-                    <td>
-                      <div className="pengeluaran-actions-cell">
-                        <button className="pengeluaran-edit-btn" onClick={() => openEditModal(item)}>
-                          <Edit size={16} />
-                        </button>
-                        <button className="pengeluaran-delete-btn" onClick={() => handleDelete(item.id, item.deskripsi)}>
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
                   </tr>
                 ))
               )}
@@ -329,13 +348,69 @@ export default function PengeluaranPage() {
         </div>
       </div>
 
+      {/* 🔥 Modal Popup Aksi */}
+      {popupOpen && selectedItem && (
+        <div className="kpro-modal-overlay is-open" onClick={() => setPopupOpen(false)}>
+          <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+            <div className="kpro-modal-header" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
+              <h3 className="kpro-modal-title" style={{ color: 'white' }}>⚡ Aksi Pengeluaran</h3>
+              <button className="kpro-modal-close" onClick={() => setPopupOpen(false)} style={{ color: 'white' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="kpro-modal-body" style={{ padding: '24px' }}>
+              <div style={{ background: '#F8FAFC', borderRadius: '16px', padding: '16px', marginBottom: '24px' }}>
+                <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>
+                  {selectedItem.deskripsi}
+                </div>
+                <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '8px' }}>
+                  {getKategoriLabel(selectedItem.kategori)}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #E2E8F0' }}>
+                  <span>Tanggal:</span>
+                  <span style={{ fontWeight: 600 }}>{new Date(selectedItem.tanggal).toLocaleDateString('id-ID')}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+                  <span>Jumlah:</span>
+                  <span style={{ fontWeight: 700, color: '#ef4444' }}>{formatRupiah(selectedItem.jumlah)}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button 
+                  className="kpro-btn" 
+                  style={{ background: '#7C3AED', color: 'white', padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
+                  onClick={() => openEditModal(selectedItem)}
+                >
+                  <Edit size={16} />
+                  Edit Pengeluaran
+                </button>
+                <button 
+                  className="kpro-btn" 
+                  style={{ background: '#EF4444', color: 'white', padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
+                  onClick={handleDelete}
+                  disabled={submitting}
+                >
+                  <Trash2 size={16} />
+                  {submitting ? 'Menghapus...' : 'Hapus Pengeluaran'}
+                </button>
+              </div>
+            </div>
+            <div className="kpro-modal-footer" style={{ justifyContent: 'center' }}>
+              <button className="kpro-btn kpro-btn-secondary" onClick={() => setPopupOpen(false)} style={{ width: '100%' }}>
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal Tambah/Edit */}
       {modalOpen && (
-        <div className="pengeluaran-modal-overlay" onClick={() => setModalOpen(false)}>
+        <div className="pengeluaran-modal-overlay" onClick={() => !formLoading && setModalOpen(false)}>
           <div className="pengeluaran-modal" onClick={e => e.stopPropagation()}>
             <div className="pengeluaran-modal-header">
               <h3>{editingId ? 'Edit Pengeluaran' : 'Tambah Pengeluaran'}</h3>
-              <button className="pengeluaran-modal-close" onClick={() => setModalOpen(false)}>✕</button>
+              <button className="pengeluaran-modal-close" onClick={() => !formLoading && setModalOpen(false)} disabled={formLoading}>✕</button>
             </div>
             <div className="pengeluaran-modal-body">
               <div className="pengeluaran-form-group">
@@ -345,6 +420,7 @@ export default function PengeluaranPage() {
                   className="pengeluaran-form-input"
                   value={form.tanggal}
                   onChange={(e) => setForm({...form, tanggal: e.target.value})}
+                  disabled={formLoading}
                 />
               </div>
               <div className="pengeluaran-form-group">
@@ -353,6 +429,7 @@ export default function PengeluaranPage() {
                   className="pengeluaran-form-select"
                   value={form.kategori}
                   onChange={(e) => setForm({...form, kategori: e.target.value})}
+                  disabled={formLoading}
                 >
                   {KATEGORI.map(k => (
                     <option key={k.value} value={k.value}>{k.label}</option>
@@ -367,6 +444,7 @@ export default function PengeluaranPage() {
                   placeholder="Contoh: Beli kain katun 50 yard"
                   value={form.deskripsi}
                   onChange={(e) => setForm({...form, deskripsi: e.target.value})}
+                  disabled={formLoading}
                 />
               </div>
               <div className="pengeluaran-form-group">
@@ -377,11 +455,12 @@ export default function PengeluaranPage() {
                   placeholder="0"
                   value={form.jumlah}
                   onChange={(e) => setForm({...form, jumlah: e.target.value})}
+                  disabled={formLoading}
                 />
               </div>
             </div>
             <div className="pengeluaran-modal-footer">
-              <button className="pengeluaran-modal-cancel" onClick={() => setModalOpen(false)}>Batal</button>
+              <button className="pengeluaran-modal-cancel" onClick={() => !formLoading && setModalOpen(false)} disabled={formLoading}>Batal</button>
               <button className="pengeluaran-modal-save" onClick={handleSave} disabled={formLoading}>
                 {formLoading ? 'Menyimpan...' : 'Simpan'}
               </button>

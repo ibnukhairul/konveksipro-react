@@ -4,10 +4,11 @@ import { notifikasiService } from './notifikasiService'
 export const stokService = {
   async getAll(filter = {}) {
     let query = supabase.from('stok_barang').select('*')
+    
+    // 🔥 HAPUS filter search dari backend
+    // Hanya filter kategori jika diperlukan
     if (filter.kategori) query = query.eq('kategori', filter.kategori)
-    if (filter.search) {
-      query = query.or(`nama_bahan.ilike.%${filter.search}%,kategori.ilike.%${filter.search}%,gramasi.ilike.%${filter.search}%,size.ilike.%${filter.search}%`)
-    }
+    
     const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
     return data || []
@@ -15,19 +16,6 @@ export const stokService = {
 
   async getAllRaw() {
     const { data, error } = await supabase.from('stok_barang').select('*').order('created_at', { ascending: false })
-    if (error) throw error
-    return data || []
-  },
-
-  async getRecentAmbilLogs() {
-    const twelveHoursAgo = new Date()
-    twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12)
-    const { data, error } = await supabase
-      .from('log_stok')
-      .select('*, stok_barang(nama_bahan, size, gramasi)')
-      .eq('jenis', 'ambil')
-      .gte('created_at', twelveHoursAgo.toISOString())
-      .order('created_at', { ascending: false })
     if (error) throw error
     return data || []
   },

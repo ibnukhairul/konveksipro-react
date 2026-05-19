@@ -127,39 +127,39 @@ export default function QuantityModal({
     <div className="kpro-modal-overlay is-open" style={{ zIndex: 1000 }}>
       <div className="kpro-modal" style={{ maxWidth: '650px', maxHeight: '85vh', overflowY: 'auto' }}>
         <div className="kpro-modal-header">
-          <h3 className="kpro-modal-title">📝 Detail Pesanan</h3>
+          <h3 className="kpro-modal-title">Detail Pesanan</h3>
           <button className="kpro-modal-close" onClick={onClose}>✕</button>
         </div>
         <div className="kpro-modal-body">
           <div style={{ background: '#F1F5F9', padding: '14px', borderRadius: '14px', marginBottom: '16px' }}>
             <div style={{ fontWeight: 700 }}>{productName} + {fabricName}</div>
-            <div style={{ fontSize: '12px', color: '#64748B' }}>✨ {includes}</div>
+            <div style={{ fontSize: '12px', color: '#64748B' }}>{includes}</div>
           </div>
 
           {/* TAMPILAN TIER HARGA */}
           {tierList.length > 0 && (
             <div className="tier-list" style={{ marginBottom: '16px', background: '#F8FAFC', borderRadius: '12px', padding: '12px' }}>
-              <div className="tier-list-title" style={{ fontWeight: 600, marginBottom: '8px' }}>💰 Harga Berdasarkan Quantity</div>
+              <div className="tier-list-title" style={{ fontWeight: 600, marginBottom: '8px' }}>Harga Berdasarkan Quantity</div>
               {tierList.map((tier, idx) => {
                 const isActive = (totalQuantity >= tier.min && (tier.max === null || totalQuantity <= tier.max)) ||
                                  (priceInfo.tierLabel && priceInfo.tierLabel.includes(tier.min))
                 return (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', background: isActive ? '#DBEAFE' : 'transparent', borderRadius: '6px', paddingLeft: '8px', paddingRight: '8px' }}>
                     <span>{tier.min}{tier.max ? '-' + tier.max : '+'} pcs</span>
-                    <span>{tier.isNegotiable ? '🔄 NEGOTIABLE' : `Rp ${tier.price.toLocaleString('id-ID')}`}</span>
+                    <span>{tier.isNegotiable ? 'NEGOTIABLE' : `Rp ${tier.price.toLocaleString('id-ID')}`}</span>
                   </div>
                 )
               })}
               {priceInfo.minQty && totalQuantity < priceInfo.minQty && (
                 <div style={{ marginTop: '8px', color: '#D97706', fontSize: '12px' }}>
-                  ⚠️ Minimal order: {priceInfo.minQty} pcs
+                  Minimal order: {priceInfo.minQty} pcs
                 </div>
               )}
             </div>
           )}
            {canNegotiate && (
             <div className="kpro-form-group" style={{ marginTop: '12px' }}>
-              <label className="kpro-label">💰 Harga Negosiasi (per pcs)</label>
+              <label className="kpro-label">Harga Negosiasi (per pcs)</label>
               <input
                 type="text"
                 className="kpro-input"
@@ -186,7 +186,7 @@ export default function QuantityModal({
                 ))}
               </div>
               <div style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>
-                ℹ️ Addons dikenakan per pcs (dikalikan dengan total quantity)
+                Addons dikenakan per pcs (dikalikan dengan total quantity)
               </div>
             </div>
           )}
@@ -205,7 +205,7 @@ export default function QuantityModal({
             border: '1px solid #BBF7D0'
           }}>
             <span style={{ fontSize: '13px', fontWeight: 500, color: '#166534' }}>
-              💰 Harga per pcs (setelah addons):
+              Harga per pcs (setelah addons):
             </span>
             <span style={{ fontSize: '18px', fontWeight: 700, color: '#16A34A' }}>
               {formatRupiah(pricePerUnitWithAddons)}
@@ -231,7 +231,7 @@ export default function QuantityModal({
               ))}
             </div>
              <div className="total-qty-display" style={{ background: '#EFF6FF', padding: '8px', borderRadius: '8px', textAlign: 'center', marginBottom: '16px' }}>
-            📊 Total Quantity: <strong>{totalQuantity}</strong> pcs
+            Total Quantity: <strong>{totalQuantity}</strong> pcs
           </div>
           </div>
 
@@ -242,12 +242,12 @@ export default function QuantityModal({
           
 
           <div className="pl-subtotal" style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '18px', marginTop: '16px' }}>
-            💰 Subtotal: <span>Rp {subtotal.toLocaleString('id-ID')}</span>
+             Subtotal: <span>Rp {subtotal.toLocaleString('id-ID')}</span>
           </div>
         </div>
         <div className="kpro-modal-footer">
           <button className="kpro-btn kpro-btn-secondary" onClick={onClose}>Batal</button>
-          <button className="kpro-btn kpro-btn-primary" onClick={handleSubmit}>✅ Tambah ke Keranjang</button>
+          <button className="kpro-btn kpro-btn-primary" onClick={handleSubmit}>Tambah ke Keranjang</button>
         </div>
       </div>
     </div>

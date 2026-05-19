@@ -87,9 +87,9 @@ export default function TeamPage() {
 
   const getRoleLabel = (role) => {
     const labels = {
-      owner: '👑 Owner',
-      developer: '💻 Developer',
-      team: '👥 Team'
+      owner: 'Owner',
+      developer: 'Developer',
+      team: 'Team'
     }
     return labels[role] || role
   }
@@ -126,10 +126,10 @@ export default function TeamPage() {
     return (
       <div>
         <div className="kpro-page-header">
-          <div><h2 className="kpro-page-title">👥 Anggota Tim</h2><p className="kpro-page-subtitle">Daftar semua anggota yang terdaftar</p></div>
+          <div><h2 className="kpro-page-title">Anggota Tim</h2><p className="kpro-page-subtitle">Daftar semua anggota yang terdaftar</p></div>
         </div>
         <div className="kpro-card">
-          <div className="kpro-empty">🔄 Memuat data anggota...</div>
+          <div className="kpro-empty">Memuat data anggota...</div>
         </div>
       </div>
     )
@@ -139,7 +139,7 @@ export default function TeamPage() {
     <div>
       <div className="kpro-page-header">
         <div>
-          <h2 className="kpro-page-title">👥 Anggota Tim</h2>
+          <h2 className="kpro-page-title">Anggota Tim</h2>
           <p className="kpro-page-subtitle">
             {members.length} anggota terdaftar
             {!isAdmin && ' (Anda hanya bisa melihat)'}
@@ -223,14 +223,14 @@ export default function TeamPage() {
                               disabled={member.role === 'owner' && !isCurrentUser}
                               title={member.role === 'owner' && !isCurrentUser ? 'Tidak bisa mengubah role Owner lain' : ''}
                             >
-                              🔄 Role
+                              Role
                             </button>
                             <button
                               className={`kpro-btn kpro-btn-sm ${member.is_active !== false ? 'kpro-btn-warning' : 'kpro-btn-success'}`}
                               onClick={() => openStatusModal(member)}
                               disabled={member.role === 'owner' && !isCurrentUser}
                             >
-                              {member.is_active !== false ? '🔒 Nonaktifkan' : '✅ Aktifkan'}
+                              {member.is_active !== false ? 'Nonaktifkan' : 'Aktifkan'}
                             </button>
                           </div>
                         </td>
@@ -261,9 +261,9 @@ export default function TeamPage() {
                   defaultValue={selectedMember.role}
                   onChange={(e) => handleUpdateRole(selectedMember.id, e.target.value)}
                 >
-                  <option value="owner">👑 Owner</option>
-                  <option value="developer">💻 Developer</option>
-                  <option value="team">👥 Team</option>
+                  <option value="owner">Owner</option>
+                  <option value="developer">Developer</option>
+                  <option value="team">Team</option>
                 </select>
               </div>
             </div>

@@ -335,10 +335,10 @@ export default function KeuanganPage() {
             value={viewMode}
             onChange={(e) => handleViewModeChange(e.target.value)}
           >
-            <option value="month">📅 Per Bulan</option>
-            <option value="year">📆 Per Tahun</option>
-            <option value="all_time">🗓️ All Time</option>
-            <option value="full_year">📊 Tahun Penuh</option>
+            <option value="month">Per Bulan</option>
+            <option value="year">Per Tahun</option>
+            <option value="all_time">All Time</option>
+            <option value="full_year">Setahun Penuh</option>
           </select>
           
           <select 
@@ -370,7 +370,7 @@ export default function KeuanganPage() {
 
         <div className="keu-period-info">
           <span className="keu-period-badge">
-            📍 Menampilkan: {getPeriodeLabel()}
+            Menampilkan: {getPeriodeLabel()}
             {isPending && <span className="keu-loading-dot"> 🔄 Memperbarui...</span>}
           </span>
         </div>

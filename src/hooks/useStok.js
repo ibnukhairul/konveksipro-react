@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { stokService } from '../services/stokService'
 
 export function useStok() {
@@ -8,12 +8,28 @@ export function useStok() {
   const [search, setSearch] = useState('')
   const [sortField, setSortField] = useState('nama_bahan')
   const [sortOrder, setSortOrder] = useState('asc')
+  
+  // 🔥 Gunakan ref untuk mencegah infinite loop
+  const searchTimeout = useRef(null)
 
   const loadStok = useCallback(async () => {
     setLoading(true)
     try {
-      let data = await stokService.getAll({ search })
-      // Sorting manual karena service mungkin tidak support sorting
+      let data = await stokService.getAll({})
+      
+      // Filter di frontend
+      if (search.trim() !== '') {
+        const searchLower = search.toLowerCase()
+        data = data.filter(item => 
+          (item.nama_bahan && item.nama_bahan.toLowerCase().includes(searchLower)) ||
+          (item.kategori && item.kategori.toLowerCase().includes(searchLower)) ||
+          (item.gramasi && item.gramasi.toLowerCase().includes(searchLower)) ||
+          (item.size && item.size.toLowerCase().includes(searchLower)) ||
+          (item.catatan && item.catatan.toLowerCase().includes(searchLower))
+        )
+      }
+      
+      // Sorting
       data.sort((a, b) => {
         let valA = a[sortField] ?? ''
         let valB = b[sortField] ?? ''
@@ -26,6 +42,7 @@ export function useStok() {
         if (valA > valB) return sortOrder === 'asc' ? 1 : -1
         return 0
       })
+      
       setStok(data)
     } catch (err) {
       setError(err.message)
@@ -39,7 +56,17 @@ export function useStok() {
   }, [loadStok])
 
   const refresh = () => loadStok()
-  const handleSearch = (keyword) => setSearch(keyword)
+  
+  // 🔥 Handle search dengan debounce di sini (pindah dari komponen)
+  const handleSearch = (keyword) => {
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current)
+    }
+    searchTimeout.current = setTimeout(() => {
+      setSearch(keyword)
+    }, 400)
+  }
+  
   const handleSort = (field) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')

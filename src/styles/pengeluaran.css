@@ -1,5 +1,5 @@
 /* ============================================================
-   PENGELUARAN PAGE - MODERN BLUE THEME
+   PENGELUARAN PAGE - MODERN BLUE THEME (MOBILE OPTIMIZED)
    ============================================================ */
 
 .pengeluaran-page {
@@ -130,19 +130,19 @@
   color: #94a3b8;
 }
 
-/* Filter Bar */
+/* ========== FILTER BAR - MOBILE OPTIMIZED ========== */
 .pengeluaran-filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
   background: white;
-  border-radius: 16px;
-  padding: 16px 20px;
+  border-radius: 20px;
+  padding: 16px;
   margin-bottom: 24px;
   border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Filter Group - Mobile First */
 .pengeluaran-filter-group {
   display: flex;
   align-items: center;
@@ -152,6 +152,11 @@
   border-radius: 40px;
   border: 1px solid #e2e8f0;
   color: #64748b;
+  width: 100%;
+}
+
+.pengeluaran-filter-group svg {
+  flex-shrink: 0;
 }
 
 .pengeluaran-filter-input {
@@ -159,7 +164,9 @@
   background: none;
   outline: none;
   font-size: 13px;
-  width: 120px;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
 }
 
 .pengeluaran-filter-select {
@@ -168,21 +175,42 @@
   outline: none;
   font-size: 13px;
   cursor: pointer;
+  width: 100%;
+  flex: 1;
+  color: #1e293b;
 }
 
+/* Date range group - khusus untuk dua input tanggal */
+.pengeluaran-filter-group.date-range {
+  gap: 4px;
+}
+
+.pengeluaran-filter-group.date-range span {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.pengeluaran-filter-group.date-range .pengeluaran-filter-input {
+  text-align: center;
+}
+
+/* Reset button */
 .pengeluaran-filter-reset {
-  background: none;
+  background: #f1f5f9;
   border: none;
   color: #64748b;
   cursor: pointer;
   font-size: 13px;
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-radius: 40px;
   transition: all 0.2s;
+  width: 100%;
+  font-weight: 500;
+  text-align: center;
 }
 
 .pengeluaran-filter-reset:hover {
-  background: #f1f5f9;
+  background: #e2e8f0;
   color: #1e293b;
 }
 
@@ -194,14 +222,16 @@
   overflow: hidden;
 }
 
-/* Table */
+/* Table - Mobile Optimized */
 .pengeluaran-table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pengeluaran-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 500px;
 }
 
 .pengeluaran-table thead th {
@@ -222,7 +252,7 @@
 }
 
 .pengeluaran-deskripsi {
-  max-width: 300px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -246,41 +276,22 @@
   border-radius: 20px;
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-/* Action Buttons */
-.pengeluaran-actions-cell {
-  display: flex;
-  gap: 8px;
-}
-
-.pengeluaran-edit-btn, .pengeluaran-delete-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
+/* Row hover effect */
+.pengeluaran-table-row {
+  transition: background 0.2s ease;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.pengeluaran-edit-btn {
-  color: #3b82f6;
+.pengeluaran-table-row:hover {
+  background: #f8fafc;
 }
 
-.pengeluaran-edit-btn:hover {
-  background: #eff6ff;
-}
-
-.pengeluaran-delete-btn {
-  color: #ef4444;
-}
-
-.pengeluaran-delete-btn:hover {
-  background: #fef2f2;
+.pengeluaran-tanggal {
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* Modal */
@@ -446,24 +457,53 @@
   color: #64748b;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .pengeluaran-title {
-    font-size: 24px;
-  }
-  
+/* ========== RESPONSIVE ========== */
+
+/* Tablet (768px ke atas) - filter horizontal */
+@media (min-width: 768px) {
   .pengeluaran-filter-bar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 16px 20px;
   }
   
   .pengeluaran-filter-group {
-    justify-content: space-between;
-  }
-  
-  .pengeluaran-filter-input {
     width: auto;
     flex: 1;
+    min-width: 140px;
+  }
+  
+  .pengeluaran-filter-group.date-range {
+    flex: 1.5;
+  }
+  
+  .pengeluaran-filter-reset {
+    width: auto;
+    padding: 8px 20px;
+  }
+}
+
+/* Desktop (1024px ke atas) */
+@media (min-width: 1024px) {
+  .pengeluaran-filter-group {
+    min-width: 160px;
+  }
+  
+  .pengeluaran-filter-group.date-range {
+    flex: 1;
+    max-width: 280px;
+  }
+  
+  .pengeluaran-deskripsi {
+    max-width: 300px;
+  }
+}
+
+/* Mobile (di bawah 768px) - tambahan */
+@media (max-width: 768px) {
+  .pengeluaran-title {
+    font-size: 24px;
   }
   
   .pengeluaran-actions {
@@ -473,5 +513,93 @@
   
   .pengeluaran-stats {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .pengeluaran-stat-card {
+    padding: 16px;
+  }
+  
+  .pengeluaran-stat-value {
+    font-size: 20px;
+  }
+  
+  .pengeluaran-modal {
+    max-width: calc(100% - 20px);
+    border-radius: 20px;
+  }
+  
+  .pengeluaran-modal-header {
+    padding: 16px 20px;
+  }
+  
+  .pengeluaran-modal-body {
+    padding: 20px;
+  }
+  
+  .pengeluaran-form-input, 
+  .pengeluaran-form-select {
+    padding: 10px 12px;
+  }
+  
+  .pengeluaran-filter-group {
+    padding: 8px 12px;
+  }
+  
+  .pengeluaran-filter-input,
+  .pengeluaran-filter-select {
+    font-size: 14px; /* Prevent zoom on focus in iOS */
+  }
+}
+
+/* Mobile small (di bawah 480px) */
+@media (max-width: 480px) {
+  .pengeluaran-filter-group.date-range {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .pengeluaran-filter-group.date-range span {
+    display: none;
+  }
+  
+  .pengeluaran-filter-group.date-range .pengeluaran-filter-input {
+    text-align: left;
+  }
+  
+  .pengeluaran-deskripsi {
+    max-width: 150px;
+  }
+  
+  .pengeluaran-add-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .pengeluaran-stat-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .pengeluaran-stat-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Touch-friendly - memperbesar area tap */
+@media (max-width: 768px) {
+  .pengeluaran-filter-reset,
+  .pengeluaran-add-btn,
+  .pengeluaran-edit-btn,
+  .pengeluaran-delete-btn,
+  .pengeluaran-modal-cancel,
+  .pengeluaran-modal-save {
+    min-height: 44px;
+  }
+  
+  .pengeluaran-table tbody td {
+    padding: 10px 12px;
   }
 }

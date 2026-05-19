@@ -29,9 +29,9 @@ export default function AkunPage() {
 
   const getRoleLabel = (role) => {
     const labels = {
-      owner: '👑 Owner',
-      developer: '💻 Developer',
-      team: '👥 Team'
+      owner: 'Owner',
+      developer: 'Developer',
+      team: 'Team'
     }
     return labels[role] || role
   }
@@ -121,7 +121,7 @@ export default function AkunPage() {
         <div className="kpro-col-6">
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">👤 Profil Pengguna</span>
+              <span className="kpro-card-title">Profil Pengguna</span>
             </div>
             <div className="kpro-card-body">
               <div className="kpro-d-flex kpro-align-center kpro-gap-4 kpro-mb-5">
@@ -169,7 +169,7 @@ export default function AkunPage() {
                   />
                 </div>
                 <button type="submit" className="kpro-btn kpro-btn-primary" disabled={loading}>
-                  {loading ? 'Menyimpan...' : '💾 Simpan Perubahan'}
+                  {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
               </form>
             </div>
@@ -181,7 +181,7 @@ export default function AkunPage() {
           {/* Keamanan */}
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">🔒 Keamanan Akun</span>
+              <span className="kpro-card-title">Keamanan Akun</span>
             </div>
             <div className="kpro-card-body">
               <form onSubmit={handleUpdatePassword}>
@@ -206,7 +206,7 @@ export default function AkunPage() {
                   />
                 </div>
                 <button type="submit" className="kpro-btn kpro-btn-outline-primary" disabled={loading}>
-                  {loading ? 'Memproses...' : '🔑 Ubah Password'}
+                  {loading ? 'Memproses...' : 'Ubah Password'}
                 </button>
               </form>
             </div>
@@ -215,7 +215,7 @@ export default function AkunPage() {
           {/* Sesi & Logout */}
           <div className="kpro-card kpro-mt-4">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">🚪 Sesi & Keamanan</span>
+              <span className="kpro-card-title">Sesi & Keamanan</span>
             </div>
             <div className="kpro-card-body">
               <button onClick={handleLogout} className="kpro-btn kpro-btn-danger kpro-btn-block">

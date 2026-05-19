@@ -88,8 +88,8 @@ export default function BackupPage() {
     }
 
     const confirmMsg = restoreMode === 'overwrite'
-      ? '⚠️ OVERWRITE: Data terkait akan DIHAPUS lalu diganti dengan data backup. Tidak bisa dibatalkan. Lanjutkan?'
-      : '✅ MERGE: Data dari backup ditambahkan. Data yang sudah ada tidak ditimpa. Lanjutkan?'
+      ? 'OVERWRITE: Data terkait akan DIHAPUS lalu diganti dengan data backup. Tidak bisa dibatalkan. Lanjutkan?'
+      : 'MERGE: Data dari backup ditambahkan. Data yang sudah ada tidak ditimpa. Lanjutkan?'
 
     if (!window.confirm(confirmMsg)) return
 
@@ -102,11 +102,11 @@ export default function BackupPage() {
       })
 
       if (results.success.length > 0) {
-        addLog(`✅ Restore berhasil: ${results.success.join(', ')}`, 'success')
+        addLog(`Restore berhasil: ${results.success.join(', ')}`, 'success')
         toast.success(`Restore berhasil! ${results.success.length} tabel dipulihkan`)
       }
       if (results.failed.length > 0) {
-        addLog(`⚠️ Gagal: ${results.failed.map(f => `${f.table} (${f.error})`).join(', ')}`, 'error')
+        addLog(`Gagal: ${results.failed.map(f => `${f.table} (${f.error})`).join(', ')}`, 'error')
         toast.warning('Beberapa tabel gagal direstore, cek log')
       }
 
@@ -130,7 +130,7 @@ export default function BackupPage() {
         </div>
         <div className="kpro-card">
           <div className="kpro-empty">
-            <div className="kpro-empty-icon">🔒</div>
+            <div className="kpro-empty-icon"></div>
             <div className="kpro-empty-title">Akses Ditolak</div>
             <div className="kpro-empty-desc">Halaman ini hanya untuk Owner dan Developer</div>
           </div>
@@ -150,7 +150,7 @@ export default function BackupPage() {
 
       {/* Banner Peringatan */}
       <div className="kpro-alert kpro-alert-warning kpro-mb-5">
-        <span className="kpro-alert-icon">⚠️</span>
+        <span className="kpro-alert-icon"></span>
         <div>
           <div className="kpro-alert-title">Peringatan Penting!</div>
           <div>Supabase Free tier: Database akan di-pause setelah 7 hari tidak aktif. Disarankan backup minimal seminggu sekali dan simpan file di Google Drive atau komputer Anda.</div>
@@ -162,7 +162,7 @@ export default function BackupPage() {
         <div className="kpro-col-6">
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">⬇️ Export Backup</span>
+              <span className="kpro-card-title">⬇Export Backup</span>
             </div>
             <div className="kpro-card-body">
               <div className="kpro-form-group">
@@ -170,28 +170,28 @@ export default function BackupPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#F8FAFC', borderRadius: '8px' }}>
                     <input type="checkbox" checked={selectedTables.proyek} onChange={e => setSelectedTables({...selectedTables, proyek: e.target.checked})} />
-                    <div><strong>📋 Proyek</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel proyek</div></div>
+                    <div><strong>Proyek</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel proyek</div></div>
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#F8FAFC', borderRadius: '8px' }}>
                     <input type="checkbox" checked={selectedTables.proyek_produk} onChange={e => setSelectedTables({...selectedTables, proyek_produk: e.target.checked})} />
-                    <div><strong>🛍️ Produk Proyek</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel proyek_produk</div></div>
+                    <div><strong>Produk Proyek</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel proyek_produk</div></div>
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#F8FAFC', borderRadius: '8px' }}>
                     <input type="checkbox" checked={selectedTables.stok_barang} onChange={e => setSelectedTables({...selectedTables, stok_barang: e.target.checked})} />
-                    <div><strong>📦 Stok Barang</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel stok_barang</div></div>
+                    <div><strong>Stok Barang</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel stok_barang</div></div>
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#F8FAFC', borderRadius: '8px' }}>
                     <input type="checkbox" checked={selectedTables.log_stok} onChange={e => setSelectedTables({...selectedTables, log_stok: e.target.checked})} />
-                    <div><strong>📝 Log Stok</strong><div style={{ fontSize: '11px', color: '#64748B' }}>riwayat mutasi stok</div></div>
+                    <div><strong>Log Stok</strong><div style={{ fontSize: '11px', color: '#64748B' }}>riwayat mutasi stok</div></div>
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#F8FAFC', borderRadius: '8px' }}>
                     <input type="checkbox" checked={selectedTables.profiles} onChange={e => setSelectedTables({...selectedTables, profiles: e.target.checked})} />
-                    <div><strong>👥 Data Tim</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel profiles (tanpa password)</div></div>
+                    <div><strong>Data Tim</strong><div style={{ fontSize: '11px', color: '#64748B' }}>tabel profiles (tanpa password)</div></div>
                   </label>
                 </div>
               </div>
               <button className="kpro-btn kpro-btn-primary" onClick={handleExport} disabled={exporting} style={{ width: '100%' }}>
-                {exporting ? '⏳ Mengambil data...' : '⬇️ Download Backup Sekarang'}
+                {exporting ? 'Mengambil data...' : 'Download Backup Sekarang'}
               </button>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function BackupPage() {
         <div className="kpro-col-6">
           <div className="kpro-card">
             <div className="kpro-card-header">
-              <span className="kpro-card-title">⬆️ Restore Backup</span>
+              <span className="kpro-card-title">Restore Backup</span>
             </div>
             <div className="kpro-card-body">
               <div className="kpro-form-group">
@@ -209,24 +209,24 @@ export default function BackupPage() {
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                   <label style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', background: restoreMode === 'merge' ? '#F0FDF4' : '#F8FAFC', borderRadius: '10px', border: restoreMode === 'merge' ? '2px solid #22C55E' : '1px solid #E2E8F0', cursor: 'pointer' }}>
                     <input type="radio" name="restoreMode" value="merge" checked={restoreMode === 'merge'} onChange={() => setRestoreMode('merge')} />
-                    <div><strong>🔄 Merge</strong><div style={{ fontSize: '11px' }}>Data ditambahkan, tidak menimpa yang sudah ada</div></div>
+                    <div><strong>Merge</strong><div style={{ fontSize: '11px' }}>Data ditambahkan, tidak menimpa yang sudah ada</div></div>
                   </label>
                   <label style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', background: restoreMode === 'overwrite' ? '#FEF2F2' : '#F8FAFC', borderRadius: '10px', border: restoreMode === 'overwrite' ? '2px solid #EF4444' : '1px solid #E2E8F0', cursor: 'pointer' }}>
                     <input type="radio" name="restoreMode" value="overwrite" checked={restoreMode === 'overwrite'} onChange={() => setRestoreMode('overwrite')} />
-                    <div><strong>⚠️ Overwrite</strong><div style={{ fontSize: '11px' }}>Data lama dihapus, diganti dengan backup</div></div>
+                    <div><strong>Overwrite</strong><div style={{ fontSize: '11px' }}>Data lama dihapus, diganti dengan backup</div></div>
                   </label>
                 </div>
               </div>
 
               <input type="file" id="restore-file-input" accept=".json" style={{ display: 'none' }} onChange={handleFileSelect} />
               <button className="kpro-btn kpro-btn-warning" onClick={() => document.getElementById('restore-file-input').click()} disabled={restoring} style={{ width: '100%', marginBottom: '16px' }}>
-                📂 Pilih File Backup (.json)
+                Pilih File Backup (.json)
               </button>
 
               {/* Preview File */}
               {previewData && (
                 <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '16px', marginTop: '16px', border: '1px solid #E2E8F0' }}>
-                  <div style={{ fontWeight: 700, marginBottom: '8px' }}>📄 {previewFileName}</div>
+                  <div style={{ fontWeight: 700, marginBottom: '8px' }}>{previewFileName}</div>
                   <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
                     Dibuat: {new Date(previewData.exported_at).toLocaleString('id-ID')}<br />
                     Oleh: {previewData.exported_by || '-'}
@@ -240,7 +240,7 @@ export default function BackupPage() {
                     </tbody>
                   </table>
                   <button className="kpro-btn kpro-btn-danger" onClick={handleRestore} disabled={restoring} style={{ width: '100%', marginTop: '16px' }}>
-                    {restoring ? '⏳ Merestore...' : '✅ Konfirmasi Restore'}
+                    {restoring ? 'Merestore...' : 'Konfirmasi Restore'}
                   </button>
                 </div>
               )}
@@ -252,7 +252,7 @@ export default function BackupPage() {
       {/* Log Aktivitas */}
       <div className="kpro-card kpro-mt-4">
         <div className="kpro-card-header">
-          <span className="kpro-card-title">📋 Log Aktivitas</span>
+          <span className="kpro-card-title">Log Aktivitas</span>
           <button className="kpro-btn kpro-btn-sm kpro-btn-ghost" onClick={() => setLogs([])}>Kosongkan</button>
         </div>
         <div className="kpro-card-body" style={{ maxHeight: '200px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '12px' }}>

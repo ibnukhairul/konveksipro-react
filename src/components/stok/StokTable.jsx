@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { stokService } from '../../services/stokService'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../hooks/useToast'
+import SearchBar from './SearchBar'  // ← import komponen baru
 
 export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, sortField, sortOrder }) {
   const { user } = useAuth()
@@ -18,16 +19,25 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
   const [laporanText, setLaporanText] = useState('')
   const [generatingReport, setGeneratingReport] = useState(false)
   
-  // 🔥 LOADING STATES untuk mencegah spam klik
   const [submittingTambah, setSubmittingTambah] = useState(false)
   const [submittingAmbil, setSubmittingAmbil] = useState(false)
   const [submittingHapus, setSubmittingHapus] = useState(false)
+
+  // 🔥 Simpan nilai search di localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('stokSearch')
+    if (saved) setSearchKeyword(saved)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('stokSearch', searchKeyword)
+  }, [searchKeyword])
 
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       if (onSearch) onSearch(searchKeyword)
-    }, 500)
+    }, 400)
     return () => clearTimeout(timer)
   }, [searchKeyword, onSearch])
 
@@ -44,10 +54,10 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
     setModalAksi(true)
   }
 
-  // Handler tambah stok (popup aksi) - 🔥 CEK SUBMITTING
+  // Handler tambah stok (popup aksi)
   const handleTambahStok = async () => {
     if (!selectedStok) return
-    if (submittingTambah) return // 🔥 Cegah spam klik
+    if (submittingTambah) return
     
     setSubmittingTambah(true)
     try {
@@ -64,10 +74,9 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
     }
   }
 
-  // Handler ambil stok - 🔥 CEK SUBMITTING
   const handleAmbilStok = async () => {
     if (!selectedStok) return
-    if (submittingAmbil) return // 🔥 Cegah spam klik
+    if (submittingAmbil) return
     
     setSubmittingAmbil(true)
     try {
@@ -84,10 +93,9 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
     }
   }
 
-  // Handler hapus stok - 🔥 CEK SUBMITTING
   const handleHapusStok = async () => {
     if (!selectedStok) return
-    if (submittingHapus) return // 🔥 Cegah spam klik
+    if (submittingHapus) return
     if (!window.confirm(`⚠️ Yakin ingin menghapus stok "${selectedStok.nama_bahan}"?`)) return
     
     setSubmittingHapus(true)
@@ -287,36 +295,37 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
     setModalLaporan(false)
   }
 
-  // Tampilkan loading
-  if (loading) {
+  
+if (loading && stok.length === 0) {
     return (
       <>
         <div className="kpro-d-flex kpro-justify-between" style={{ padding: '16px 20px', borderBottom: '1px solid var(--kpro-border)' }}>
-          <div><input type="text" className="kpro-input" placeholder="🔍 Cari..." disabled /></div>
-          <div><button className="kpro-btn kpro-btn-secondary" disabled>📊 Laporkan Stok</button></div>
+          <SearchBar 
+            value={searchKeyword}
+            onChange={setSearchKeyword}
+            placeholder="Cari nama bahan, kategori, gramasi, ukuran..."
+            disabled={false}
+          />
+          <button className="kpro-btn kpro-btn-secondary" disabled>Laporkan Stok</button>
         </div>
-        <div className="kpro-empty">🔄 Memuat data stok...</div>
+        <div className="kpro-empty">Memuat data stok...</div>
       </>
     )
   }
 
-   return (
+  return (
     <>
-      {/* Search bar */}
-      <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ padding: '16px 20px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--kpro-border)' }}>
-        <div>
-          <input
-            type="text"
-            className="kpro-input"
-            placeholder="🔍 Cari nama bahan, kategori, gramasi, ukuran..."
-            style={{ width: '320px' }}
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-          />
-        </div>
+      {/* BARIS PENCARIAN - tetap tampil meskipun loading */}
+      <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ padding: '16px 20px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--kpro-border)', backgroundColor: 'var(--kpro-bg-surface)' }}>
+        <SearchBar 
+          value={searchKeyword}
+          onChange={setSearchKeyword}
+          placeholder="Cari nama bahan, kategori, gramasi, ukuran..."
+          disabled={false}  // ← TIDAK PERNAH DISABLED
+        />
         <div>
           <button className="kpro-btn kpro-btn-secondary" onClick={generateStokReport} disabled={generatingReport}>
-            {generatingReport ? '⏳ Membuat laporan...' : '📊 Laporkan Stok Terbaru'}
+            {generatingReport ? 'Membuat laporan...' : 'Laporkan Stok Terbaru'}
           </button>
         </div>
       </div>
@@ -337,7 +346,7 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
             </tr>
           </thead>
           <tbody>
-            {stok.length === 0 ? (
+            {stok.length === 0 && !loading ? (
               <tr><td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>Tidak ada data stok</td></tr>
             ) : (
               stok.map(item => (
@@ -361,7 +370,7 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
       {modalAksi && selectedStok && (
         <div className="kpro-modal-overlay is-open" onClick={() => setModalAksi(false)}>
           <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
-            <div className="kpro-modal-header"><h3>⚡ Aksi Stok</h3><button className="kpro-modal-close" onClick={() => setModalAksi(false)}>✕</button></div>
+            <div className="kpro-modal-header"><h3>Aksi Stok</h3><button className="kpro-modal-close" onClick={() => setModalAksi(false)}>✕</button></div>
             <div className="kpro-modal-body">
               <div><strong>{selectedStok.nama_bahan}</strong> {selectedStok.size && `(${selectedStok.size})`}</div>
               <div>Stok saat ini: {selectedStok.stok_saat_ini}</div>
@@ -371,21 +380,21 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
                   onClick={() => { setModalAksi(false); setModalTambahStok(true); }}
                   disabled={submittingTambah}
                 >
-                  {submittingTambah ? 'Memproses...' : '➕ Tambah Stok'}
+                  {submittingTambah ? 'Memproses...' : 'Tambah Stok'}
                 </button>
                 <button 
                   className="kpro-btn kpro-btn-warning" 
                   onClick={() => { setModalAksi(false); setModalAmbilStok(true); }}
                   disabled={submittingAmbil}
                 >
-                  {submittingAmbil ? 'Memproses...' : '📤 Ambil Stok'}
+                  {submittingAmbil ? 'Memproses...' : 'Ambil Stok'}
                 </button>
                 <button 
                   className="kpro-btn kpro-btn-danger" 
                   onClick={() => { setModalAksi(false); setModalHapus(true); }}
                   disabled={submittingHapus}
                 >
-                  {submittingHapus ? 'Memproses...' : '🗑 Hapus Stok'}
+                  {submittingHapus ? 'Memproses...' : 'Hapus Stok'}
                 </button>
               </div>
             </div>
