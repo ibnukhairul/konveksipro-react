@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext'
 import { useNotifikasi } from '../contexts/NotifikasiContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import { 
   Bell, 
@@ -8,20 +8,28 @@ import {
   LogOut, 
   Menu,
   ChevronDown,
-  Settings,
-  HelpCircle
+  Settings
 } from 'lucide-react'
 
 export default function Topbar({ title, onMenuToggle }) {
   const { profile, user, logout } = useAuth()
-  const { unreadCount } = useNotifikasi()
+  const { unreadCount, refresh } = useNotifikasi()
   const navigate = useNavigate()
+  const location = useLocation()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   const userName = profile?.nama_lengkap || user?.email?.split('@')[0] || 'User'
   const userInitial = userName.charAt(0).toUpperCase()
   const userRole = profile?.role === 'owner' ? 'Owner' : profile?.role === 'developer' ? 'Developer' : 'Team'
+
+  // 🔥 Refresh notifikasi saat pindah halaman (terutama saat masuk ke halaman notifikasi)
+ useEffect(() => {
+  if (location.pathname !== '/notifikasi') {
+    // Hanya refresh sekali saat mount, tidak perlu setiap ganti halaman
+    refresh()
+  }
+}, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -114,7 +122,7 @@ export default function Topbar({ title, onMenuToggle }) {
                 <User size={16} />
                 <span>Profil Saya</span>
               </button>
-              {/* <button 
+              <button 
                 className="topbar-modern-dropdown-item"
                 onClick={() => {
                   setDropdownOpen(false)
@@ -123,7 +131,7 @@ export default function Topbar({ title, onMenuToggle }) {
               >
                 <Settings size={16} />
                 <span>Pengaturan</span>
-              </button> */}
+              </button>
               <div className="topbar-modern-dropdown-divider" />
               <button 
                 className="topbar-modern-dropdown-item logout"

@@ -26,7 +26,7 @@ const MENU_ITEMS = {
 
     { path: '/pricelist', label: 'Price List', icon: Tag },
     // Di MENU_ITEMS.owner, tambahkan:
-    { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
+    // { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
     { path: '/akun', label: 'Akun', icon: User },
     { path: '/team', label: 'Tim', icon: Users, roleNote: 'owner' },
     { path: '/backup', label: 'Backup & Restore', icon: Database, roleNote: 'owner' },
@@ -35,7 +35,7 @@ const MENU_ITEMS = {
   team: [
     { path: '/stok', label: 'Kelola Stok', icon: Package },
     { path: '/pricelist', label: 'Price List', icon: Tag },
-    { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
+    // { path: '/notifikasi', label: 'Notifikasi', icon: Bell },
     { path: '/akun', label: 'Akun', icon: User },
     { path: '/team', label: 'Tim', icon: Users }
   ]

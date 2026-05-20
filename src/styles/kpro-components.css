@@ -1152,3 +1152,15 @@ th.sort-desc .sort-icon {
     max-width: calc(100% - 20px);
   }
 }
+/* Mencegah auto focus di mobile */
+@media (max-width: 768px) {
+  input:focus {
+    outline: none;
+  }
+  
+  /* Mencegah keyboard muncul otomatis */
+  .kpro-input {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}

@@ -152,7 +152,7 @@ export default function TeamPage() {
         <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ flexWrap: 'wrap', gap: '12px', padding: '16px 20px' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
             <div className="kpro-input-group">
-              <span className="kpro-input-addon">🔍</span>
+              <span className="kpro-input-addon"></span>
               <input
                 type="text"
                 className="kpro-input"

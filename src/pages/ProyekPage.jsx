@@ -204,8 +204,8 @@ export default function ProyekPage() {
         <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ flexWrap: 'wrap', gap: '12px', padding: '16px 20px' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
             <div className="kpro-input-group">
-              <span className="kpro-input-addon">🔍</span>
-              <input type="text" className="kpro-input" placeholder="Cari client, proyek..." onChange={e => setSearch(e.target.value)} style={{ borderLeft: 'none', borderRadius: '0 8px 8px 0' }} />
+              
+              <input type="text" className="kpro-input" placeholder="Cari client, proyek..." onChange={e => setSearch(e.target.value)} style={{ borderLeft: 'none', borderRadius: '8px 8px 8px 8px' }} />
             </div>
           </div>
           <div className="kpro-d-flex kpro-gap-2">

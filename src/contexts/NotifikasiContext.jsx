@@ -5,27 +5,25 @@ import { useAuth } from './AuthContext'
 const NotifikasiContext = createContext()
 
 export function NotifikasiProvider({ children }) {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [notifikasi, setNotifikasi] = useState([])
   const [loading, setLoading] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [urgentNotif, setUrgentNotif] = useState(null)
   const channelRef = useRef(null)
-  const subscribedRef = useRef(false)
-  const initialLoadDone = useRef(false)
 
   const loadData = useCallback(async () => {
-    if (!user) {
-      console.log('⏳ loadData: user belum siap')
-      return
-    }
-    console.log('📥 loadData: mengambil notifikasi untuk user:', user.id)
+    if (!user) return
     setLoading(true)
     try {
       const data = await notifikasiService.getAll(user.id)
-      console.log(`📥 loadData: ${data.length} notifikasi diterima`)
       setNotifikasi(data)
       const count = await notifikasiService.getUnreadCount(user.id)
       setUnreadCount(count)
+      
+      // Cek notifikasi urgent
+      const urgent = data.find(n => n.is_urgent && !n.is_read)
+      if (urgent) setUrgentNotif(urgent)
     } catch (err) {
       console.error('Load notifikasi error:', err)
     } finally {
@@ -33,40 +31,34 @@ export function NotifikasiProvider({ children }) {
     }
   }, [user])
 
-  // 🔥 PERBAIKAN: Load data saat user tersedia
   useEffect(() => {
-    if (user && !initialLoadDone.current) {
-      initialLoadDone.current = true
-      loadData()
-    }
-  }, [user, loadData])
+    loadData()
+  }, [loadData])
 
-  // Setup realtime subscription
+  // Setup realtime subscription (hanya untuk user ini)
   useEffect(() => {
     if (!user) return
-    if (subscribedRef.current) return
-
-    console.log('📡 Membuka channel realtime notifikasi untuk user:', user.id)
-
-    const handleNewNotifikasi = (newNotif) => {
-      console.log('🔔 Notifikasi baru via realtime:', newNotif)
-      setNotifikasi(prev => {
-        // Cegah duplikasi
-        if (prev.some(n => n.id === newNotif.id)) return prev
-        return [{ ...newNotif, is_read: false }, ...prev]
-      })
-      setUnreadCount(prev => prev + 1)
+    if (channelRef.current) {
+      channelRef.current.unsubscribe()
     }
 
-    channelRef.current = notifikasiService.subscribe(handleNewNotifikasi)
-    subscribedRef.current = true
+    const handleNewNotifikasi = (newNotif) => {
+      console.log('🔔 Notifikasi baru:', newNotif)
+      setNotifikasi(prev => [{ ...newNotif, is_read: false }, ...prev])
+      setUnreadCount(prev => prev + 1)
+      
+      if (newNotif.is_urgent) {
+        setUrgentNotif(newNotif)
+        // Bisa tambahkan toast notifikasi urgent
+      }
+    }
+
+    channelRef.current = notifikasiService.subscribe(user.id, handleNewNotifikasi)
 
     return () => {
       if (channelRef.current) {
-        console.log('🔌 Menutup channel realtime notifikasi')
         channelRef.current.unsubscribe()
         channelRef.current = null
-        subscribedRef.current = false
       }
     }
   }, [user])
@@ -79,39 +71,44 @@ export function NotifikasiProvider({ children }) {
         prev.map(n => n.id === notifikasiId ? { ...n, is_read: true } : n)
       )
       setUnreadCount(prev => Math.max(0, prev - 1))
+      if (urgentNotif?.id === notifikasiId) setUrgentNotif(null)
     } catch (err) {
       console.error('Gagal tandai baca:', err)
     }
   }
 
   const markAllRead = async () => {
-    if (!user) return
-    try {
-      await notifikasiService.markAllRead(user.id)
-      setNotifikasi(prev => prev.map(n => ({ ...n, is_read: true })))
-      setUnreadCount(0)
-    } catch (err) {
-      console.error('Gagal tandai semua baca:', err)
-    }
+  if (!user) return
+  try {
+    await notifikasiService.markAllRead(user.id)
+    setNotifikasi(prev => prev.map(n => ({ ...n, is_read: true })))
+    setUnreadCount(0)
+    setUrgentNotif(null)
+  } catch (err) {
+    console.error('Gagal tandai semua baca:', err)
   }
+}
 
   const refresh = () => loadData()
+  const clearUrgent = () => setUrgentNotif(null)
 
   return (
     <NotifikasiContext.Provider value={{
       notifikasi,
       loading,
       unreadCount,
+      urgentNotif,
       markAsRead,
       markAllRead,
-      refresh
+      refresh,
+      clearUrgent
     }}>
       {children}
     </NotifikasiContext.Provider>
   )
 }
 
-export function useNotifikasi() {
+export const useNotifikasi = () => {
   const context = useContext(NotifikasiContext)
   if (!context) {
     throw new Error('useNotifikasi harus digunakan di dalam NotifikasiProvider')

@@ -1,115 +1,98 @@
 import { supabase } from './supabase'
 
 export const notifikasiService = {
+  // Ambil notifikasi untuk user tertentu
   async getAll(userId) {
-    const { data: notifikasi, error: notifError } = await supabase
-      .from('notifikasi_global')
+    const { data, error } = await supabase
+      .from('notifikasi')
       .select('*')
+      .or(`user_id.eq.${userId},user_id.is.null`)
       .order('created_at', { ascending: false })
-    if (notifError) throw notifError
-
-    // Ambil status baca untuk user ini
-    const { data: readStatus, error: readError } = await supabase
-      .from('notifikasi_user_read')
-      .select('notifikasi_id')
-      .eq('user_id', userId)
-    if (readError) throw readError
-
-    const readSet = new Set(readStatus.map(r => r.notifikasi_id))
-    return notifikasi.map(n => ({ ...n, is_read: readSet.has(n.id) }))
+      .limit(100)
+    
+    if (error) throw error
+    return data || []
   },
 
-  async buatGlobal(payload) {
+  // Buat notifikasi (otomatis mengisi created_by_name)
+  async buat(payload) {
     if (!payload.judul?.trim()) throw new Error('Judul notifikasi wajib diisi')
+    
+    // Dapatkan user yang sedang login
+    const session = await supabase.auth.getSession()
+    const createdBy = session.data.session?.user?.id
+    
+    // 🔥 Ambil nama user untuk denormalisasi
+    let createdByName = null
+    if (createdBy) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nama_lengkap')
+        .eq('id', createdBy)
+        .single()
+      createdByName = profile?.nama_lengkap || 'System'
+    }
+    
+    const notifPayload = {
+      user_id: payload.user_id || null,
+      created_by: createdBy,
+      created_by_name: createdByName,  // ← simpan nama
+      judul: payload.judul,
+      pesan: payload.pesan || '',
+      tipe: payload.tipe || 'info',
+      is_read: false,
+      is_urgent: payload.is_urgent || false,
+      action_url: payload.action_url || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
     const { data, error } = await supabase
-      .from('notifikasi_global')
-      .insert({
-        judul: payload.judul,
-        pesan: payload.pesan || '',
-        tipe: payload.tipe || 'info',
-        created_at: new Date().toISOString()
-      })
+      .from('notifikasi')
+      .insert(notifPayload)
       .select()
       .single()
+    
     if (error) throw error
     return data
   },
 
-  // ✅ PERBAIKAN: Tandai satu notifikasi sebagai sudah dibaca oleh user tertentu
   async markAsRead(notifikasiId, userId) {
-    // Cek apakah sudah ada entri
-    const { data: existing } = await supabase
-      .from('notifikasi_user_read')
-      .select('id')
-      .eq('notifikasi_id', notifikasiId)
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    if (existing) return // sudah dibaca
-
     const { error } = await supabase
-      .from('notifikasi_user_read')
-      .insert({
-        notifikasi_id: notifikasiId,
-        user_id: userId,
-        read_at: new Date().toISOString()
-      })
+      .from('notifikasi')
+      .update({ is_read: true, updated_at: new Date().toISOString() })
+      .eq('id', notifikasiId)
+      .eq('user_id', userId)
+    
     if (error) throw error
   },
 
-  // ✅ PERBAIKAN: Tandai semua notifikasi sebagai sudah dibaca oleh user
   async markAllRead(userId) {
-    // Ambil semua notifikasi global
-    const { data: notifikasi, error: notifError } = await supabase
-      .from('notifikasi_global')
-      .select('id')
-    if (notifError) throw notifError
-
-    // Ambil yang sudah dibaca oleh user ini
-    const { data: alreadyRead, error: readError } = await supabase
-      .from('notifikasi_user_read')
-      .select('notifikasi_id')
+    const { error } = await supabase
+      .from('notifikasi')
+      .update({ is_read: true, updated_at: new Date().toISOString() })
       .eq('user_id', userId)
-    if (readError) throw readError
-
-    const alreadyReadSet = new Set(alreadyRead.map(r => r.notifikasi_id))
+      .eq('is_read', false)
     
-    // Filter notifikasi yang belum dibaca
-    const toInsert = notifikasi
-      .filter(n => !alreadyReadSet.has(n.id))
-      .map(n => ({
-        notifikasi_id: n.id,
-        user_id: userId,
-        read_at: new Date().toISOString()
-      }))
-
-    if (toInsert.length > 0) {
-      const { error } = await supabase.from('notifikasi_user_read').insert(toInsert)
-      if (error) throw error
-    }
+    if (error) throw error
   },
 
   async getUnreadCount(userId) {
-    // Ambil semua notifikasi global
-    const { data: notifikasi, error: notifError } = await supabase
-      .from('notifikasi_global')
-      .select('id')
-    if (notifError) throw notifError
-
-    // Ambil yang sudah dibaca oleh user ini
-    const { data: readStatus, error: readError } = await supabase
-      .from('notifikasi_user_read')
-      .select('notifikasi_id')
+    const { count, error } = await supabase
+      .from('notifikasi')
+      .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
-    if (readError) throw readError
-
-    const readSet = new Set(readStatus.map(r => r.notifikasi_id))
-    return notifikasi.filter(n => !readSet.has(n.id)).length
+      .eq('is_read', false)
+    
+    if (error) return 0
+    return count || 0
   },
 
-  subscribe(onReceive) {
-    const channelName = `notifikasi-${Date.now()}`
-    console.log('🎧 Membuka channel:', channelName)
+   subscribe(userId, onReceive) {
+    console.log(`📡 Membuka channel realtime untuk user: ${userId}`)
+    
+    // Gunakan channel dengan nama unik
+    const channelName = `notifikasi-${userId}-${Date.now()}`
     
     const channel = supabase
       .channel(channelName)
@@ -118,22 +101,36 @@ export const notifikasiService = {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'notifikasi_global'
+          table: 'notifikasi'
+          // 🔥 HAPUS filter dulu untuk debugging, nanti bisa ditambahkan lagi
         },
         (payload) => {
-          console.log('📨 Notifikasi baru:', payload.new)
-          if (onReceive) onReceive(payload.new)
+          const newNotif = payload.new
+          console.log('🔔 Raw payload:', payload)
+          console.log('🔔 Notifikasi baru:', newNotif)
+          console.log('🔔 User ID target:', newNotif.user_id)
+          console.log('🔔 Current user ID:', userId)
+          
+          // Filter manual di frontend (sementara untuk debugging)
+          if (newNotif.user_id === userId || newNotif.user_id === null) {
+            console.log('✅ Notifikasi relevan untuk user ini')
+            if (onReceive && typeof onReceive === 'function') {
+              onReceive(newNotif)
+            }
+          } else {
+            console.log('⏭️ Notifikasi untuk user lain, diabaikan')
+          }
         }
       )
       .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Real-time notifikasi aktif')
+          console.log('✅ Realtime notifikasi AKTIF untuk channel:', channelName)
         }
         if (err) {
           console.error('❌ Subscribe error:', err)
         }
       })
-
+    
     return channel
   }
 }

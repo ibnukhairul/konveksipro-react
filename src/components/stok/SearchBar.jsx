@@ -15,7 +15,7 @@ export default function SearchBar({ value, onChange, placeholder, disabled }) {
       ref={inputRef}
       type="text"
       className="kpro-input"
-      placeholder={placeholder || "🔍 Cari..."}
+      placeholder={placeholder || " Cari..."}
       style={{ width: '320px' }}
       value={value}
       onChange={(e) => onChange(e.target.value)}

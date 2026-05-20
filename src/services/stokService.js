@@ -4,11 +4,11 @@ import { notifikasiService } from './notifikasiService'
 export const stokService = {
   async getAll(filter = {}) {
     let query = supabase.from('stok_barang').select('*')
-    
-    // 🔥 HAPUS filter search dari backend
+
+    //HAPUS filter search dari backend
     // Hanya filter kategori jika diperlukan
     if (filter.kategori) query = query.eq('kategori', filter.kategori)
-    
+
     const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
     return data || []
@@ -94,14 +94,17 @@ export const stokService = {
       catatan
     })
 
-    // 🔥 NOTIFIKASI - GUNAKAN buatGlobal
-    let pesanNotif = `${barang.nama_bahan} +${jumlah} unit (sekarang: ${stokSesudah})`
+    //NOTIFIKASI - GUNAKAN buatGlobal
+    let pesanNotif = `menambah stok ${barang.nama_bahan} +${jumlah} unit (sekarang: ${stokSesudah})`
     if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
 
-    await notifikasiService.buatGlobal({
-      judul: '📦 Stok Ditambah',
+    await notifikasiService.buat({
+      user_id: null,  // broadcast ke semua user (owner, developer, team)
+      judul: 'Stok Ditambah',
       pesan: pesanNotif,
-      tipe: 'success'
+      tipe: 'success',
+      is_urgent: false,
+      action_url: '/stok'
     })
 
     return stokSesudah
@@ -135,18 +138,36 @@ export const stokService = {
       catatan
     })
 
-    // 🔥 NOTIFIKASI - GUNAKAN buatGlobal
-    let pesanNotif = `${barang.nama_bahan} -${jumlah} unit (sekarang: ${stokSesudah})`
+    //NOTIFIKASI - GUNAKAN buatGlobal
+    let pesanNotif = `mengambil stok ${barang.nama_bahan} -${jumlah} unit (sekarang: ${stokSesudah})`
+    if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
+
+    let pesanNotifKritis = `mengambil stok ${barang.nama_bahan} -${jumlah} unit (sekarang: ${stokSesudah})`
     if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
 
     let tipeNotif = 'warning'
     if (stokSesudah < barang.min_stok) tipeNotif = 'danger'
 
-    await notifikasiService.buatGlobal({
-      judul: '📦 Stok Diambil',
-      pesan: pesanNotif,
-      tipe: tipeNotif
-    })
+    if (stokSesudah < barang.min_stok) {
+      await notifikasiService.buat({
+        user_id: null,  // broadcast ke semua
+        judul: 'Stok Kritis',
+        pesan: pesanNotifKritis,
+        tipe: 'danger',
+        is_urgent: true,  //notifikasi penting
+        action_url: '/stok'
+      })
+    }else{
+      await notifikasiService.buat({
+        user_id: null,  // broadcast ke semua
+        judul: 'Stok Diambil',
+        pesan: pesanNotif,
+        tipe: 'success',
+        is_urgent: true,
+        action_url: '/stok'
+      })
+    }
+    
 
     return stokSesudah
   },
@@ -169,9 +190,12 @@ export const stokService = {
     if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
 
     await notifikasiService.buatGlobal({
+      user_id: null,  // broadcast ke semua
       judul: '🗑 Stok Dihapus',
       pesan: pesanNotif,
-      tipe: 'danger'
+      tipe: 'danger',
+      is_urgent: true,  //notifikasi penting
+      action_url: '/stok'
     })
   }
 }
