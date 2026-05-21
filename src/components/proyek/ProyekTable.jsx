@@ -349,33 +349,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
       )}
 
 
-      {/* Modal Aksi */}
-      {modalAksi && selectedProyek && (
-        <div className="kpro-modal-overlay is-open" onClick={() => setModalAksi(false)}>
-          <div className="kpro-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
-            <div className="kpro-modal-header" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)' }}>
-              <h3 className="kpro-modal-title" style={{ color: 'white' }}>⚡ Aksi Proyek</h3>
-              <button className="kpro-modal-close" onClick={() => setModalAksi(false)} style={{ color: 'white' }}>✕</button>
-            </div>
-            <div className="kpro-modal-body" style={{ padding: '24px' }}>
-              <div style={{ background: '#F8FAFC', borderRadius: '16px', padding: '16px', marginBottom: '24px' }}>
-                <div style={{ fontWeight: 700, fontSize: '16px' }}>{selectedProyek.nama_client}</div>
-                <div style={{ fontSize: '13px', color: '#64748B' }}>{selectedProyek.nama_proyek}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #E2E8F0' }}>
-                  <span>Total: {formatRupiah(selectedProyek.total_harga)}</span>
-                  <span>{statusBayarBadge(selectedProyek.status_bayar)}</span>
-                  <span>{statusProduksiBadge(selectedProyek.status_produksi)}</span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button className="kpro-btn" style={{ background: '#7C3AED', color: 'white', padding: '14px', borderRadius: '12px' }} onClick={handleDetail}>📋 Lihat Detail & Edit</button>
-                <button className="kpro-btn" style={{ background: '#2563EB', color: 'white', padding: '14px', borderRadius: '12px' }} onClick={handleCetakNota}>⎙ Cetak Nota</button>
-                <button className="kpro-btn" style={{ background: '#EF4444', color: 'white', padding: '14px', borderRadius: '12px' }} onClick={() => { setModalAksi(false); setModalHapus(true); }}>🗑 Hapus Proyek</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {/* Modal Detail & Edit Proyek - dengan icon lucide-react */}
       {modalDetail && (
@@ -390,6 +364,62 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
             <div className="kpro-modal-body">
               {loadingDetail ? <div className="kpro-empty">Memuat detail...</div> : (
                 <>
+                {/* Informasi Keuangan */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <DollarSign size={16} style={{ marginRight: '8px' }} />
+                        Informasi Keuangan
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">Total Harga</label>
+                        <input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} />
+                      </div>
+                      <div className="kpro-form-row">
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">
+                            <CreditCard size={12} style={{ marginRight: '4px' }} />
+                            Status Pembayaran
+                          </label>
+                          <select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}>
+                            <option value="belum_dp">Belum DP</option>
+                            <option value="dp_30">DP 30%</option>
+                            <option value="dp_50">DP 50%</option>
+                            <option value="lunas">Lunas</option>
+                          </select>
+                        </div>
+                        <div className="kpro-form-group">
+                          <label className="kpro-label">DP Dibayar</label>
+                          <input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="kpro-form-group">
+                        <label className="kpro-label">Sisa Tagihan</label>
+                        <input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Produksi */}
+                  <div className="kpro-card kpro-mb-4">
+                    <div className="kpro-card-header">
+                      <span className="kpro-card-title">
+                        <Settings size={16} style={{ marginRight: '8px' }} />
+                        Status Produksi
+                      </span>
+                    </div>
+                    <div className="kpro-card-body">
+                      <select className="kpro-select" value={formData.status_produksi} onChange={e => setFormData({ ...formData, status_produksi: e.target.value })}>
+                        <option value="antri">Antri / Menunggu</option>
+                        <option value="proses">Proses Produksi</option>
+                        <option value="qc">Quality Control (QC)</option>
+                        <option value="dikirim">Dikirim ke Client</option>
+                        <option value="selesai">Selesai / Siap</option>
+                      </select>
+                    </div>
+                  </div>
                   {/* Informasi Client */}
                   <div className="kpro-card kpro-mb-4">
                     <div className="kpro-card-header">
@@ -494,62 +524,7 @@ export default function ProyekTable({ proyek, loading, onRefresh, onSort, sortFi
                     </div>
                   </div>
 
-                  {/* Informasi Keuangan */}
-                  <div className="kpro-card kpro-mb-4">
-                    <div className="kpro-card-header">
-                      <span className="kpro-card-title">
-                        <DollarSign size={16} style={{ marginRight: '8px' }} />
-                        Informasi Keuangan
-                      </span>
-                    </div>
-                    <div className="kpro-card-body">
-                      <div className="kpro-form-group">
-                        <label className="kpro-label">Total Harga</label>
-                        <input className="kpro-input" readOnly value={formatRupiah(formData.total_harga || 0)} style={{ background: '#EFF6FF', fontWeight: 'bold' }} />
-                      </div>
-                      <div className="kpro-form-row">
-                        <div className="kpro-form-group">
-                          <label className="kpro-label">
-                            <CreditCard size={12} style={{ marginRight: '4px' }} />
-                            Status Pembayaran
-                          </label>
-                          <select className="kpro-select" value={formData.status_bayar} onChange={e => handleStatusBayarChange(e.target.value)}>
-                            <option value="belum_dp">Belum DP</option>
-                            <option value="dp_30">DP 30%</option>
-                            <option value="dp_50">DP 50%</option>
-                            <option value="lunas">Lunas</option>
-                          </select>
-                        </div>
-                        <div className="kpro-form-group">
-                          <label className="kpro-label">DP Dibayar</label>
-                          <input type="text" inputMode="numeric" className="kpro-input" value={formData.dp_dibayar || 0} onChange={e => handleDpChange(e.target.value)} />
-                        </div>
-                      </div>
-                      <div className="kpro-form-group">
-                        <label className="kpro-label">Sisa Tagihan</label>
-                        <input className="kpro-input" readOnly value={formatRupiah(formData.sisa_tagihan || 0)} style={{ background: '#f5f5f5' }} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Status Produksi */}
-                  <div className="kpro-card kpro-mb-4">
-                    <div className="kpro-card-header">
-                      <span className="kpro-card-title">
-                        <Settings size={16} style={{ marginRight: '8px' }} />
-                        Status Produksi
-                      </span>
-                    </div>
-                    <div className="kpro-card-body">
-                      <select className="kpro-select" value={formData.status_produksi} onChange={e => setFormData({ ...formData, status_produksi: e.target.value })}>
-                        <option value="antri">Antri / Menunggu</option>
-                        <option value="proses">Proses Produksi</option>
-                        <option value="qc">Quality Control (QC)</option>
-                        <option value="dikirim">Dikirim ke Client</option>
-                        <option value="selesai">Selesai / Siap</option>
-                      </select>
-                    </div>
-                  </div>
+                  
 
                   {/* Informasi Tambahan Client */}
                   <div className="kpro-card kpro-mb-4">
