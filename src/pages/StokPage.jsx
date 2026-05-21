@@ -88,7 +88,7 @@ export default function StokPage() {
                 }
               }}
             >
-              📊 Laporkan Stok
+            Laporkan Stok
             </button>
           </div>
         </div>

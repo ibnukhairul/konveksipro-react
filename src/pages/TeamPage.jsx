@@ -152,14 +152,14 @@ export default function TeamPage() {
         <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ flexWrap: 'wrap', gap: '12px', padding: '16px 20px' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
             <div className="kpro-input-group">
-              <span className="kpro-input-addon"></span>
+           
               <input
                 type="text"
                 className="kpro-input"
                 placeholder="Cari nama, email, atau nomor HP..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ borderLeft: 'none', borderRadius: '0 8px 8px 0' }}
+                style={{ borderRadius: '8px 8px 8px 8px' }}
               />
             </div>
           </div>
