@@ -36,7 +36,6 @@ export default function DashboardPage() {
     totalStok: 0, stokKritis: 0, proyekAktif: 0,
     omzetBulanIni: 0, piutang: 0, pengeluaranBulanIni: 0, labaKotor: 0
   })
-  // chartData: [{ label, pemasukan, pengeluaran }]
   const [chartData, setChartData]             = useState([])
   const [proyekAktifList, setProyekAktifList] = useState([])
   const [stokKritisList, setStokKritisList]   = useState([])
@@ -48,7 +47,13 @@ export default function DashboardPage() {
 
   const isTeam = profile?.role === 'team'
 
-  /* ── load data ─────────────────────────────────────────── */
+  // Nama bulan saat ini
+  const getCurrentMonthName = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+    const now = new Date()
+    return `${months[now.getMonth()]} ${now.getFullYear()}`
+  }
+
   const loadDashboard = async () => {
     setLoading(true)
     try {
@@ -62,22 +67,64 @@ export default function DashboardPage() {
       setProyekAktifList(proyekData)
       setStokKritisList(stokData)
 
-      // Coba getIncomeVsExpense jika sudah ada di dashboardService
+      // ---- PERBAIKAN: Sinkronkan grafik dengan ringkasan ----
+      let processedChartData = []
+      
       if (typeof dashboardService.getIncomeVsExpense === 'function') {
         const ivs = await dashboardService.getIncomeVsExpense()
-        setChartData(ivs.map((d) => ({
-          label:       d.bulan      ?? d.label      ?? '',
-          pemasukan:   d.pemasukan  ?? d.total       ?? 0,
+        processedChartData = ivs.map((d) => ({
+          label:       d.bulan ?? d.label ?? '',
+          pemasukan:   d.pemasukan ?? d.total ?? 0,
           pengeluaran: d.pengeluaran ?? 0
-        })))
+        }))
       } else {
-        // Fallback: pakai omzetData, pengeluaran kosong
-        setChartData(omzetData.map((d) => ({
+        processedChartData = omzetData.map((d) => ({
           label:       d.label,
           pemasukan:   d.total,
           pengeluaran: 0
-        })))
+        }))
       }
+
+      // 🔥 Kunci perbaikan: Update data bulan ini di grafik agar match dengan ringkasan
+      const currentMonth = getCurrentMonthName()
+      const bulanIniIndex = processedChartData.findIndex(
+        d => d.label === currentMonth
+      )
+
+      if (bulanIniIndex !== -1 && ringkasanData.omzetBulanIni > 0) {
+        // Sinkronkan nilai pemasukan bulan ini dengan ringkasan
+        processedChartData[bulanIniIndex] = {
+          ...processedChartData[bulanIniIndex],
+          pemasukan: ringkasanData.omzetBulanIni
+        }
+      } else if (ringkasanData.omzetBulanIni > 0) {
+        // Jika bulan ini belum ada di grafik, tambahkan
+        processedChartData.push({
+          label: currentMonth,
+          pemasukan: ringkasanData.omzetBulanIni,
+          pengeluaran: ringkasanData.pengeluaranBulanIni || 0
+        })
+        // Urutkan berdasarkan bulan
+        processedChartData.sort((a, b) => {
+          const bulanOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+          const getMonthNumber = (label) => {
+            const monthName = label.split(' ')[0]
+            return bulanOrder.indexOf(monthName)
+          }
+          return getMonthNumber(a.label) - getMonthNumber(b.label)
+        })
+      }
+
+      // Sinkronkan juga pengeluaran bulan ini
+      if (bulanIniIndex !== -1 && ringkasanData.pengeluaranBulanIni > 0) {
+        processedChartData[bulanIniIndex] = {
+          ...processedChartData[bulanIniIndex],
+          pengeluaran: ringkasanData.pengeluaranBulanIni
+        }
+      }
+
+      setChartData(processedChartData)
+      
     } catch (err) {
       console.error('Load dashboard error:', err)
     } finally {
@@ -87,7 +134,26 @@ export default function DashboardPage() {
 
   useEffect(() => { loadDashboard() }, [])
 
-  /* ── render Chart.js setelah canvas siap ──────────────── */
+  // Re-sync chart ketika ringkasan berubah (misal setelah update data)
+  useEffect(() => {
+    if (!loading && ringkasan.omzetBulanIni > 0 && chartData.length > 0) {
+      const currentMonth = getCurrentMonthName()
+      const needsUpdate = chartData.some(d => 
+        d.label === currentMonth && d.pemasukan !== ringkasan.omzetBulanIni
+      )
+      
+      if (needsUpdate) {
+        const updatedData = chartData.map(d => 
+          d.label === currentMonth 
+            ? { ...d, pemasukan: ringkasan.omzetBulanIni, pengeluaran: ringkasan.pengeluaranBulanIni }
+            : d
+        )
+        setChartData(updatedData)
+      }
+    }
+  }, [ringkasan.omzetBulanIni, ringkasan.pengeluaranBulanIni, loading])
+
+  // Render Chart.js
   useEffect(() => {
     if (loading || !chartRef.current || chartData.length === 0) return
 
@@ -185,7 +251,6 @@ export default function DashboardPage() {
     return () => { if (chartInstanceRef.current) chartInstanceRef.current.destroy() }
   }, [chartData, chartView, loading])
 
-  /* ── loading ───────────────────────────────────────────── */
   if (loading) {
     return (
       <div className="db-loading">
@@ -195,7 +260,6 @@ export default function DashboardPage() {
     )
   }
 
-  /* ── render ────────────────────────────────────────────── */
   return (
     <div className="db-page">
       <div className="kpro-page-header">
@@ -205,7 +269,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Stat Cards ─────────────────────────────────────── */}
       <div className="db-stats kpro-mb-6">
         <div className="db-stat-card">
           <div className="db-stat-icon db-icon-green"><FolderKanban size={20} /></div>
@@ -257,10 +320,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Row: Grafik + Progres ───────────────────────────── */}
       <div className="db-row kpro-mb-5">
-
-        {/* Grafik Omzet vs Pengeluaran */}
         <div className="db-card">
           <div className="db-card-header">
             <div className="db-card-title">
@@ -313,7 +373,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Progres Proyek Aktif */}
         <div className="db-card">
           <div className="db-card-header">
             <div className="db-card-title">
@@ -360,7 +419,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Stok Kritis ─────────────────────────────────────── */}
       <div className="db-card">
         <div className="db-card-header">
           <div className="db-card-title">

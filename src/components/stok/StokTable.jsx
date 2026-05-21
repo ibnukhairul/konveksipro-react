@@ -299,15 +299,7 @@ export default function StokTable({ stok, loading, onRefresh, onSearch, onSort, 
 if (loading && stok.length === 0) {
     return (
       <>
-        <div className="kpro-d-flex kpro-justify-between" style={{ padding: '16px 20px', borderBottom: '1px solid var(--kpro-border)' }}>
-          <SearchBar 
-            value={searchKeyword}
-            onChange={setSearchKeyword}
-            placeholder="Cari nama bahan, kategori, gramasi, ukuran..."
-            disabled={false}
-          />
-          <button className="kpro-btn kpro-btn-secondary" disabled>Laporkan Stok</button>
-        </div>
+        
         <div className="kpro-empty">Memuat data stok...</div>
       </>
     )
@@ -315,20 +307,7 @@ if (loading && stok.length === 0) {
 
   return (
     <>
-      {/* BARIS PENCARIAN - tetap tampil meskipun loading */}
-      <div className="kpro-d-flex kpro-justify-between kpro-align-center" style={{ padding: '16px 20px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--kpro-border)', backgroundColor: 'var(--kpro-bg-surface)' }}>
-        <SearchBar 
-          value={searchKeyword}
-          onChange={setSearchKeyword}
-          placeholder="Cari nama bahan, kategori, gramasi, ukuran..."
-          disabled={false}  // ← TIDAK PERNAH DISABLED
-        />
-        <div>
-          <button className="kpro-btn kpro-btn-secondary" onClick={generateStokReport} disabled={generatingReport}>
-            {generatingReport ? 'Membuat laporan...' : 'Laporkan Stok Terbaru'}
-          </button>
-        </div>
-      </div>
+     
 
       {/* Tabel Stok */}
       <div className="kpro-table-wrap">
@@ -342,7 +321,8 @@ if (loading && stok.length === 0) {
               <th style={{ cursor: 'pointer' }} onClick={() => onSort('gramasi')}>Gramasi {sortField === 'gramasi' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
               <th style={{ cursor: 'pointer' }} onClick={() => onSort('satuan')}>Satuan {sortField === 'satuan' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
               <th style={{ cursor: 'pointer' }} onClick={() => onSort('catatan')}>Catatan {sortField === 'catatan' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-              <th>Status</th>
+              <th style={{ cursor: 'pointer' }} onClick={() => onSort('status')}>status {sortField === 'status' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+
             </tr>
           </thead>
           <tbody>

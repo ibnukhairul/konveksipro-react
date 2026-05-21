@@ -205,7 +205,7 @@ export default function ProyekPage() {
           <div style={{ flex: 1, minWidth: '200px' }}>
             <div className="kpro-input-group">
               
-              <input type="text" className="kpro-input" placeholder="Cari client, proyek..." onChange={e => setSearch(e.target.value)} style={{ borderLeft: 'none', borderRadius: '8px 8px 8px 8px' }} />
+              <input type="text" className="kpro-input" placeholder="Cari client, proyek..." onChange={e => setSearch(e.target.value)} style={{ borderRadius: '8px 8px 8px 8px' }} />
             </div>
           </div>
           <div className="kpro-d-flex kpro-gap-2">

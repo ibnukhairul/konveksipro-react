@@ -90,6 +90,95 @@ export const dashboardService = {
     return months
   },
 
+  // dashboardService.js - tambahkan fungsi ini
+
+// Ambil data bulanan untuk tahun tertentu (pemasukan + pengeluaran)
+async getMonthlyDataForYear(tahun) {
+  const proyekList = await this.getAllProyek()
+  const pengeluaranList = await this.getAllPengeluaran()
+  
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+  const result = []
+  
+  for (let i = 0; i < 12; i++) {
+    const bulan = i + 1
+    // Filter proyek berdasarkan tahun dan bulan (pakai tanggal_order)
+    const filteredProyek = proyekList.filter(p => {
+      const tanggal = new Date(p.tanggal_order || p.created_at)
+      return tanggal.getFullYear() === tahun && tanggal.getMonth() + 1 === bulan
+    })
+    // Filter pengeluaran
+    const filteredPengeluaran = pengeluaranList.filter(p => {
+      const tanggal = new Date(p.tanggal)
+      return tanggal.getFullYear() === tahun && tanggal.getMonth() + 1 === bulan
+    })
+    
+    const pemasukan = filteredProyek.reduce((sum, p) => sum + (p.dp_dibayar || 0), 0)
+    const pengeluaran = filteredPengeluaran.reduce((sum, p) => sum + (p.jumlah || 0), 0)
+    
+    result.push({
+      bulan: months[i],
+      pemasukan,
+      pengeluaran,
+      laba: pemasukan - pengeluaran
+    })
+  }
+  
+  return result
+},
+
+async getYearlySummary() {
+  const proyekList = await this.getAllProyek()
+  const pengeluaranList = await this.getAllPengeluaran()
+  
+  const tahunMap = new Map()
+  
+  for (const proyek of proyekList) {
+    const tahun = new Date(proyek.tanggal_order || proyek.created_at).getFullYear()
+    if (!tahunMap.has(tahun)) {
+      tahunMap.set(tahun, { pemasukan: 0, pengeluaran: 0 })
+    }
+    tahunMap.get(tahun).pemasukan += proyek.dp_dibayar || 0
+  }
+  
+  for (const item of pengeluaranList) {
+    const tahun = new Date(item.tanggal).getFullYear()
+    if (!tahunMap.has(tahun)) {
+      tahunMap.set(tahun, { pemasukan: 0, pengeluaran: 0 })
+    }
+    tahunMap.get(tahun).pengeluaran += item.jumlah || 0
+  }
+  
+  const result = []
+  for (const [tahun, data] of tahunMap) {
+    result.push({
+      tahun,
+      pemasukan: data.pemasukan,
+      pengeluaran: data.pengeluaran,
+      laba: data.pemasukan - data.pengeluaran
+    })
+  }
+  
+  return result.sort((a, b) => a.tahun - b.tahun)
+},
+
+// Fungsi tambahan untuk mengambil semua proyek (internal)
+async getAllProyek() {
+  const { data, error } = await supabase
+    .from('proyek')
+    .select('*')
+  if (error) throw error
+  return data || []
+},
+
+async getAllPengeluaran() {
+  const { data, error } = await supabase
+    .from('pengeluaran')
+    .select('*')
+  if (error) throw error
+  return data || []
+},
+
   // 🔥 TAMBAHKAN: Fungsi getIncomeVsExpense untuk Dashboard
   async getIncomeVsExpense() {
     try {
