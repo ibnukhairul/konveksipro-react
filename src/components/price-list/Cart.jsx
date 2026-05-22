@@ -25,11 +25,11 @@ export default function Cart({ cart, onRemoveItem, onClearCart, onSendWhatsApp, 
     return (
       <div className="kpro-card">
         <div className="kpro-card-header">
-          <span className="kpro-card-title">🛒 Keranjang <span className="pl-badge">0</span></span>
+          <span className="kpro-card-title">Keranjang <span className="pl-badge">0</span></span>
           <button className="pl-btn-clear" onClick={onClearCart}>Kosongkan</button>
         </div>
         <div className="kpro-card-body">
-          <div className="pl-empty">✨ Belum ada produk<br />Pilih jenis produk untuk mulai</div>
+          <div className="pl-empty">Belum ada produk<br />Pilih jenis produk untuk mulai</div>
         </div>
       </div>
     )
@@ -38,7 +38,7 @@ export default function Cart({ cart, onRemoveItem, onClearCart, onSendWhatsApp, 
   return (
     <div className="kpro-card">
       <div className="kpro-card-header">
-        <span className="kpro-card-title">🛒 Keranjang <span className="pl-badge">{cart.length}</span></span>
+        <span className="kpro-card-title">Keranjang <span className="pl-badge">{cart.length}</span></span>
         <button className="pl-btn-clear" onClick={onClearCart}>Kosongkan</button>
       </div>
       <div className="kpro-card-body" style={{ maxHeight: '500px', overflowY: 'auto' }}>
@@ -61,22 +61,22 @@ export default function Cart({ cart, onRemoveItem, onClearCart, onSendWhatsApp, 
                 <button className="pl-cart-remove" onClick={() => onRemoveItem(item.id)}>✕ Hapus</button>
               </div>
               <div className="pl-custom-price">
-                <span>💰 Harga: {item.isNegotiable ? 'NEGOTIABLE' : formatRupiah(item.pricePerUnit)} / pcs</span>
+                <span>Harga: {item.isNegotiable ? 'NEGOTIABLE' : formatRupiah(item.pricePerUnit)} / pcs</span>
                 {item.customPrice && <span style={{ fontSize: '10px', color: '#22C55E' }}> (Negosiasi)</span>}
               </div>
               <div className="pl-sizes" style={{ flexDirection: 'column', alignItems: 'flex-start' }} dangerouslySetInnerHTML={{ __html: sizesHtml }} />
               {item.addons.length > 0 && (
-                <div>🔧 {item.addons.map(a => `${a.name} (+${formatRupiah(a.price || a.pricePerPcs)}/pcs) x ${totalQty} pcs = ${formatRupiah((a.price || a.pricePerPcs) * totalQty)}`).join(', ')}</div>
+                <div>{item.addons.map(a => `${a.name} (+${formatRupiah(a.price || a.pricePerPcs)}/pcs) x ${totalQty} pcs = ${formatRupiah((a.price || a.pricePerPcs) * totalQty)}`).join(', ')}</div>
               )}
-              <div className="pl-subtotal">💰 Subtotal: {formatRupiah(itemTotal)}</div>
+              <div className="pl-subtotal">Subtotal: {formatRupiah(itemTotal)}</div>
             </div>
           )
         })}
       </div>
       <div className="kpro-card-footer">
-        <div className="pl-total"><span>💰 Total</span><span>{formatRupiah(grandTotal)}</span></div>
-        <button className="pl-btn-primary" onClick={onSendWhatsApp}>📱 Kirim ke WhatsApp</button>
-        <button className="pl-btn-secondary" onClick={onCopyText}>📋 Salin Teks</button>
+        <div className="pl-total"><span>Total</span><span>{formatRupiah(grandTotal)}</span></div>
+        <button className="pl-btn-primary" onClick={onSendWhatsApp}>Kirim ke WhatsApp</button>
+        <button className="pl-btn-secondary" onClick={onCopyText}>Salin Teks</button>
       </div>
     </div>
   )

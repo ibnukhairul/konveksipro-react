@@ -653,7 +653,7 @@ export const notaService = {
         const lh = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
         ctx.globalAlpha = 0.92
         // posisi: bottom 19%, right 49% dari lebar
-        ctx.drawImage(lunas, W * 0.51 - lw / 2, H - H * 0.19 - lh, lw, lh)
+        ctx.drawImage(lunas, W * 0.45 - lw / 2, H - H * 0.19 - lh, lw, lh)
         ctx.globalAlpha = 1
       } catch (e) {
         console.warn('Label lunas gagal load', e)
@@ -801,7 +801,7 @@ export const notaService = {
         const lw = 113
         const lh = Math.round(lunas.naturalHeight * (lw / lunas.naturalWidth))
         ctx.globalAlpha = 0.92
-        ctx.drawImage(lunas, W * 0.52 - lw / 2, H - H * 0.22 - lh, lw, lh)
+        ctx.drawImage(lunas, W * 0.45 - lw / 2, H - H * 0.19 - lh, lw, lh)
         ctx.globalAlpha = 1
       } catch (e) {
         console.warn('Label lunas gagal load', e)

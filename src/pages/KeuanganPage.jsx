@@ -371,7 +371,7 @@ export default function KeuanganPage() {
         <div className="keu-period-info">
           <span className="keu-period-badge">
             Menampilkan: {getPeriodeLabel()}
-            {isPending && <span className="keu-loading-dot"> 🔄 Memperbarui...</span>}
+            {isPending && <span className="keu-loading-dot">  Memperbarui...</span>}
           </span>
         </div>
       </div>
