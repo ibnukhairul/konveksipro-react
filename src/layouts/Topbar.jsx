@@ -122,7 +122,7 @@ export default function Topbar({ title, onMenuToggle }) {
                 <User size={16} />
                 <span>Profil Saya</span>
               </button>
-              <button 
+              {/* <button 
                 className="topbar-modern-dropdown-item"
                 onClick={() => {
                   setDropdownOpen(false)
@@ -131,7 +131,7 @@ export default function Topbar({ title, onMenuToggle }) {
               >
                 <Settings size={16} />
                 <span>Pengaturan</span>
-              </button>
+              </button> */}
               <div className="topbar-modern-dropdown-divider" />
               <button 
                 className="topbar-modern-dropdown-item logout"

@@ -138,12 +138,12 @@ export default function Login() {
                   className={`lp-tab ${activeTab === 'login' ? 'active' : ''}`}
                   onClick={() => switchTab('login')}
                 >Masuk</button>
-                <button
+                {/* <button
                   role="tab"
                   aria-selected={activeTab === 'register'}
                   className={`lp-tab ${activeTab === 'register' ? 'active' : ''}`}
                   onClick={() => switchTab('register')}
-                >Daftar Akun</button>
+                >Daftar Akun</button> */}
               </div>
 
               {/* LOGIN */}
@@ -163,9 +163,9 @@ export default function Login() {
                     />
                     {error && <ErrBox msg={error} />}
                     <SubmitBtn loading={loading}>Masuk Sekarang</SubmitBtn>
-                    <button type="button" className="lp-link-center" onClick={openReset}>
+                    {/* <button type="button" className="lp-link-center" onClick={openReset}>
                       Lupa password? Klik di sini
-                    </button>
+                    </button> */}
                   </form>
                 </div>
               )}
@@ -203,12 +203,12 @@ export default function Login() {
                 </div>
               )}
 
-              <p className="lp-switch-hint">
+              {/* <p className="lp-switch-hint">
                 {activeTab === 'login'
                   ? <> Belum punya akun? <button className="lp-inline-link" onClick={() => switchTab('register')}>Daftar gratis</button></>
                   : <> Sudah punya akun? <button className="lp-inline-link" onClick={() => switchTab('login')}>Masuk di sini</button></>
                 }
-              </p>
+              </p> */}
             </div>
           </div>
 
