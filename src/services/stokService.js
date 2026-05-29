@@ -96,7 +96,7 @@ export const stokService = {
 
     //NOTIFIKASI - GUNAKAN buatGlobal
     let pesanNotif = `menambah stok ${barang.nama_bahan} +${jumlah} unit (sekarang: ${stokSesudah})`
-    if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
+    if (catatan?.trim()) pesanNotif += `\nCatatan: ${catatan}`
 
     await notifikasiService.buat({
       user_id: null,  // broadcast ke semua user (owner, developer, team)
@@ -140,10 +140,7 @@ export const stokService = {
 
     //NOTIFIKASI - GUNAKAN buatGlobal
     let pesanNotif = `mengambil stok ${barang.nama_bahan} -${jumlah} unit (sekarang: ${stokSesudah})`
-    if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
-
-    let pesanNotifKritis = `mengambil stok ${barang.nama_bahan} -${jumlah} unit (sekarang: ${stokSesudah})`
-    if (catatan?.trim()) pesanNotif += `\n📝 Catatan: ${catatan}`
+    if (catatan?.trim()) pesanNotif += `\nCatatasssn: ${catatan}`
 
     let tipeNotif = 'warning'
     if (stokSesudah < barang.min_stok) tipeNotif = 'danger'
@@ -152,7 +149,7 @@ export const stokService = {
       await notifikasiService.buat({
         user_id: null,  // broadcast ke semua
         judul: 'Stok Kritis',
-        pesan: pesanNotifKritis,
+        pesan: pesanNotif,
         tipe: 'danger',
         is_urgent: true,  //notifikasi penting
         action_url: '/stok'
